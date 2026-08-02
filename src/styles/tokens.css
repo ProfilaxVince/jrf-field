@@ -1,0 +1,78 @@
+/* ============================================================
+   TOKENS JRF FIELD — SOURCE UNIQUE DE VÉRITÉ
+   Aucune couleur, taille ou espacement en dur ailleurs.
+   ⚠️ Palette de marque échantillonnée sur PNG compressé.
+   TODO(charte): remplacer par les hex officiels JRF dès réception
+   de la charte graphique (SVG + hex + polices sous licence).
+   ============================================================ */
+
+:root {
+  /* ---------- Marque JRF (dégradé vert profond → vert-sauge) ---------- */
+  --jrf-green-800: #123f2b; /* TODO(charte) — texte sur blanc 13,6:1 */
+  --jrf-green-600: #1e5c3f; /* TODO(charte) — 8,2:1 */
+  --jrf-green-500: #2a7350; /* TODO(charte) — 6,4:1 */
+  --jrf-sage-400: #6fA287;  /* TODO(charte) — 5,4:1 ; jamais de texte blanc petit corps */
+  --jrf-white: #ffffff;
+  --jrf-gradient: linear-gradient(135deg, var(--jrf-green-800), var(--jrf-sage-400));
+
+  /* ---------- Neutres ---------- */
+  --neutral-950: #101512;
+  --neutral-700: #3d4a42;
+  --neutral-500: #66736c;
+  --neutral-300: #c2cbc6;
+  --neutral-100: #eef1ef;
+  --neutral-50: #f7f9f8;
+
+  /* ---------- Couleurs de personne (Excel source, NE PAS MODIFIER) ----------
+     Usage exclusif : liseré gauche 4px + pastille d'avatar.
+     Jamais en fond de cellule, jamais pour un état. */
+  --person-gerardo: #ffff00;
+  --person-guilio: #92d050;
+  --person-page: #00b0f0;
+  --person-michou: #ff0000;
+  --person-tony: #ffc000;
+  --person-laura: #7030a0;
+
+  /* ---------- États de dette de visite ----------
+     Principe : l'état est porté par FORME + ICÔNE + TEXTE ("En retard de N j").
+     La couleur est redondante, foncée et désaturée pour ne jamais être
+     confondue avec une couleur de personne (toutes vives/saturées).
+     Jamais en fond plein : fond max = teinte 8 % (--*-tint). */
+  --state-ok: #3d5548;          /* neutre vert-gris, absence d'alerte — 7,9:1 */
+  --state-warning: #8a5300;     /* ocre foncé (dette > 1.0) — 5,9:1 */
+  --state-warning-tint: #f6efe3;
+  --state-critical: #9e1b3c;    /* bordeaux (dette > 1.5), distinct du #ff0000 Michou — 7,1:1 */
+  --state-critical-tint: #f9e9ed;
+
+  /* ---------- États système (hors dette) ---------- */
+  --feedback-success: #1a6b45;  /* confirmation d'action — distinct du vert JRF par contexte (toast uniquement) */
+  --feedback-error: #9e1b3c;    /* réutilise critical : une seule notion de "problème" */
+  --feedback-info: #1d4e89;
+
+  /* ---------- Typographie ---------- */
+  /* TODO(charte): polices officielles. En attendant : stacks système.
+     Display : géométrique gras capitales (esprit logotype JRF). */
+  --font-display: "Montserrat", "Futura", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-base: 1rem;      /* 16px minimum desktop */
+  --text-base-mobile: 1.125rem; /* 18px mobile */
+  --tracking-caps: 0.12em;
+
+  /* ---------- Ergonomie ---------- */
+  --tap-target-min: 44px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --focus-ring: 2px solid var(--jrf-green-600);
+  --focus-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

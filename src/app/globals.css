@@ -1,0 +1,97 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Mapping tokens → utilitaires Tailwind 4 (pas de tailwind.config.ts : config CSS-first) */
+@theme inline {
+  --color-jrf-800: var(--jrf-green-800);
+  --color-jrf-600: var(--jrf-green-600);
+  --color-jrf-500: var(--jrf-green-500);
+  --color-jrf-sage: var(--jrf-sage-400);
+
+  --color-neutral-950: var(--neutral-950);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-50: var(--neutral-50);
+
+  --color-state-ok: var(--state-ok);
+  --color-state-warning: var(--state-warning);
+  --color-state-warning-tint: var(--state-warning-tint);
+  --color-state-critical: var(--state-critical);
+  --color-state-critical-tint: var(--state-critical-tint);
+
+  --color-feedback-success: var(--feedback-success);
+  --color-feedback-error: var(--feedback-error);
+  --color-feedback-info: var(--feedback-info);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+/* shadcn/ui — variables sémantiques mappées sur les tokens JRF */
+:root {
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --card: var(--jrf-white);
+  --card-foreground: var(--neutral-950);
+  --primary: var(--jrf-green-600);
+  --primary-foreground: var(--jrf-white);
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-700);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--jrf-green-800);
+  --destructive: var(--state-critical);
+  --destructive-foreground: var(--jrf-white);
+  --border: var(--neutral-300);
+  --input: var(--neutral-300);
+  --ring: var(--jrf-green-600);
+  --radius: var(--radius-md);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 18px; /* utilisateur 50+, en extérieur */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
