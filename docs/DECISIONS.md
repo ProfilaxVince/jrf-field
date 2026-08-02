@@ -12,3 +12,4 @@
 - 2026-08-02 — Seed : 185 magasins fictifs générés (script déterministe), distribution enseignes/régions exacte ; à remplacer par `magasins_seed.csv` réel au Lot 1.
 - 2026-08-02 — `store_assignments` : exception au « pas de DELETE » (table de liaison sans historique métier, tracée par audit_log).
 - 2026-08-02 — Correction patronyme : « Carton » (brief) → **Carion** Page (réponse utilisateur du 02/08).
+- 2026-08-02 — `.gitignore` : exception `!.env.example` (le gabarit doit être versionné, les valeurs jamais).
