@@ -30,3 +30,7 @@
 - 2026-08-03 — Semaine de référence = MÉDIANE sur 12 mois glissants : une seule semaine de congés ne doit pas faire bouger les fréquences de tout le parc.
 - 2026-08-03 — `montage_rayon_jours` par défaut vide : 95 magasins × 5 j = 475 montages/semaine pour 66 créneaux. Aucune génération tant que le rythme réel n'est pas saisi.
 - 2026-08-03 — `v_diagnostic_capacite` affiche un verdict en clair (confortable/tendu/insuffisant/impossible) plutôt que 185 alertes rouges.
+- 2026-08-03 — Montage de rayon **par commercial-jour**, pas par magasin : 1/jour/personne (~30/semaine), servi en rotation sur les 95 Intermarché éligibles. `stores.montage_rayon` change de sens : éligibilité, pas récurrence.
+- 2026-08-03 — `montage_cout_creneaux = 0` par défaut : le montage a lieu à 6 h avant la tournée, et les 2,6 visites/jour observées (SEM 31) l'incluaient déjà. Le compter coûterait double. Paramétrable à 0.5 si l'observation contredit.
+- 2026-08-03 — Une urgence de livraison **remplace** le montage du matin, elle ne s'y ajoute pas : `visits.remplacee_par_visite_id` + `motif_annulation`, montage passé en 'annulee' (jamais supprimé).
+- 2026-08-03 — Conséquence chiffrée à valider : 95 magasins éligibles / 30 montages par semaine = un montage tous les 22 jours par magasin, 16,4 par an.
