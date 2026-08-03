@@ -13,3 +13,10 @@
 - 2026-08-02 — `store_assignments` : exception au « pas de DELETE » (table de liaison sans historique métier, tracée par audit_log).
 - 2026-08-02 — Correction patronyme : « Carton » (brief) → **Carion** Page (réponse utilisateur du 02/08).
 - 2026-08-02 — `.gitignore` : exception `!.env.example` (le gabarit doit être versionné, les valeurs jamais).
+- 2026-08-03 — Vocabulaire terrain : « montage de rayon » remplace « mise en rayon » partout (enum `montage_rayon`).
+- 2026-08-03 — Périmètre montage de rayon = Intermarché uniquement (95/185), porté par `stores.montage_rayon` + trigger, pas par une règle en dur.
+- 2026-08-03 — Une urgence compte comme une **visite pleine** et remet la dette à zéro (choix utilisateur ; risque consigné : un magasin à incidents répétés peut ne jamais apparaître en retard sans avoir été audité).
+- 2026-08-03 — Le montage de rayon ne remet **jamais** la dette à zéro (sinon les 95 Intermarché disparaissent de la priorisation).
+- 2026-08-03 — Photos : Storage pour le fichier, `visit_photos` pour le chemin ; max 3 par visite, ≤ 600 Ko après compression client obligatoire (cache iOS purgé sans avertissement au-delà).
+- 2026-08-03 — Bug corrigé au test : l'UPDATE de migration ne couvre pas le seed/import qui s'exécutent après → trigger `stores_default_montage_trg`.
+- 2026-08-03 — 7 vues statistiques en SQL (mois/année/commercial, fréquence réelle vs cible, couverture mensuelle, état du parc, incidents, charge par semaine ISO). Le front n'agrège rien.
