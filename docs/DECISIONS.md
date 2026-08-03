@@ -23,3 +23,10 @@
 - 2026-08-03 — Statistiques recentrées sur le MAGASIN, pas sur le commercial (choix utilisateur : mesurer la répartition de l'effort, pas la productivité individuelle). Vues `v_stats_mois_commercial` / `v_stats_annee_commercial` supprimées ; `v_charge_semaine` conservée (planification de charge, pas évaluation).
 - 2026-08-03 — Métrique de référence : `indice_effort = part_visites_pct / part_ca_pct` (1,0 = effort proportionnel au poids du magasin). La part de visites brute seule est inexploitable sur 185 magasins (moyenne 0,54 %).
 - 2026-08-03 — `v_visites_comptees` : base commune excluant le montage de rayon, sinon 95 magasins quotidiens écrasent toutes les parts.
+- 2026-08-03 — Inversion du modèle : la fréquence cible n'est plus posée a priori, elle est DÉRIVÉE de la capacité réelle (`frequence_mode = 'auto'`). Mode `'fixe'` conservé pour repasser aux 14/21/42.
+- 2026-08-03 — Capacité = jours ouvrés − jours fériés belges − absences, × `visites_par_jour`, − `reserve_urgences_pct`, − coût du montage de rayon.
+- 2026-08-03 — Table `absences` (congés/maladie/formation) + `public_holidays` (2026-2027 seedés) ; une absence retire de la capacité, elle ne crée jamais de retard imputable.
+- 2026-08-03 — Répartition de la capacité entre tiers au prorata de (nb magasins × poids), d'où `frequence_atteignable_jours`.
+- 2026-08-03 — Semaine de référence = MÉDIANE sur 12 mois glissants : une seule semaine de congés ne doit pas faire bouger les fréquences de tout le parc.
+- 2026-08-03 — `montage_rayon_jours` par défaut vide : 95 magasins × 5 j = 475 montages/semaine pour 66 créneaux. Aucune génération tant que le rythme réel n'est pas saisi.
+- 2026-08-03 — `v_diagnostic_capacite` affiche un verdict en clair (confortable/tendu/insuffisant/impossible) plutôt que 185 alertes rouges.
