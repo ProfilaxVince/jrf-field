@@ -20,3 +20,6 @@
 - 2026-08-03 — Photos : Storage pour le fichier, `visit_photos` pour le chemin ; max 3 par visite, ≤ 600 Ko après compression client obligatoire (cache iOS purgé sans avertissement au-delà).
 - 2026-08-03 — Bug corrigé au test : l'UPDATE de migration ne couvre pas le seed/import qui s'exécutent après → trigger `stores_default_montage_trg`.
 - 2026-08-03 — 7 vues statistiques en SQL (mois/année/commercial, fréquence réelle vs cible, couverture mensuelle, état du parc, incidents, charge par semaine ISO). Le front n'agrège rien.
+- 2026-08-03 — Statistiques recentrées sur le MAGASIN, pas sur le commercial (choix utilisateur : mesurer la répartition de l'effort, pas la productivité individuelle). Vues `v_stats_mois_commercial` / `v_stats_annee_commercial` supprimées ; `v_charge_semaine` conservée (planification de charge, pas évaluation).
+- 2026-08-03 — Métrique de référence : `indice_effort = part_visites_pct / part_ca_pct` (1,0 = effort proportionnel au poids du magasin). La part de visites brute seule est inexploitable sur 185 magasins (moyenne 0,54 %).
+- 2026-08-03 — `v_visites_comptees` : base commune excluant le montage de rayon, sinon 95 magasins quotidiens écrasent toutes les parts.
