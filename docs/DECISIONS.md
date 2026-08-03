@@ -34,3 +34,4 @@
 - 2026-08-03 — `montage_cout_creneaux = 0` par défaut : le montage a lieu à 6 h avant la tournée, et les 2,6 visites/jour observées (SEM 31) l'incluaient déjà. Le compter coûterait double. Paramétrable à 0.5 si l'observation contredit.
 - 2026-08-03 — Une urgence de livraison **remplace** le montage du matin, elle ne s'y ajoute pas : `visits.remplacee_par_visite_id` + `motif_annulation`, montage passé en 'annulee' (jamais supprimé).
 - 2026-08-03 — Conséquence chiffrée à valider : 95 magasins éligibles / 30 montages par semaine = un montage tous les 22 jours par magasin, 16,4 par an.
+- 2026-08-03 — Le CA de tiering est le **CA réalisé par JRF avec le magasin**, pas le CA du point de vente (confirmation utilisateur). Colonne renommée `annual_revenue_eur` → `jrf_revenue_eur` + `jrf_revenue_year` (exercice de référence), pour rendre l'erreur impossible à l'import CSV.

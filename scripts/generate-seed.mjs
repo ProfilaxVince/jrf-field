@@ -125,7 +125,7 @@ insert into app_users (full_name, nickname, color_hex, is_admin) values
   ('Martella Laura', 'Laura', '#7030A0', false);
 
 -- ---------- 185 magasins fictifs ----------
-insert into stores (external_ref, name, enseigne, network, address, postal_code, city, region, lat, lng, contact_lang, annual_revenue_eur) values
+insert into stores (external_ref, name, enseigne, network, address, postal_code, city, region, lat, lng, contact_lang, jrf_revenue_eur, jrf_revenue_year) values
 ${values.join(",\n")};
 `;
 
