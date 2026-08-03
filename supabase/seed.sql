@@ -204,3 +204,9 @@ insert into stores (external_ref, name, enseigne, network, address, postal_code,
 ('FICTIF-183', 'Delhaize Tournai', 'delhaize', 'integre', 'Rue de la Station 61', '7500', 'Tournai', 'wallonie', 50.60811, 3.40018, 'fr', 108000, 2025),
 ('FICTIF-184', 'Delhaize Binche', 'delhaize', 'integre', 'Rue de la Gare 93', '7130', 'Binche', 'wallonie', 50.41209, 4.15379, 'fr', 87000, 2025),
 ('FICTIF-185', 'Spar Waremme', 'spar', null, 'Chaussée de Charleroi 66', '4300', 'Waremme', 'wallonie', 50.69257, 5.26558, 'fr', 84000, 2025);
+
+-- ---------- Figeage des tiers ----------
+-- Le seed s'exécute APRÈS les migrations : le trigger a posé un 'C' provisoire
+-- sur chaque magasin. Une fois tout le parc chargé, on fige pour de bon.
+-- L'application s'ouvre ainsi avec 37 A / 74 B / 74 C, jamais avec un parc uniforme.
+select * from _recalculer_tiers_interne(null);
