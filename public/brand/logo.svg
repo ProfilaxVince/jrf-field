@@ -1,0 +1,13 @@
+<svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Jacques Remy & Fils</title>
+  <desc id="logoDesc">Logo JRF placeholder pour l'application métier</desc>
+  <defs>
+    <linearGradient id="jrf-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#123f2b" />
+      <stop offset="100%" stop-color="#6fa287" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="100" fill="none" />
+  <text x="0" y="56" font-family="Montserrat, sans-serif" font-size="56" font-weight="700" fill="url(#jrf-gradient)">JRF</text>
+  <text x="0" y="92" font-family="Inter, sans-serif" font-size="20" fill="#123f2b">Jacques Remy &amp; Fils</text>
+</svg>

@@ -36,5 +36,6 @@
 - 2026-08-03 — Conséquence chiffrée à valider : 95 magasins éligibles / 30 montages par semaine = un montage tous les 22 jours par magasin, 16,4 par an.
 - 2026-08-03 — Le CA de tiering est le **CA réalisé par JRF avec le magasin**, pas le CA du point de vente (confirmation utilisateur). Colonne renommée `annual_revenue_eur` → `jrf_revenue_eur` + `jrf_revenue_year` (exercice de référence), pour rendre l'erreur impossible à l'import CSV.
 - 2026-08-03 — Tiers **figés** (choix utilisateur) : `stores.tier_fige` écrit par un recalcul explicite, plus de recalcul continu. Résolution : `tier_override` > `tier_fige` > calcul de repli.
+- 2026-08-05 — Lot 0 : page shell brandée, manifeste PWA et support de favicon placeholder ; le next build passe et le front est prêt pour le lot 1.
 - 2026-08-03 — `recalculer_tiers()` réservée à l'Admin (`is_admin()`), moteur interne `_recalculer_tiers_interne()` appelé en fin de seed ; chaque changement de tier tracé dans `audit_log` (action `tier_recalcule`).
 - 2026-08-03 — `v_derive_tiers` / `v_derive_tiers_resume` : signalent l'écart entre le classement figé et le classement théorique, pour décider QUAND recalculer sans jamais recalculer tout seul.
