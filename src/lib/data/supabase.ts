@@ -18,7 +18,10 @@ export function createSupabaseClient(): SupabaseClient<Database> {
   }
 
   return createClient<Database>(url, anonKey, {
-    auth: { persistSession: false },
+    // La persistance est gérée nous-mêmes via le device token (lib/session.tsx) :
+    // le SDK garde la session en mémoire et se rafraîchit seul pendant que l'app
+    // est ouverte, mais ne l'écrit pas dans le storage du navigateur.
+    auth: { persistSession: false, autoRefreshToken: true },
   });
 }
 

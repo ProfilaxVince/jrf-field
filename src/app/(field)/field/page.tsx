@@ -1,8 +1,12 @@
-import Link from "next/link";
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "@/lib/session";
+import { t } from "@/lib/i18n/fr-BE";
 
 export default function FieldHome() {
+  const { nickname, logout } = useSession();
+
   return (
     <main className="min-h-dvh bg-background">
       <section className="px-6 py-8">
@@ -13,7 +17,7 @@ export default function FieldHome() {
               Ma tournée du jour
             </h1>
             <p className="text-base leading-7 text-neutral-700">
-              Ta tournée s&apos;affichera ici dès qu&apos;elle sera planifiée. Tu pourras ensuite ouvrir la visite, naviguer et saisir ton compte rendu rapidement.
+              {nickname ? `Bonjour ${nickname}. ` : ""}Ta tournée s&apos;affichera ici dès qu&apos;elle sera planifiée. Tu pourras ensuite ouvrir la visite, naviguer et saisir ton compte rendu rapidement.
             </p>
           </div>
           <Card>
@@ -26,8 +30,8 @@ export default function FieldHome() {
               </p>
             </CardContent>
           </Card>
-          <Button asChild>
-            <Link href="/">Retour à l&apos;accueil</Link>
+          <Button variant="secondary" onClick={() => logout()}>
+            {t.auth.signOut}
           </Button>
         </div>
       </section>

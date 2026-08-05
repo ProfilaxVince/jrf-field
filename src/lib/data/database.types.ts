@@ -87,9 +87,12 @@ export type Database = {
           auth_user_id: string | null
           color_hex: string
           created_at: string
+          failed_login_attempts: number
           full_name: string
           id: string
+          internal_auth_email: string | null
           is_admin: boolean
+          locked_until: string | null
           nickname: string
           pin_hash: string | null
           porte_visites: boolean
@@ -100,9 +103,12 @@ export type Database = {
           auth_user_id?: string | null
           color_hex: string
           created_at?: string
+          failed_login_attempts?: number
           full_name: string
           id?: string
+          internal_auth_email?: string | null
           is_admin?: boolean
+          locked_until?: string | null
           nickname: string
           pin_hash?: string | null
           porte_visites?: boolean
@@ -113,9 +119,12 @@ export type Database = {
           auth_user_id?: string | null
           color_hex?: string
           created_at?: string
+          failed_login_attempts?: number
           full_name?: string
           id?: string
+          internal_auth_email?: string | null
           is_admin?: boolean
+          locked_until?: string | null
           nickname?: string
           pin_hash?: string | null
           porte_visites?: boolean

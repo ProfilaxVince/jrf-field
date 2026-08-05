@@ -1,76 +1,145 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "./data/supabase";
-import type { Database } from "./data/database.types";
-import type { User } from "@supabase/supabase-js";
 
-type AppUser = Database["public"]["Tables"]["app_users"]["Row"] | null;
+const DEVICE_TOKEN_KEY = "jrf_device_token";
+const SESSION_CACHE_KEY = "jrf_session_cache";
+
+type SessionCache = { nickname: string; isAdmin: boolean };
+
+type ServerSessionPayload = {
+  access_token: string;
+  refresh_token: string;
+  nickname: string;
+  is_admin: boolean;
+};
+
+type LoginResult = { ok: true } | { ok: false; error: string };
 
 type Session = {
-  authUser: User | null;
-  appUser: AppUser;
+  nickname: string | null;
+  isAdmin: boolean;
+  authenticated: boolean;
   loading: boolean;
-  signInWithEmail: (email: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  login: (accessCode: string, pin: string) => Promise<LoginResult>;
+  logout: () => Promise<void>;
 };
 
 const SessionContext = createContext<Session | undefined>(undefined);
 
+function deviceLabel(): string | null {
+  if (typeof navigator === "undefined") return null;
+  return navigator.userAgent.slice(0, 100);
+}
+
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [authUser, setAuthUser] = useState<User | null>(null);
-  const [appUser, setAppUser] = useState<AppUser>(null);
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const hydrate = useCallback(async (payload: ServerSessionPayload) => {
+    await supabase.auth.setSession({
+      access_token: payload.access_token,
+      refresh_token: payload.refresh_token,
+    });
+    localStorage.setItem(
+      SESSION_CACHE_KEY,
+      JSON.stringify({ nickname: payload.nickname, isAdmin: payload.is_admin })
+    );
+    setNickname(payload.nickname);
+    setIsAdmin(payload.is_admin);
+    setAuthenticated(true);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
 
     async function init() {
-      setLoading(true);
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const user = session?.user ?? null;
-      if (!mounted) return;
-      setAuthUser(user);
-      if (user) {
-        const { data } = await supabase.from("app_users").select("*").eq("auth_user_id", user.id).single();
-        if (!mounted) return;
-        setAppUser(data ?? null);
-      } else {
-        setAppUser(null);
+      const deviceToken = localStorage.getItem(DEVICE_TOKEN_KEY);
+      if (!deviceToken) {
+        setLoading(false);
+        return;
       }
-      setLoading(false);
+
+      const cachedRaw = localStorage.getItem(SESSION_CACHE_KEY);
+      const cached: SessionCache | null = cachedRaw ? JSON.parse(cachedRaw) : null;
+
+      try {
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ device_token: deviceToken }),
+        });
+        if (!mounted) return;
+        if (!res.ok) {
+          localStorage.removeItem(DEVICE_TOKEN_KEY);
+          localStorage.removeItem(SESSION_CACHE_KEY);
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        await hydrate(data);
+      } catch {
+        // Pas de réseau au démarrage : on reste optimiste sur les infos
+        // en cache pour ne pas bloquer l'accès aux données déjà en cache local
+        // (règle "cache avant réseau"). L'écriture restera bloquée par RLS
+        // tant qu'une vraie session n'a pas été obtenue.
+        if (mounted && cached) {
+          setNickname(cached.nickname);
+          setIsAdmin(cached.isAdmin);
+          setAuthenticated(true);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
 
     init();
-
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const user = session?.user ?? null;
-      setAuthUser(user);
-      if (user) {
-        const { data } = await supabase.from("app_users").select("*").eq("auth_user_id", user.id).single();
-        setAppUser(data ?? null);
-      } else {
-        setAppUser(null);
-      }
-    });
-
     return () => {
       mounted = false;
-      sub?.subscription.unsubscribe();
     };
+  }, [hydrate]);
+
+  const login = useCallback(
+    async (accessCode: string, pin: string): Promise<LoginResult> => {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_code: accessCode, pin, device_label: deviceLabel() }),
+        });
+        const data = await res.json();
+        if (!res.ok) return { ok: false, error: data.error ?? "Erreur de connexion." };
+        localStorage.setItem(DEVICE_TOKEN_KEY, data.device_token);
+        await hydrate(data);
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Pas de connexion réseau. Réessaie." };
+      }
+    },
+    [hydrate]
+  );
+
+  const logout = useCallback(async () => {
+    const deviceToken = localStorage.getItem(DEVICE_TOKEN_KEY);
+    if (deviceToken) {
+      fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_token: deviceToken }),
+      }).catch(() => {});
+    }
+    localStorage.removeItem(DEVICE_TOKEN_KEY);
+    localStorage.removeItem(SESSION_CACHE_KEY);
+    await supabase.auth.signOut();
+    setNickname(null);
+    setIsAdmin(false);
+    setAuthenticated(false);
   }, []);
 
-  async function signInWithEmail(email: string) {
-    await supabase.auth.signInWithOtp({ email });
-  }
-
-  async function signOut() {
-    await supabase.auth.signOut();
-  }
-
   return (
-    <SessionContext.Provider value={{ authUser, appUser, loading, signInWithEmail, signOut }}>
+    <SessionContext.Provider value={{ nickname, isAdmin, authenticated, loading, login, logout }}>
       {children}
     </SessionContext.Provider>
   );
