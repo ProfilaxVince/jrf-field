@@ -1,42 +1,76 @@
 "use client";
-import { createContext, useContext, useState } from "react";
-import { seedUsers, type SeedUser } from "./data/seedUsers";
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "./data/supabase";
+import type { Database } from "./data/database.types";
+import type { User } from "@supabase/supabase-js";
+
+type AppUser = Database["public"]["Tables"]["app_users"]["Row"] | null;
 
 type Session = {
-  user: SeedUser | null;
-  loginAs: (id: string) => void;
-  logout: () => void;
+  authUser: User | null;
+  appUser: AppUser;
+  loading: boolean;
+  signInWithEmail: (email: string) => Promise<void>;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<Session | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [userId, setUserId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("jrf_user") || null;
-    } catch {
-      return null;
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [appUser, setAppUser] = useState<AppUser>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function init() {
+      setLoading(true);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
+      if (!mounted) return;
+      setAuthUser(user);
+      if (user) {
+        const { data } = await supabase.from("app_users").select("*").eq("auth_user_id", user.id).single();
+        if (!mounted) return;
+        setAppUser(data ?? null);
+      } else {
+        setAppUser(null);
+      }
+      setLoading(false);
     }
-  });
 
-  const user = seedUsers.find((u) => u.id === userId) ?? null;
+    init();
 
-  function loginAs(id: string) {
-    setUserId(id);
-    try {
-      localStorage.setItem("jrf_user", id);
-    } catch {}
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ?? null;
+      setAuthUser(user);
+      if (user) {
+        const { data } = await supabase.from("app_users").select("*").eq("auth_user_id", user.id).single();
+        setAppUser(data ?? null);
+      } else {
+        setAppUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      sub?.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function signInWithEmail(email: string) {
+    await supabase.auth.signInWithOtp({ email });
   }
 
-  function logout() {
-    setUserId(null);
-    try {
-      localStorage.removeItem("jrf_user");
-    } catch {}
+  async function signOut() {
+    await supabase.auth.signOut();
   }
 
   return (
-    <SessionContext.Provider value={{ user, loginAs, logout }}>
+    <SessionContext.Provider value={{ authUser, appUser, loading, signInWithEmail, signOut }}>
       {children}
     </SessionContext.Provider>
   );

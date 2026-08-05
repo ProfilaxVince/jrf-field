@@ -104,3 +104,74 @@ Titrage : display géométrique capitales (jamais en corps). Corps : Inter.
 Direct, dense, sans flatterie. Signaler les mauvaises idées immédiatement avec
 l'alternative. Question plutôt qu'hypothèse quand l'enjeu est structurant.
 Ne jamais élargir le périmètre sans demander.
+
+## Session snapshot — reprise Claude Code
+
+Résumé rapide (état au 2026-08-05)
+- **Supabase project**: `jrf-field` (ref: `qvjknxswntewkswspmgx`, org: `zvlvfwkxwddlplmtwnjk`).
+- **Migrations appliquées**: toutes les migrations dans [supabase/migrations](supabase/migrations/) ont été poussées sur le projet.
+- **Seed exécuté**: `supabase/seed.sql` a été exécuté et a inséré les données de test (185 magasins + users).
+- **Types générés**: `src/lib/data/database.types.ts` (généré via `supabase gen types`).
+- **Client Supabase**: implémenté dans [src/lib/data/supabase.ts](src/lib/data/supabase.ts) et utilisé par le `SessionProvider`.
+- **Auth**: le `dev-auth` a été remplacé par une authentification Supabase (magic link). Provider et page:
+  - [src/lib/session.tsx](src/lib/session.tsx)
+  - [src/app/auth/page.tsx](src/app/auth/page.tsx)
+- **.env.local**: créé localement avec les variables suivantes (frontend only):
+  - `NEXT_PUBLIC_SUPABASE_URL=https://qvjknxswntewkswspmgx.supabase.co`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_K5QulJDusUdXyp55odhnXw_NxiyxoUf`
+
+Commandes utiles pour reprendre (exécuter dans la racine du repo)
+- Login CLI (si déconnecté):
+
+```bash
+supabase login
+```
+
+- Lier le repo à un projet (si besoin):
+
+```bash
+supabase link --project-ref qvjknxswntewkswspmgx
+```
+
+- Re-pousser les migrations (optionnel — déjà appliquées):
+
+```bash
+supabase db push --linked
+```
+
+- Exécuter le seed SQL (optionnel — déjà exécuté):
+
+```bash
+supabase db query --linked --file supabase/seed.sql
+```
+
+- Générer les types TS (si besoin de régénérer):
+
+```bash
+supabase gen types --linked --schema public > src/lib/data/database.types.ts
+```
+
+- Builder l'app localement:
+
+```bash
+npm install
+npm run build
+```
+
+Points d'attention pour la reprise sur Claude Code
+- Les **secrets** (service_role key) ne sont pas dans ce dépôt. Ne jamais les mettre dans `.env.local` committé.
+- Le `publishable` key est safe pour le frontend; il est présent dans `.env.local` local.
+- Si tu veux que la première connexion Auth crée automatiquement une ligne `app_users`, il faut ajouter une logique serveur ou client pour créer/mapper `app_users.auth_user_id` au premier signin — je peux l'implémenter (option `auto-create`).
+- Pour lier les comptes seed existants (dans `app_users`) aux comptes Auth, tu peux
+  - soit créer manuellement les users Auth via le Dashboard et copier `auth_user_id` dans la table `app_users`,
+  - soit exécuter un petit script qui recherche par email et met à jour `app_users.auth_user_id`.
+
+Checklist rapide (pour la reprise)
+- **[ ]** Ouvrir le repo et `npm run build` (vérifier que `.env.local` est présent).
+- **[ ]** `supabase login` si la CLI demande une authentification.
+- **[ ]** Lancer `supabase link` si le lien a été perdu.
+- **[ ]** Tester l'auth magic-link depuis `/auth` et vérifier que `app_users` est lié.
+
+Si tu veux, je peux générer un script utilitaire `scripts/link-seed-users.mjs` qui automatise le mapping `app_users.auth_user_id` depuis les emails présents dans `app_users` vers les utilisateurs Supabase Auth (exécutable via CLI). Dis "génère le script" et je l'ajoute.
+
+*** Fin de la snapshot — reprise possible depuis Claude Code ***
