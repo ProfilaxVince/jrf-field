@@ -61,6 +61,10 @@ export async function POST(request: Request) {
     access_token: session.access_token,
     refresh_token: session.refresh_token,
     expires_at: session.expires_at,
+    // Identifiant applicatif : le portail commercial en a besoin HORS LIGNE
+    // (auteur d'un signalement). Ce n'est pas un secret — RLS ne s'appuie pas
+    // dessus, elle résout l'utilisateur côté serveur via auth.uid().
+    user_id: appUser.id,
     nickname: appUser.nickname,
     is_admin: appUser.is_admin,
   });

@@ -159,9 +159,10 @@ export default function VisitePage() {
               {!compteRenduValide(saisie) && (
                 <p className="text-sm text-neutral-500">{t.saisieVisite.finishHint}</p>
               )}
-              {montage && (
-                <p className="text-sm text-neutral-500">{t.field.montage}</p>
-              )}
+              {montage && <p className="text-sm text-neutral-500">{t.field.montage}</p>}
+              <Button variant="outline" size="lg" className="w-full" asChild>
+                <Link href={`/field/signaler/${visite.store_id}`}>{t.incidents.report}</Link>
+              </Button>
             </div>
           </>
         )}

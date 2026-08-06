@@ -14,6 +14,8 @@ export const SESSION_CACHE_KEY = "jrf_session_cache";
 export type SessionServeur = {
   access_token: string;
   refresh_token: string;
+  /** Identifiant `app_users.id` — mis en cache pour les écritures hors ligne. */
+  user_id: string;
   nickname: string;
   is_admin: boolean;
 };

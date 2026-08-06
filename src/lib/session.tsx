@@ -9,12 +9,14 @@ import {
 } from "./data/authClient";
 import { installerRejeuAutomatique } from "./data/outbox";
 
-type SessionCache = { nickname: string; isAdmin: boolean };
+type SessionCache = { nickname: string; isAdmin: boolean; userId: string | null };
 
 type LoginResult = { ok: true } | { ok: false; error: string };
 
 type Session = {
   nickname: string | null;
+  /** `app_users.id` du porteur connecté, disponible même hors ligne. */
+  userId: string | null;
   isAdmin: boolean;
   authenticated: boolean;
   loading: boolean;
@@ -31,6 +33,7 @@ function deviceLabel(): string | null {
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [nickname, setNickname] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -44,9 +47,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.setItem(
       SESSION_CACHE_KEY,
-      JSON.stringify({ nickname: payload.nickname, isAdmin: payload.is_admin })
+      JSON.stringify({
+        nickname: payload.nickname,
+        isAdmin: payload.is_admin,
+        userId: payload.user_id,
+      })
     );
     setNickname(payload.nickname);
+    setUserId(payload.user_id);
     setIsAdmin(payload.is_admin);
     setAuthenticated(true);
   }, []);
@@ -67,6 +75,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       // Cache d'abord : la tournée du jour doit s'afficher sans attendre le réseau.
       if (cache) {
         setNickname(cache.nickname);
+        setUserId(cache.userId);
         setIsAdmin(cache.isAdmin);
         setAuthenticated(true);
         setLoading(false);
@@ -123,12 +132,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(SESSION_CACHE_KEY);
     await supabase.auth.signOut();
     setNickname(null);
+    setUserId(null);
     setIsAdmin(false);
     setAuthenticated(false);
   }, []);
 
   return (
-    <SessionContext.Provider value={{ nickname, isAdmin, authenticated, loading, login, logout }}>
+    <SessionContext.Provider value={{ nickname, userId, isAdmin, authenticated, loading, login, logout }}>
       {children}
     </SessionContext.Provider>
   );

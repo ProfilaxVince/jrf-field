@@ -114,6 +114,8 @@ export async function POST(request: Request) {
     access_token: session.access_token,
     refresh_token: session.refresh_token,
     expires_at: session.expires_at,
+    // Voir /api/auth/refresh : identifiant applicatif nécessaire hors ligne.
+    user_id: matched.id,
     nickname: matched.nickname,
     is_admin: matched.is_admin,
   });
