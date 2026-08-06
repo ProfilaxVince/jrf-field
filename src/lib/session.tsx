@@ -1,18 +1,15 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "./data/supabase";
-
-const DEVICE_TOKEN_KEY = "jrf_device_token";
-const SESSION_CACHE_KEY = "jrf_session_cache";
+import {
+  DEVICE_TOKEN_KEY,
+  SESSION_CACHE_KEY,
+  rafraichirDepuisAppareil,
+  type SessionServeur,
+} from "./data/authClient";
+import { installerRejeuAutomatique } from "./data/outbox";
 
 type SessionCache = { nickname: string; isAdmin: boolean };
-
-type ServerSessionPayload = {
-  access_token: string;
-  refresh_token: string;
-  nickname: string;
-  is_admin: boolean;
-};
 
 type LoginResult = { ok: true } | { ok: false; error: string };
 
@@ -38,11 +35,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const hydrate = useCallback(async (payload: ServerSessionPayload) => {
-    await supabase.auth.setSession({
-      access_token: payload.access_token,
-      refresh_token: payload.refresh_token,
-    });
+  const hydrate = useCallback(async (payload: SessionServeur, deja = false) => {
+    if (!deja) {
+      await supabase.auth.setSession({
+        access_token: payload.access_token,
+        refresh_token: payload.refresh_token,
+      });
+    }
     localStorage.setItem(
       SESSION_CACHE_KEY,
       JSON.stringify({ nickname: payload.nickname, isAdmin: payload.is_admin })
@@ -53,7 +52,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
+    let monte = true;
 
     async function init() {
       const deviceToken = localStorage.getItem(DEVICE_TOKEN_KEY);
@@ -62,42 +61,32 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const cachedRaw = localStorage.getItem(SESSION_CACHE_KEY);
-      const cached: SessionCache | null = cachedRaw ? JSON.parse(cachedRaw) : null;
+      const cacheBrut = localStorage.getItem(SESSION_CACHE_KEY);
+      const cache: SessionCache | null = cacheBrut ? JSON.parse(cacheBrut) : null;
 
-      try {
-        const res = await fetch("/api/auth/refresh", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ device_token: deviceToken }),
-        });
-        if (!mounted) return;
-        if (!res.ok) {
-          localStorage.removeItem(DEVICE_TOKEN_KEY);
-          localStorage.removeItem(SESSION_CACHE_KEY);
-          setLoading(false);
-          return;
-        }
-        const data = await res.json();
-        await hydrate(data);
-      } catch {
-        // Pas de réseau au démarrage : on reste optimiste sur les infos
-        // en cache pour ne pas bloquer l'accès aux données déjà en cache local
-        // (règle "cache avant réseau"). L'écriture restera bloquée par RLS
-        // tant qu'une vraie session n'a pas été obtenue.
-        if (mounted && cached) {
-          setNickname(cached.nickname);
-          setIsAdmin(cached.isAdmin);
-          setAuthenticated(true);
-        }
-      } finally {
-        if (mounted) setLoading(false);
+      // Cache d'abord : la tournée du jour doit s'afficher sans attendre le réseau.
+      if (cache) {
+        setNickname(cache.nickname);
+        setIsAdmin(cache.isAdmin);
+        setAuthenticated(true);
+        setLoading(false);
       }
+
+      const session = await rafraichirDepuisAppareil();
+      if (!monte) return;
+      if (session) {
+        await hydrate(session, true);
+      } else if (!cache) {
+        localStorage.removeItem(DEVICE_TOKEN_KEY);
+      }
+      setLoading(false);
     }
 
     init();
+    const arreterRejeu = installerRejeuAutomatique();
     return () => {
-      mounted = false;
+      monte = false;
+      arreterRejeu();
     };
   }, [hydrate]);
 

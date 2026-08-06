@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { t } from "@/lib/i18n/fr-BE";
 import { SessionProvider } from "@/lib/session";
+import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 
 export const metadata: Metadata = {
   title: `${t.app.name} — ${t.app.company}`,
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="fr-BE">
       <body className="font-body antialiased">
         <SessionProvider>{children}</SessionProvider>
+        <RegisterServiceWorker />
       </body>
     </html>
   );
