@@ -49,7 +49,11 @@ export function decouper(ligne) {
  * Ce qui reste incertain après la conversion. Affiché à l'écran plutôt
  * qu'enfoui : ce sont les questions à poser à Gérardo avant l'import.
  */
-export function rapport(magasins, adresses, { ecartes = [], inconnus = [], communesAConfirmer = [] }) {
+export function rapport(
+  magasins,
+  adresses,
+  { ecartes = [], inconnus = [], communesAConfirmer = [], sansReference = [] }
+) {
   const avecAdresse = magasins.filter((m) => m.adresse).length;
   const aConfirmer = magasins.filter(
     (m) => adresses[m.libelle_excel.toUpperCase()]?.confiance === "aVerifier"
@@ -70,6 +74,10 @@ export function rapport(magasins, adresses, { ecartes = [], inconnus = [], commu
   if (ecartes.length) {
     console.log(`\n${ecartes.length} ligne(s) du fichier source écartée(s) — doublons :`);
     ecartes.forEach((e) => console.log(`     ${e}`));
+  }
+  if (sansReference.length) {
+    console.log(`\n⚠️  ${sansReference.length} magasin(s) absent(s) de la table des références figées :`);
+    sansReference.forEach((s) => console.log(`     ${s}`));
   }
   if (aConfirmer.length) {
     console.log(`\n⚠️  ${aConfirmer.length} adresse(s) à confirmer avec Gérardo :`);

@@ -312,6 +312,21 @@ const PREFIXES = {
   "Spar": "SPR",
 };
 
+// ---------------------------------------------------------------------------
+// 6. Références FIGÉES.
+//    `stores.external_ref` est UNIQUE et les 185 lignes sont déjà en base
+//    (import du 06/08/2026). Une référence recalculée à chaque passage n'est
+//    pas une référence : corriger une enseigne renumérotait tout le bloc
+//    suivant et cassait le lien avec la ligne déjà enregistrée.
+//    Elles se lisent donc dans une table figée, jamais recalculées.
+// ---------------------------------------------------------------------------
+const FIGEES = JSON.parse(
+  fs.readFileSync(new URL("./references-magasins.json", import.meta.url), "utf8")
+);
+export const REFERENCES = FIGEES.references;
+/** Lignes déjà en base qui n'ont plus de magasin : à désactiver, pas à supprimer. */
+export const REFERENCES_ECARTEES = FIGEES._ecartees;
+
 /**
  * Applique toute l'interprétation à une liste ordonnée de libellés Excel et
  * renvoie les colonnes DÉRIVÉES de chaque magasin retenu, plus ce qu'il a fallu
@@ -323,6 +338,7 @@ export function construireMagasins(libelles) {
   const ecartes = [];
   const inconnus = [];
   const communesAConfirmer = [];
+  const sansReference = [];
   const vus = new Set();
 
   for (const libelle of libelles) {
@@ -344,8 +360,21 @@ export function construireMagasins(libelles) {
     if (!commune?.ville) inconnus.push(libelle);
     else if (commune.sur !== "sure") communesAConfirmer.push(`${libelle} → ${commune.ville} (${commune.sur})`);
 
-    const prefixe = PREFIXES[enseigne] ?? "MAG";
-    const rang = magasins.filter((m) => m.reference.startsWith(`${prefixe}-`)).length + 1;
+    // Référence figée. Un libellé absent de la table est un magasin que la base
+    // ne connaît pas encore : il reçoit le premier numéro libre de son préfixe,
+    // et le script le signale — c'est un ajout au parc, pas un détail.
+    let reference = REFERENCES[cle];
+    if (!reference) {
+      const prefixe = PREFIXES[enseigne] ?? "MAG";
+      const prises = new Set([
+        ...Object.values(REFERENCES),
+        ...magasins.map((m) => m.reference),
+      ]);
+      let rang = 1;
+      while (prises.has(`${prefixe}-${String(rang).padStart(3, "0")}`)) rang++;
+      reference = `${prefixe}-${String(rang).padStart(3, "0")}`;
+      sansReference.push(`${libelle} → ${reference} (nouveau magasin)`);
+    }
 
     magasins.push({
       nom: joliNom(libelle, enseigne),
@@ -355,10 +384,10 @@ export function construireMagasins(libelles) {
       code_postal: commune?.cp ?? "",
       ville: commune?.ville ?? "",
       region: commune?.region ?? "",
-      reference: `${prefixe}-${String(rang).padStart(3, "0")}`,
+      reference,
       libelle_excel: libelle,
     });
   }
 
-  return { magasins, ecartes, inconnus, communesAConfirmer };
+  return { magasins, ecartes, inconnus, communesAConfirmer, sansReference };
 }
