@@ -10,6 +10,7 @@ import { StatutArretBadge, statutArret } from "@/components/field/statut-arret";
 import { demanderPositionUneFois, useTournee } from "@/hooks/use-tournee";
 import { SAISIE_VIDE, compteRenduValide, type SaisieCompteRendu } from "@/lib/domain/compte-rendu";
 import { formatHeure } from "@/lib/dates";
+import { lienItineraire } from "@/lib/maps";
 import { t } from "@/lib/i18n/fr-BE";
 
 export default function VisitePage() {
@@ -122,13 +123,9 @@ export default function VisitePage() {
         </header>
 
         <div className="flex gap-2">
-          {magasin?.lat != null && magasin?.lng != null && (
+          {magasin && lienItineraire(magasin) && (
             <Button variant="outline" className="flex-1" asChild>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${magasin.lat},${magasin.lng}`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={lienItineraire(magasin) as string} target="_blank" rel="noreferrer">
                 <MapPin aria-hidden />
                 {t.field.itinerary}
               </a>

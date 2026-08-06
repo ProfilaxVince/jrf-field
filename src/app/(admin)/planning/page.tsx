@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UndoBar } from "@/components/ui/undo-bar";
 import { AjoutArret } from "@/components/planning/ajout-arret";
@@ -131,6 +131,15 @@ export default function PlanningPage() {
             </Button>
             <Button variant="outline" onClick={() => setReference(new Date())}>
               {t.planning.today}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label={t.planning.refresh}
+              title={t.planning.refresh}
+              onClick={() => planning.recharger()}
+            >
+              <RefreshCw aria-hidden />
             </Button>
             <Button
               variant="outline"

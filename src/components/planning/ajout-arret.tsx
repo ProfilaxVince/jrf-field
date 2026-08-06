@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EtatBadge } from "@/components/store/etat-badge";
+import { REGIONS } from "@/lib/data/stores";
 import { detteAffichable } from "@/lib/domain/dette";
 import { t } from "@/lib/i18n/fr-BE";
 import type { StorePriorite } from "@/lib/data/dette";
@@ -38,18 +39,24 @@ export function AjoutArret({
   onFermer: () => void;
 }) {
   const [recherche, setRecherche] = useState("");
+  const [region, setRegion] = useState("");
 
+  // Le filtre par région d'abord : composer une journée, c'est choisir un coin
+  // du pays avant de choisir des magasins. L'ordre de priorité est conservé
+  // à l'intérieur du filtre.
   const resultats = useMemo(() => {
     const terme = recherche.trim().toLowerCase();
-    const base = terme
-      ? priorites.filter((p) =>
-          `${p.store.name} ${p.store.city} ${p.store.postal_code ?? ""}`
-            .toLowerCase()
-            .includes(terme)
-        )
-      : priorites;
-    return base.slice(0, RESULTATS_MAX);
-  }, [priorites, recherche]);
+    return priorites
+      .filter((p) => (region ? p.store.region === region : true))
+      .filter((p) =>
+        terme
+          ? `${p.store.name} ${p.store.city} ${p.store.postal_code ?? ""}`
+              .toLowerCase()
+              .includes(terme)
+          : true
+      )
+      .slice(0, RESULTATS_MAX);
+  }, [priorites, recherche, region]);
 
   return (
     <section className="space-y-4 rounded-lg border border-border bg-card p-4">
@@ -79,6 +86,25 @@ export function AjoutArret({
 
       <div className="space-y-2">
         <h3 className="text-base font-medium text-neutral-700">{t.planning.addStore}</h3>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={region === "" ? "default" : "outline"}
+            aria-pressed={region === ""}
+            onClick={() => setRegion("")}
+          >
+            {t.planning.allRegions}
+          </Button>
+          {REGIONS.map((r) => (
+            <Button
+              key={r}
+              variant={region === r ? "default" : "outline"}
+              aria-pressed={region === r}
+              onClick={() => setRegion(r)}
+            >
+              {t.stores.regionLabels[r] ?? r}
+            </Button>
+          ))}
+        </div>
         <input
           className="min-h-[44px] w-full rounded border border-border px-3 text-base"
           placeholder={t.planning.searchStore}

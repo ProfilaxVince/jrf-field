@@ -4,9 +4,11 @@ import { AdminNav } from "@/components/admin/admin-nav";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RouteGuard role="admin">
-      <div className="min-h-dvh bg-background">
+      {/* Colonne de navigation à gauche, contenu à droite. Sur téléphone la
+          colonne est un tiroir : elle sort de l'écran tant qu'on ne l'ouvre pas. */}
+      <div className="flex min-h-dvh bg-background md:flex-row">
         <AdminNav />
-        {children}
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </RouteGuard>
   );

@@ -1,15 +1,23 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ajouterArretTerrain,
   ajouterPhoto,
   chargerTourneeReseau,
+  declarerUrgenceLivraison,
   demarrerVisite,
+  deplacerArretTerrain,
+  lireCatalogue,
   lireTourneeCache,
+  rafraichirCatalogue,
   reporterVisite,
+  retirerArretTerrain,
   terminerVisite,
   type Position,
   type TourneeCache,
+  type TypeArret,
 } from "@/lib/data/tournee";
+import type { StoreRow } from "@/lib/data/stores";
 import { surChangementOutbox, tailleOutbox, viderOutbox } from "@/lib/data/outbox";
 import { useSession } from "@/lib/session";
 import type { SaisieCompteRendu } from "@/lib/domain/compte-rendu";
@@ -21,6 +29,7 @@ export function useTournee(date: string = aujourdhuiISO()) {
   const [chargement, setChargement] = useState(true);
   const [depuisCache, setDepuisCache] = useState(false);
   const [enAttente, setEnAttente] = useState(0);
+  const [catalogue, setCatalogue] = useState<StoreRow[]>([]);
 
   useEffect(() => {
     if (!userId) return;
@@ -56,15 +65,63 @@ export function useTournee(date: string = aujourdhuiISO()) {
     return surChangementOutbox(setEnAttente);
   }, []);
 
+  // Catalogue des magasins : cache d'abord pour pouvoir ajouter un arrêt
+  // ou déclarer une urgence sans réseau, réseau ensuite pour le tenir à jour.
+  useEffect(() => {
+    let monte = true;
+    (async () => {
+      const enCache = await lireCatalogue();
+      if (monte && enCache.length > 0) setCatalogue(enCache);
+      try {
+        const frais = await rafraichirCatalogue();
+        if (monte) setCatalogue(frais);
+      } catch {
+        // Hors ligne : le cache suffit.
+      }
+    })();
+    return () => {
+      monte = false;
+    };
+  }, []);
+
   const appliquer = useCallback((maj: TourneeCache | null) => {
     if (maj) setTournee(maj);
   }, []);
 
   return {
     tournee,
+    catalogue,
     chargement: chargement && userId !== null,
     depuisCache,
     enAttente,
+    ajouterArret: useCallback(
+      async (store: StoreRow, type: TypeArret) => {
+        if (!userId) return;
+        appliquer(await ajouterArretTerrain(userId, date, store, type));
+      },
+      [date, userId, appliquer]
+    ),
+    declarerUrgence: useCallback(
+      async (store: StoreRow, description: string) => {
+        if (!userId) return;
+        appliquer(await declarerUrgenceLivraison(userId, date, store, description));
+      },
+      [date, userId, appliquer]
+    ),
+    retirerArret: useCallback(
+      async (visitId: string, motif: string) => {
+        if (!userId) return;
+        appliquer(await retirerArretTerrain(userId, date, visitId, motif));
+      },
+      [date, userId, appliquer]
+    ),
+    deplacerArret: useCallback(
+      async (visitId: string, sens: -1 | 1) => {
+        if (!userId) return;
+        appliquer(await deplacerArretTerrain(userId, date, visitId, sens));
+      },
+      [date, userId, appliquer]
+    ),
     demarrer: useCallback(
       async (visitId: string, position: Position) => {
         if (!userId) return;

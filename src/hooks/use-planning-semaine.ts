@@ -89,6 +89,27 @@ export function usePlanningSemaine(dateReference: Date) {
     charger();
   }, [charger]);
 
+  /**
+   * Une urgence déclarée sur le terrain arrive dans la base sans que cet écran
+   * en sache rien. On recharge donc au retour sur l'onglet et au retour du
+   * réseau : c'est le moment où le responsable regarde son planning, et c'est
+   * là que l'écart avec la réalité se verrait.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const rafraichir = () => {
+      if (document.visibilityState === "visible") void charger();
+    };
+    document.addEventListener("visibilitychange", rafraichir);
+    window.addEventListener("online", rafraichir);
+    window.addEventListener("focus", rafraichir);
+    return () => {
+      document.removeEventListener("visibilitychange", rafraichir);
+      window.removeEventListener("online", rafraichir);
+      window.removeEventListener("focus", rafraichir);
+    };
+  }, [charger]);
+
   const visitesParCellule = useMemo(() => {
     const index = new Map<CellKey, VisitRow[]>();
     for (const visit of etat.visits) {

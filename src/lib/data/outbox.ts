@@ -16,9 +16,17 @@ import { assurerSession } from "./authClient";
 import type { Database } from "./database.types";
 
 export type VisitUpdate = Database["public"]["Tables"]["visits"]["Update"];
+export type VisitInsert = Database["public"]["Tables"]["visits"]["Insert"];
 export type IncidentInsert = Database["public"]["Tables"]["incidents"]["Insert"];
 
 export type Operation =
+  /**
+   * Le commercial ajoute un arrêt à SA journée. L'identifiant est généré côté
+   * client : l'arrêt doit exister dans la tournée immédiatement, hors ligne,
+   * et garder le même identifiant une fois envoyé — sinon un compte rendu
+   * saisi avant la synchronisation viserait une visite qui n'existe pas.
+   */
+  | { kind: "visit_create"; payload: VisitInsert }
   | { kind: "visit_update"; visitId: string; patch: VisitUpdate }
   | { kind: "incident_create"; payload: IncidentInsert }
   | {
@@ -102,6 +110,11 @@ export async function viderOutbox(): Promise<{ envoyees: number; restantes: numb
 
 async function appliquer(op: Operation): Promise<boolean> {
   try {
+    if (op.kind === "visit_create") {
+      const { error } = await supabase.from("visits").insert(op.payload);
+      // Un doublon signifie que l'opération est déjà passée : on ne bloque pas.
+      return !error || error.code === "23505";
+    }
     if (op.kind === "visit_update") {
       const { error } = await supabase.from("visits").update(op.patch).eq("id", op.visitId);
       return !error;
