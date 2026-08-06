@@ -589,5 +589,70 @@
     "adresse": "Rue dArlon 46",
     "confiance": "exacte",
     "source": "stores.delhaize.be, pubeco, heures.be, florenville.be, pagesdor"
+  },
+  "AD DELHAIZE ARBRE BALLON": {
+    "adresse": "Avenue de lArbre Ballon 24",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, bottin.be, pagesdor — commune : Jette"
+  },
+  "AD DELHAIZE BURENVILLE": {
+    "adresse": "Rue Saint-Nicolas 410",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, cybo, bottin.be, polomap — quartier de Burenville, commune : Liège"
+  },
+  "AD DELHAIZE CHAZAL": {
+    "adresse": "Avenue Léon Mahillon 22",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, retailbob, openingsuren.info, localservices.be — commune : Schaerbeek"
+  },
+  "AD DELHAIZE FLAGEY": {
+    "adresse": "Rue de Hennin 18",
+    "confiance": "aVerifier",
+    "source": "openingsuren.info, readymap, mapstr (« Delhaize Flagey ») — le Proxy de la Place Flagey 10 est un autre magasin ; à confirmer que la ligne du fichier vise bien celui de la Rue de Hennin"
+  },
+  "AD DELHAIZE FOREST": {
+    "adresse": "Chaussée de Neerstalle 8-12",
+    "confiance": "aVerifier",
+    "source": "delhaizeforest.be (site du magasin), pubeco.be, localservices.be — pubeco liste AUSSI un « AD Delhaize Forest » Rue Berthelot 100 : deux AD à Forest, à confirmer"
+  },
+  "AD DELHAIZE FRASNES LEZ GOSSELIES": {
+    "adresse": "Chaussée de Bruxelles 527",
+    "confiance": "exacte",
+    "source": "adfrasneslezgosselies.be (site du magasin), stores.delhaize.be, pubeco.be, les-bons-villers.be — ATTENTION : code postal réel 6210 (et non 6250). Commune : Les Bons Villers"
+  },
+  "AD DELHAIZE GEMBLOUX": {
+    "adresse": "Chaussée de Wavre 42a",
+    "confiance": "aVerifier",
+    "source": "cybo, selling.com, pagesdor, addelhaizegembloux.be — dautres adresses circulent dans les annuaires ; à confirmer"
+  },
+  "AD DELHAIZE GENAPPE": {
+    "adresse": "Chaussée de Bruxelles 4b",
+    "confiance": "aVerifier",
+    "source": "adgenappe.be (site du magasin), press.delhaize.be — le Proxy de Genappe est au n° 4 de la même chaussée : les deux fiches se mélangent dans les annuaires"
+  },
+  "AD DELHAIZE GENT STER": {
+    "adresse": "Kortrijksesteenweg 906",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.info, firmania, data.be — commune : Gand"
+  },
+  "AD DELHAIZE GOSSELIES": {
+    "adresse": "Avenue des États-Unis 40",
+    "confiance": "aVerifier",
+    "source": "adgosselies.be (site du magasin), readymap, top10place — mappy indique « Rue de Wayaux » ; à confirmer"
+  },
+  "AD DELHAIZE HAACHT": {
+    "adresse": "Markt 1",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.vlaanderen, openingsurengids.be, kimbino"
+  },
+  "AD DELHAIZE HANKAR": {
+    "adresse": "Clos Lucien Outers 1",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, heures.be, localservices.be, cityplug, myshopi — commune : Auderghem. DOUBLON : la ligne « AD HANKAR » du fichier désigne le même magasin"
+  },
+  "AD HANKAR": {
+    "adresse": "Clos Lucien Outers 1",
+    "confiance": "aVerifier",
+    "source": "même magasin que « AD DELHAIZE HANKAR » (Clos Lucien Outers 1, Auderghem). Le fichier de Gérardo contient les deux lignes : demander laquelle supprimer"
   }
 }
