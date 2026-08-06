@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, CalendarDays, Settings, Siren, Store, Target } from "lucide-react";
+import { BarChart3, CalendarDays, LogOut, Route, Settings, Siren, Store, Target } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/session";
 import { t } from "@/lib/i18n/fr-BE";
 
 const LIENS = [
   { href: "/admin", label: t.nav.priorities, icone: Target },
   { href: "/planning", label: t.nav.planning, icone: CalendarDays },
+  { href: "/templates", label: t.nav.templates, icone: Route },
   { href: "/stores", label: t.nav.stores, icone: Store },
   { href: "/incidents", label: t.nav.incidents, icone: Siren },
   { href: "/stats", label: t.nav.stats, icone: BarChart3 },
@@ -16,6 +19,7 @@ const LIENS = [
 
 export function AdminNav() {
   const pathname = usePathname();
+  const { nickname, logout } = useSession();
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-card">
@@ -43,6 +47,18 @@ export function AdminNav() {
             );
           })}
         </nav>
+        {/* Déconnexion à portée de main : l'Admin doit pouvoir repasser sur un
+            compte commercial pour vérifier ce que son équipe voit réellement. */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0"
+          aria-label={`${t.auth.signOut}${nickname ? ` (${nickname})` : ""}`}
+          title={`${t.auth.signOut}${nickname ? ` — ${nickname}` : ""}`}
+          onClick={() => logout()}
+        >
+          <LogOut aria-hidden />
+        </Button>
       </div>
     </header>
   );

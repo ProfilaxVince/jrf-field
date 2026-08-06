@@ -1,37 +1,14 @@
 /**
- * Heuristique de tournée — calculs PURS, aucun accès réseau.
+ * Aide à l'ordonnancement d'une journée — calculs PURS, aucun accès réseau.
  *
- * Règle du projet : pas de solveur VRP. Plus proche voisin + réordonnancement
- * manuel, point. Le but n'est pas l'itinéraire optimal, c'est une journée
- * géographiquement cohérente que l'Admin peut corriger en deux clics.
+ * Le remplissage automatique a été RETIRÉ le 06/08/2026 : l'Admin compose ses
+ * journées lui-même, magasin par magasin ou via un modèle de tournée.
+ * Ne subsiste ici que le rangement d'une journée déjà choisie, à la demande —
+ * jamais appliqué tout seul.
  *
- * Choix de la journée :
- *   1. le magasin qui attend le plus (score de priorité calculé en SQL) ouvre la journée ;
- *   2. les arrêts suivants sont les PLUS PROCHES parmi les magasins encore
- *      prioritaires — pas parmi tout le parc, sinon la tournée se remplirait de
- *      voisins qui n'ont rien demandé pendant que les vrais retards attendent.
+ * Règle du projet inchangée : pas de solveur VRP. Plus proche voisin depuis le
+ * premier arrêt, et l'Admin corrige à la main s'il n'est pas d'accord.
  */
-
-export type Candidat = {
-  storeId: string;
-  lat: number | null;
-  lng: number | null;
-  /** `score_priorite` de v_store_dette. Le front ne le recalcule jamais. */
-  score: number;
-};
-
-export type ArretPropose = {
-  storeId: string;
-  position: number;
-};
-
-export type JourneeProposee = {
-  userId: string;
-  date: string;
-  arrets: ArretPropose[];
-  /** Magasin du créneau de montage de rayon de 6 h, si applicable. */
-  montageStoreId: string | null;
-};
 
 /** Distance à vol d'oiseau en km (haversine). Suffisant pour ordonner des arrêts. */
 export function distanceKm(
@@ -52,14 +29,10 @@ export function distanceKm(
 }
 
 /**
- * Fenêtre de proximité : on ne cherche le voisin le plus proche que dans les
- * `PROFONDEUR_VOISINAGE` magasins les plus prioritaires encore disponibles.
- * Trop large, la géographie écrase la priorité ; trop étroite, la tournée
- * zigzague. Valeur revue si le terrain montre autre chose.
+ * Ordonne des arrêts par plus proche voisin, en partant du premier de la liste.
+ * Le premier arrêt n'est jamais déplacé : c'est le point de départ choisi par
+ * l'Admin, pas au moteur d'en décider.
  */
-const PROFONDEUR_VOISINAGE = 25;
-
-/** Ordonne une liste d'arrêts par plus proche voisin à partir du premier. */
 export function ordonnerParProximite<T extends { lat: number | null; lng: number | null }>(
   arrets: T[]
 ): T[] {
@@ -80,84 +53,4 @@ export function ordonnerParProximite<T extends { lat: number | null; lng: number
     ordonnes.push(restants.splice(meilleur, 1)[0]);
   }
   return ordonnes;
-}
-
-/** Un commercial, un jour : une case à remplir. */
-export type Creneau = { userId: string; date: string };
-
-export type EntreeRepartition = {
-  /**
-   * Créneaux à servir, DANS L'ORDRE. L'appelant les range jour par jour
-   * (lundi pour tout le monde, puis mardi…) : ainsi les magasins qui
-   * attendent le plus partent en début de semaine, répartis sur l'équipe.
-   */
-  creneaux: Creneau[];
-  /**
-   * Tout le parc, trié par priorité décroissante. Il n'y a PAS de périmètre :
-   * n'importe quel commercial peut passer dans n'importe quel magasin
-   * (politique confirmée le 06/08/2026). Le pool est donc commun, et un
-   * magasin servi à quelqu'un disparaît pour les autres.
-   */
-  candidats: Candidat[];
-  /** Magasins éligibles au montage de 6 h, du moins récemment monté au plus récent. */
-  candidatsMontage: string[];
-  visitesParJour: number;
-  montagesParJour: number;
-};
-
-/** Choisit le voisin le plus proche parmi les plus prioritaires encore libres. */
-function prendreLePlusProche(depuis: Candidat, restants: Candidat[]): Candidat {
-  const fenetre = Math.min(PROFONDEUR_VOISINAGE, restants.length);
-  let meilleur = 0;
-  let meilleureDistance = Number.POSITIVE_INFINITY;
-  for (let i = 0; i < fenetre; i++) {
-    const d = distanceKm(depuis, restants[i]);
-    if (d < meilleureDistance) {
-      meilleureDistance = d;
-      meilleur = i;
-    }
-  }
-  return restants.splice(meilleur, 1)[0];
-}
-
-/**
- * Répartit le parc sur les créneaux de la semaine.
- *
- * Un seul pool pour toute l'équipe : le magasin le plus en attente ouvre le
- * premier créneau, ses voisins remplissent la journée, et le suivant ouvre le
- * créneau d'après. Personne ne se voit attribuer deux fois le même magasin
- * puisqu'il sort du pool dès qu'il est servi.
- */
-export function repartirSemaine(entree: EntreeRepartition): JourneeProposee[] {
-  const restants = [...entree.candidats];
-  const montages = [...entree.candidatsMontage];
-  const parJour = Math.max(0, Math.round(entree.visitesParJour));
-  const journees: JourneeProposee[] = [];
-
-  for (const creneau of entree.creneaux) {
-    if (restants.length === 0 && montages.length === 0) break;
-
-    const choisis: Candidat[] = [];
-    if (parJour > 0 && restants.length > 0) {
-      choisis.push(restants.shift() as Candidat);
-      while (choisis.length < parJour && restants.length > 0) {
-        choisis.push(prendreLePlusProche(choisis[choisis.length - 1], restants));
-      }
-    }
-
-    const montageStoreId = entree.montagesParJour > 0 ? (montages.shift() ?? null) : null;
-    if (choisis.length === 0 && montageStoreId === null) continue;
-
-    journees.push({
-      userId: creneau.userId,
-      date: creneau.date,
-      // `choisis` est déjà chaîné de proche en proche depuis le magasin le plus
-      // prioritaire : le rejouer ne changerait rien. `ordonnerParProximite` est
-      // réservé au bouton « Réordonner » après une modification manuelle.
-      arrets: choisis.map((c, index) => ({ storeId: c.storeId, position: index + 1 })),
-      montageStoreId,
-    });
-  }
-
-  return journees;
 }

@@ -4,19 +4,17 @@ import {
   assurerRouting,
   creerVisites,
   listAbsences,
-  listDerniersMontages,
   listHolidays,
   listVisitsPeriode,
   reordonner,
   restaurerVisites,
   retirerVisite,
-  type VisitInsert,
   type VisitRow,
 } from "@/lib/data/planning";
 import { listStorePriorites, type StorePriorite } from "@/lib/data/dette";
 import { listAppUsers, type AppUserRow } from "@/lib/data/users";
-import { listSettings, nombre } from "@/lib/data/settings";
-import { repartirSemaine, type Candidat, type Creneau } from "@/lib/domain/planning";
+import { listStops } from "@/lib/data/templates";
+import { ordonnerParProximite } from "@/lib/domain/planning";
 import { dimancheDeLaSemaine, joursOuvres, jourISO, lundiDeLaSemaine } from "@/lib/dates";
 
 export const MOTIF_RETRAIT = "retiré du planning par le responsable";
@@ -29,8 +27,6 @@ type Etat = {
   priorites: StorePriorite[];
   visits: VisitRow[];
   indisponibilites: Set<CellKey>;
-  visitesParJour: number;
-  montagesParJour: number;
 };
 
 const ETAT_VIDE: Etat = {
@@ -38,8 +34,6 @@ const ETAT_VIDE: Etat = {
   priorites: [],
   visits: [],
   indisponibilites: new Set(),
-  visitesParJour: 0,
-  montagesParJour: 0,
 };
 
 export function usePlanningSemaine(dateReference: Date) {
@@ -56,13 +50,12 @@ export function usePlanningSemaine(dateReference: Date) {
   const charger = useCallback(async () => {
     setLoading(true);
     try {
-      const [users, priorites, visits, absences, feries, settings] = await Promise.all([
+      const [users, priorites, visits, absences, feries] = await Promise.all([
         listAppUsers(),
         listStorePriorites(),
         listVisitsPeriode(lundi, dimanche),
         listAbsences(lundi, dimanche),
         listHolidays(lundi, dimanche),
-        listSettings(),
       ]);
 
       const porteurs = users.filter((u) => u.porte_visites);
@@ -82,8 +75,6 @@ export function usePlanningSemaine(dateReference: Date) {
         priorites,
         visits,
         indisponibilites,
-        visitesParJour: nombre(settings, "visites_par_jour", 2.6),
-        montagesParJour: nombre(settings, "montages_par_jour_par_commercial", 1),
       });
       setErreur(null);
     } catch {
@@ -111,89 +102,119 @@ export function usePlanningSemaine(dateReference: Date) {
     return index;
   }, [etat.visits]);
 
-  const remplirSemaine = useCallback(async () => {
-    setEnCours(true);
-    try {
-      // Un magasin déjà prévu cette semaine ne doit pas être proposé une
-      // deuxième fois — à qui que ce soit, puisqu'il n'y a pas de périmètre.
-      const dejaPlanifies = new Set(etat.visits.map((v) => v.store_id));
-
-      const candidats: Candidat[] = etat.priorites
-        .filter((p) => !dejaPlanifies.has(p.store.id))
-        .map((p) => ({
-          storeId: p.store.id,
-          lat: p.store.lat,
-          lng: p.store.lng,
-          score: p.dette.score_priorite ?? 0,
-        }));
-
-      const derniersMontages = await listDerniersMontages();
-      const eligiblesMontage = new Set(
-        etat.priorites.filter((p) => p.store.montage_rayon).map((p) => p.store.id)
-      );
-      const candidatsMontage = derniersMontages.flatMap((m) =>
-        m.store_id && eligiblesMontage.has(m.store_id) ? [m.store_id] : []
-      );
-
-      // Ordre jour par jour : lundi pour toute l'équipe, puis mardi… Les
-      // magasins les plus en retard partent donc en début de semaine, répartis
-      // entre les commerciaux, au lieu de s'empiler sur une seule personne.
-      const creneaux: Creneau[] = [];
-      for (const jour of jours) {
-        for (const user of etat.users) {
-          const key = cellKey(user.id, jour);
-          if (etat.indisponibilites.has(key)) continue;
-          if ((visitesParCellule.get(key) ?? []).length > 0) continue; // journée déjà remplie
-          creneaux.push({ userId: user.id, date: jour });
-        }
-      }
-
-      const journees = repartirSemaine({
-        creneaux,
-        candidats,
-        candidatsMontage,
-        visitesParJour: etat.visitesParJour,
-        montagesParJour: etat.montagesParJour,
-      });
-
-      const creees: VisitRow[] = [];
-      for (const journee of journees) {
-        const routingId = await assurerRouting(journee.userId, journee.date);
-        const lignes: VisitInsert[] = [];
-        if (journee.montageStoreId) {
-          lignes.push({
-            store_id: journee.montageStoreId,
-            user_id: journee.userId,
+  /** Ajoute UN magasin en fin de journée. Aucun automatisme : c'est un choix. */
+  const ajouterArret = useCallback(
+    async (userId: string, date: string, storeId: string, montage: boolean) => {
+      setEnCours(true);
+      try {
+        const routingId = await assurerRouting(userId, date);
+        const existantes = visitesParCellule.get(cellKey(userId, date)) ?? [];
+        const position = existantes.reduce((max, v) => Math.max(max, v.position_in_day ?? 0), 0) + 1;
+        const creees = await creerVisites([
+          {
+            store_id: storeId,
+            user_id: userId,
             routing_id: routingId,
-            scheduled_date: journee.date,
-            visit_type: "montage_rayon",
-            position_in_day: 0,
-          });
-        }
-        for (const arret of journee.arrets) {
-          lignes.push({
-            store_id: arret.storeId,
-            user_id: journee.userId,
-            routing_id: routingId,
-            scheduled_date: journee.date,
-            visit_type: "conseil",
-            position_in_day: arret.position,
-          });
-        }
-        creees.push(...(await creerVisites(lignes)));
+            scheduled_date: date,
+            visit_type: montage ? "montage_rayon" : "conseil",
+            // Le montage ouvre la journée (6 h) : il passe devant, toujours.
+            position_in_day: montage ? 0 : position,
+          },
+        ]);
+        setEtat((prev) => ({ ...prev, visits: [...prev.visits, ...creees] }));
+        setDernierRemplissage(creees.map((v) => v.id));
+        setErreur(null);
+        return creees.length;
+      } catch {
+        setErreur("ajout");
+        return 0;
+      } finally {
+        setEnCours(false);
       }
+    },
+    [visitesParCellule]
+  );
 
-      setEtat((prev) => ({ ...prev, visits: [...prev.visits, ...creees] }));
-      setDernierRemplissage(creees.map((v) => v.id));
-      setErreur(null);
-      return creees.length;
-    } catch {
-      setErreur("remplissage");
-      return 0;
-    } finally {
-      setEnCours(false);
-    }
-  }, [etat, jours, visitesParCellule]);
+  /** Applique un modèle de tournée à une journée, dans l'ordre du modèle. */
+  const appliquerTemplate = useCallback(
+    async (userId: string, date: string, templateId: string) => {
+      setEnCours(true);
+      try {
+        const stops = await listStops(templateId);
+        const key = cellKey(userId, date);
+        const existantes = visitesParCellule.get(key) ?? [];
+        const dejaLa = new Set(existantes.map((v) => v.store_id));
+        const depart = existantes.reduce((max, v) => Math.max(max, v.position_in_day ?? 0), 0);
+
+        const aAjouter = stops.filter((stop) => !dejaLa.has(stop.store_id));
+        if (aAjouter.length === 0) return 0;
+
+        const routingId = await assurerRouting(userId, date);
+        const creees = await creerVisites(
+          aAjouter.map((stop, index) => ({
+            store_id: stop.store_id,
+            user_id: userId,
+            routing_id: routingId,
+            scheduled_date: date,
+            visit_type: "conseil" as const,
+            position_in_day: depart + index + 1,
+          }))
+        );
+        setEtat((prev) => ({ ...prev, visits: [...prev.visits, ...creees] }));
+        setDernierRemplissage(creees.map((v) => v.id));
+        setErreur(null);
+        return creees.length;
+      } catch {
+        setErreur("ajout");
+        return 0;
+      } finally {
+        setEnCours(false);
+      }
+    },
+    [visitesParCellule]
+  );
+
+  /**
+   * Range une journée déjà composée dans un ordre de trajet cohérent.
+   * Déclenché À LA DEMANDE, jamais tout seul : le premier arrêt reste celui
+   * que l'Admin a mis en tête, les suivants sont enchaînés de proche en proche.
+   * Le montage de 6 h n'est pas concerné, il ouvre la journée par construction.
+   */
+  const rangerJournee = useCallback(
+    async (userId: string, date: string) => {
+      const key = cellKey(userId, date);
+      const liste = (visitesParCellule.get(key) ?? []).filter(
+        (v) => v.visit_type !== "montage_rayon"
+      );
+      if (liste.length < 2) return 0;
+
+      const coordonnees = new Map(
+        etat.priorites.map((p) => [p.store.id, { lat: p.store.lat, lng: p.store.lng }])
+      );
+      const ordonnes = ordonnerParProximite(
+        liste.map((visit) => ({
+          visit,
+          ...(coordonnees.get(visit.store_id) ?? { lat: null, lng: null }),
+        }))
+      );
+      const positions = ordonnes.map((o, index) => ({ id: o.visit.id, position: index + 1 }));
+      const parId = new Map(positions.map((p) => [p.id, p.position]));
+      setEtat((prev) => ({
+        ...prev,
+        visits: prev.visits.map((v) =>
+          parId.has(v.id) ? { ...v, position_in_day: parId.get(v.id) as number } : v
+        ),
+      }));
+      try {
+        await reordonner(positions);
+        return positions.length;
+      } catch {
+        setErreur("ordre");
+        return 0;
+      }
+    },
+    [visitesParCellule, etat.priorites]
+  );
 
   const annulerRemplissage = useCallback(async () => {
     if (!dernierRemplissage) return;
@@ -266,7 +287,9 @@ export function usePlanningSemaine(dateReference: Date) {
     erreur,
     enCours,
     dernierRemplissage,
-    remplirSemaine,
+    ajouterArret,
+    appliquerTemplate,
+    rangerJournee,
     annulerRemplissage,
     oublierRemplissage: () => setDernierRemplissage(null),
     retirer,

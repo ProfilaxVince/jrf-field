@@ -29,3 +29,53 @@ export function telechargerCsv(nomFichier: string, contenu: string): void {
   lien.click();
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Lecture d'un CSV réel : séparateur détecté (`;` d'un export Excel belge ou
+ * `,`), guillemets gérés, BOM retiré. Un fichier de magasins contient des
+ * adresses avec des virgules — un `split(",")` naïf décale toutes les colonnes
+ * sans le dire, et l'erreur ne se voit qu'une fois les données en base.
+ */
+export function parseDelimited(texte: string): string[][] {
+  const contenu = texte.replace(/^\uFEFF/, "");
+  const premiereLigne = contenu.split(/\r?\n/, 1)[0] ?? "";
+  const separateur =
+    (premiereLigne.match(/;/g)?.length ?? 0) >= (premiereLigne.match(/,/g)?.length ?? 0) ? ";" : ",";
+
+  const lignes: string[][] = [];
+  let champ = "";
+  let ligne: string[] = [];
+  let dansGuillemets = false;
+
+  for (let i = 0; i < contenu.length; i++) {
+    const c = contenu[i];
+    if (dansGuillemets) {
+      if (c === '"') {
+        if (contenu[i + 1] === '"') {
+          champ += '"';
+          i++;
+        } else {
+          dansGuillemets = false;
+        }
+      } else {
+        champ += c;
+      }
+      continue;
+    }
+    if (c === '"') dansGuillemets = true;
+    else if (c === separateur) {
+      ligne.push(champ.trim());
+      champ = "";
+    } else if (c === "\n") {
+      ligne.push(champ.trim());
+      if (ligne.some((v) => v.length > 0)) lignes.push(ligne);
+      ligne = [];
+      champ = "";
+    } else if (c !== "\r") {
+      champ += c;
+    }
+  }
+  ligne.push(champ.trim());
+  if (ligne.some((v) => v.length > 0)) lignes.push(ligne);
+  return lignes;
+}

@@ -1,5 +1,7 @@
 "use client";
+import { Plus, Route } from "lucide-react";
 import { ArretRow } from "./arret-row";
+import { Button } from "@/components/ui/button";
 import { cellKey } from "@/hooks/use-planning-semaine";
 import { formatJourCourt } from "@/lib/dates";
 import { t } from "@/lib/i18n/fr-BE";
@@ -21,6 +23,8 @@ export function SemaineGrille({
   onMonter,
   onDescendre,
   onRetirer,
+  onAjouter,
+  onRanger,
 }: {
   users: AppUserRow[];
   jours: string[];
@@ -30,6 +34,8 @@ export function SemaineGrille({
   onMonter: (visit: VisitRow) => void;
   onDescendre: (visit: VisitRow) => void;
   onRetirer: (visit: VisitRow) => void;
+  onAjouter: (userId: string, date: string) => void;
+  onRanger: (userId: string, date: string) => void;
 }) {
   return (
     <div className="overflow-x-auto">
@@ -64,21 +70,46 @@ export function SemaineGrille({
                   >
                     {indisponible ? (
                       <p className="px-1 py-2 text-sm text-neutral-500">{t.planning.absent}</p>
-                    ) : visites.length === 0 ? (
-                      <p className="px-1 py-2 text-sm text-neutral-500">{t.planning.emptyDay}</p>
                     ) : (
-                      <ul className="space-y-1">
-                        {visites.map((visit) => (
-                          <ArretRow
-                            key={visit.id}
-                            visit={visit}
-                            priorite={prioritesParStore.get(visit.store_id)}
-                            onMonter={() => onMonter(visit)}
-                            onDescendre={() => onDescendre(visit)}
-                            onRetirer={() => onRetirer(visit)}
-                          />
-                        ))}
-                      </ul>
+                      <>
+                        {visites.length === 0 ? (
+                          <p className="px-1 py-2 text-sm text-neutral-500">{t.planning.emptyDay}</p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {visites.map((visit) => (
+                              <ArretRow
+                                key={visit.id}
+                                visit={visit}
+                                priorite={prioritesParStore.get(visit.store_id)}
+                                onMonter={() => onMonter(visit)}
+                                onDescendre={() => onDescendre(visit)}
+                                onRetirer={() => onRetirer(visit)}
+                              />
+                            ))}
+                          </ul>
+                        )}
+                        <div className="flex gap-1 pt-1">
+                          <Button
+                            variant="ghost"
+                            className="min-h-[44px] flex-1 justify-start px-2 text-base"
+                            onClick={() => onAjouter(user.id, jour)}
+                          >
+                            <Plus aria-hidden />
+                            {t.planning.add}
+                          </Button>
+                          {visites.filter((v) => v.visit_type !== "montage_rayon").length > 1 && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t.planning.reorderByRoute}
+                              title={t.planning.reorderByRoute}
+                              onClick={() => onRanger(user.id, jour)}
+                            >
+                              <Route aria-hidden />
+                            </Button>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                 );

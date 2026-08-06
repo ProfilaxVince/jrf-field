@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { t } from "@/lib/i18n/fr-BE";
+import { parseDelimited } from "@/lib/csv";
 import {
   ENSEIGNES,
   REGIONS,
@@ -17,52 +18,138 @@ import {
 
 type Draft = {
   id?: string;
+  external_ref: string;
   name: string;
+  address: string;
+  postal_code: string;
   city: string;
   enseigne: string;
   region: string;
+  lat: string;
+  lng: string;
+  contact_name: string;
+  contact_phone: string;
   jrf_revenue_eur: string;
+  jrf_revenue_year: string;
 };
 
-const EMPTY_DRAFT: Draft = { name: "", city: "", enseigne: ENSEIGNES[0], region: REGIONS[0], jrf_revenue_eur: "" };
+const EMPTY_DRAFT: Draft = {
+  external_ref: "",
+  name: "",
+  address: "",
+  postal_code: "",
+  city: "",
+  enseigne: ENSEIGNES[0],
+  region: REGIONS[0],
+  lat: "",
+  lng: "",
+  contact_name: "",
+  contact_phone: "",
+  jrf_revenue_eur: "",
+  jrf_revenue_year: "",
+};
+
+function nombreOuNull(valeur: string): number | null {
+  if (!valeur.trim()) return null;
+  const n = Number(valeur.replace(",", ".").replace(/\s/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
 
 function draftToInsert(d: Draft): StoreInsert {
   return {
+    external_ref: d.external_ref.trim() || null,
     name: d.name.trim(),
+    address: d.address.trim() || null,
+    postal_code: d.postal_code.trim() || null,
     city: d.city.trim(),
     enseigne: d.enseigne as StoreInsert["enseigne"],
     region: d.region as StoreInsert["region"],
-    jrf_revenue_eur: d.jrf_revenue_eur ? Number(d.jrf_revenue_eur) : null,
-    jrf_revenue_year: d.jrf_revenue_eur ? new Date().getFullYear() : null,
+    lat: nombreOuNull(d.lat),
+    lng: nombreOuNull(d.lng),
+    contact_name: d.contact_name.trim() || null,
+    contact_phone: d.contact_phone.trim() || null,
+    jrf_revenue_eur: nombreOuNull(d.jrf_revenue_eur),
+    jrf_revenue_year:
+      nombreOuNull(d.jrf_revenue_year) ??
+      (d.jrf_revenue_eur.trim() ? new Date().getFullYear() : null),
   };
 }
 
 type CsvRow = { data: Draft; valid: boolean; error?: string };
 
+/**
+ * En-têtes acceptés, en français comme en anglais. Le fichier réel vient
+ * d'Excel : on ne peut pas exiger des noms de colonnes techniques.
+ * Les coordonnées sont importées si elles existent — sans elles, « Y aller »
+ * et le rangement par trajet ne fonctionnent pas.
+ */
+const ALIAS: Record<keyof Omit<Draft, "id">, string[]> = {
+  external_ref: ["external_ref", "ref", "reference", "code", "id"],
+  name: ["name", "nom", "magasin", "enseigne_magasin"],
+  address: ["address", "adresse", "rue"],
+  postal_code: ["postal_code", "code_postal", "cp", "npa"],
+  city: ["city", "ville", "commune", "localite"],
+  enseigne: ["enseigne", "chaine", "chaîne"],
+  region: ["region", "région", "province"],
+  lat: ["lat", "latitude"],
+  lng: ["lng", "lon", "long", "longitude"],
+  contact_name: ["contact_name", "contact", "chef_de_rayon", "responsable"],
+  contact_phone: ["contact_phone", "telephone", "téléphone", "tel", "gsm"],
+  jrf_revenue_eur: ["jrf_revenue_eur", "ca_jrf", "ca", "chiffre_affaires", "montant"],
+  jrf_revenue_year: ["jrf_revenue_year", "exercice", "annee", "année"],
+};
+
+function normaliser(entete: string): string {
+  return entete
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
 function parseCsv(text: string): CsvRow[] {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-  const header = (lines.shift() ?? "").split(",").map((h) => h.trim().toLowerCase());
-  const idx = (...keys: string[]) => keys.map((k) => header.indexOf(k)).find((i) => i >= 0) ?? -1;
-  const nameIdx = idx("name", "nom");
-  const cityIdx = idx("city", "ville");
-  const enseigneIdx = idx("enseigne");
-  const regionIdx = idx("region");
-  const revenueIdx = idx("jrf_revenue_eur", "ca", "ca_jrf");
+  const lignes = parseDelimited(text);
+  if (lignes.length < 2) return [];
+  const entetes = (lignes.shift() as string[]).map(normaliser);
 
-  return lines.map((line) => {
-    const cols = line.split(",").map((c) => c.trim());
-    const name = nameIdx >= 0 ? cols[nameIdx] : "";
-    const city = cityIdx >= 0 ? cols[cityIdx] : "";
-    const enseigne = enseigneIdx >= 0 ? cols[enseigneIdx].toLowerCase() : "";
-    const region = regionIdx >= 0 ? cols[regionIdx].toLowerCase() : "";
-    const revenue = revenueIdx >= 0 ? cols[revenueIdx] : "";
+  const indexDe = (champ: keyof Omit<Draft, "id">): number => {
+    for (const alias of ALIAS[champ]) {
+      const i = entetes.indexOf(normaliser(alias));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  const positions = Object.fromEntries(
+    (Object.keys(ALIAS) as (keyof Omit<Draft, "id">)[]).map((champ) => [champ, indexDe(champ)])
+  ) as Record<keyof Omit<Draft, "id">, number>;
 
-    const data: Draft = { name, city, enseigne, region, jrf_revenue_eur: revenue };
-    if (!name || !city) return { data, valid: false, error: "Nom et ville obligatoires" };
-    if (!ENSEIGNES.includes(enseigne as (typeof ENSEIGNES)[number]))
-      return { data, valid: false, error: `Enseigne inconnue: ${enseigne || "(vide)"}` };
-    if (!REGIONS.includes(region as (typeof REGIONS)[number]))
-      return { data, valid: false, error: `Région inconnue: ${region || "(vide)"}` };
+  return lignes.map((cols) => {
+    const lire = (champ: keyof Omit<Draft, "id">) =>
+      positions[champ] >= 0 ? (cols[positions[champ]] ?? "") : "";
+
+    const data: Draft = {
+      external_ref: lire("external_ref"),
+      name: lire("name"),
+      address: lire("address"),
+      postal_code: lire("postal_code"),
+      city: lire("city"),
+      enseigne: lire("enseigne").toLowerCase().replace(/[^a-z_]/g, ""),
+      region: lire("region").toLowerCase().replace(/[^a-z_]/g, ""),
+      lat: lire("lat"),
+      lng: lire("lng"),
+      contact_name: lire("contact_name"),
+      contact_phone: lire("contact_phone"),
+      jrf_revenue_eur: lire("jrf_revenue_eur"),
+      jrf_revenue_year: lire("jrf_revenue_year"),
+    };
+
+    if (!data.name || !data.city) return { data, valid: false, error: "Nom et ville obligatoires" };
+    if (!ENSEIGNES.includes(data.enseigne as (typeof ENSEIGNES)[number]))
+      return { data, valid: false, error: `Enseigne inconnue : ${data.enseigne || "(vide)"}` };
+    if (!REGIONS.includes(data.region as (typeof REGIONS)[number]))
+      return { data, valid: false, error: `Région inconnue : ${data.region || "(vide)"}` };
     return { data, valid: true };
   });
 }
@@ -103,11 +190,19 @@ export default function AdminStoresPage() {
   function startEdit(s: StoreRow) {
     setDraft({
       id: s.id,
+      external_ref: s.external_ref ?? "",
       name: s.name,
+      address: s.address ?? "",
+      postal_code: s.postal_code ?? "",
       city: s.city,
       enseigne: s.enseigne,
       region: s.region,
+      lat: s.lat != null ? String(s.lat) : "",
+      lng: s.lng != null ? String(s.lng) : "",
+      contact_name: s.contact_name ?? "",
+      contact_phone: s.contact_phone ?? "",
       jrf_revenue_eur: s.jrf_revenue_eur != null ? String(s.jrf_revenue_eur) : "",
+      jrf_revenue_year: s.jrf_revenue_year != null ? String(s.jrf_revenue_year) : "",
     });
     setEditingId(s.id);
     setPanel("add");
@@ -228,11 +323,25 @@ export default function AdminStoresPage() {
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                 />
+                <div className="grid grid-cols-3 gap-3">
+                  <input
+                    className="rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.postalCode}
+                    value={draft.postal_code}
+                    onChange={(e) => setDraft({ ...draft, postal_code: e.target.value })}
+                  />
+                  <input
+                    className="col-span-2 rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.city}
+                    value={draft.city}
+                    onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+                  />
+                </div>
                 <input
                   className="w-full rounded border border-border px-3 py-2 text-base"
-                  placeholder={t.stores.city}
-                  value={draft.city}
-                  onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+                  placeholder={t.stores.address}
+                  value={draft.address}
+                  onChange={(e) => setDraft({ ...draft, address: e.target.value })}
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <select
@@ -298,7 +407,9 @@ export default function AdminStoresPage() {
                       className={`grid grid-cols-4 gap-2 rounded px-2 py-1 text-base ${r.valid ? "" : "bg-[color:var(--state-critical-tint)]"}`}
                     >
                       <div>{r.data.name || "—"}</div>
-                      <div>{r.data.city || "—"}</div>
+                      <div>
+                        {r.data.postal_code} {r.data.city || "—"}
+                      </div>
                       <div>{r.data.jrf_revenue_eur || "-"}</div>
                       <div className="text-sm">{r.error ?? "OK"}</div>
                     </div>
@@ -337,8 +448,18 @@ export default function AdminStoresPage() {
                 <div>
                   <div className="text-lg font-semibold">{s.name}</div>
                   <div className="text-sm text-neutral-600">
+                    {s.postal_code ? `${s.postal_code} ` : ""}
                     {s.city} — {t.stores.enseigneLabels[s.enseigne] ?? s.enseigne}
                   </div>
+                  {/* Adresse et référence affichées : sans elles, deux magasins
+                      homonymes dans la même ville sont impossibles à distinguer. */}
+                  {(s.address || s.external_ref) && (
+                    <div className="text-sm text-neutral-500">
+                      {s.address ?? ""}
+                      {s.address && s.external_ref ? " · " : ""}
+                      {s.external_ref ?? ""}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => startEdit(s)}>

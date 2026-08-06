@@ -26,7 +26,8 @@ Portail responsable (`/admin`, réservé à `is_admin`)
 | Route | Rôle |
 |---|---|
 | `/admin` | À voir en priorité + verdict de capacité |
-| `/planning` | Semaine : remplissage assisté, réordonnancement, undo 10 s |
+| `/planning` | Semaine : ajout manuel, modèles de tournée, réordonnancement, undo 10 s |
+| `/templates` | Modèles de tournée réutilisables |
 | `/stores` | Parc : ajout, modification, import CSV |
 | `/incidents` | Signalements à traiter + remontées à la centrale |
 | `/stats` | Les chiffres (lecture des vues SQL) |
