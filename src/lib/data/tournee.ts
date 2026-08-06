@@ -23,11 +23,19 @@ export type TourneeCache = {
   majLe: string;
 };
 
-const cleCache = (date: string) => `tournee:${date}`;
+/**
+ * La clé porte l'utilisateur : l'Admin porte aussi un portefeuille, et deux
+ * personnes peuvent se connecter sur le même appareil. Une clé par date seule
+ * ferait apparaître la tournée d'un collègue.
+ */
+const cleCache = (userId: string, date: string) => `tournee:${userId}:${date}`;
 
-export async function lireTourneeCache(date: string): Promise<TourneeCache | null> {
+export async function lireTourneeCache(
+  userId: string,
+  date: string
+): Promise<TourneeCache | null> {
   try {
-    return (await idbGet<TourneeCache>(STORE_CACHE, cleCache(date))) ?? null;
+    return (await idbGet<TourneeCache>(STORE_CACHE, cleCache(userId, date))) ?? null;
   } catch {
     return null;
   }
@@ -41,11 +49,17 @@ async function ecrireTourneeCache(tournee: TourneeCache): Promise<void> {
   }
 }
 
-/** Rafraîchit depuis le réseau. RLS ne renvoie que les visites du porteur connecté. */
-export async function chargerTourneeReseau(date: string): Promise<TourneeCache> {
+/**
+ * Rafraîchit depuis le réseau. Le filtre `user_id` est explicite et NON
+ * redondant : RLS laisse l'Admin lire toutes les visites, or l'Admin porte
+ * lui aussi un portefeuille — sans ce filtre, sa « tournée du jour »
+ * afficherait celle de toute l'équipe.
+ */
+export async function chargerTourneeReseau(userId: string, date: string): Promise<TourneeCache> {
   const visites = await supabase
     .from("visits")
     .select("*")
+    .eq("user_id", userId)
     .eq("scheduled_date", date)
     .eq("active", true)
     .order("position_in_day", { nullsFirst: true });
@@ -57,9 +71,9 @@ export async function chargerTourneeReseau(date: string): Promise<TourneeCache> 
     : { data: [] as StoreRow[], error: null };
   if (magasins.error) throw magasins.error;
 
-  const precedent = await lireTourneeCache(date);
+  const precedent = await lireTourneeCache(userId, date);
   const tournee: TourneeCache = {
-    key: cleCache(date),
+    key: cleCache(userId, date),
     date,
     visites: visites.data,
     magasins: magasins.data,
@@ -72,11 +86,12 @@ export async function chargerTourneeReseau(date: string): Promise<TourneeCache> 
 
 /** Applique un changement au cache local pour que l'écran réponde hors ligne. */
 async function patcherCache(
+  userId: string,
   date: string,
   visitId: string,
   patch: Partial<VisitRow>
 ): Promise<TourneeCache | null> {
-  const cache = await lireTourneeCache(date);
+  const cache = await lireTourneeCache(userId, date);
   if (!cache) return null;
   const majee: TourneeCache = {
     ...cache,
@@ -95,6 +110,7 @@ export type Position = { lat: number; lng: number } | null;
  * et un refus n'empêche pas le check-in.
  */
 export async function demarrerVisite(
+  userId: string,
   date: string,
   visitId: string,
   position: Position
@@ -104,12 +120,13 @@ export async function demarrerVisite(
     checkin_lat: position?.lat ?? null,
     checkin_lng: position?.lng ?? null,
   };
-  const cache = await patcherCache(date, visitId, patch);
+  const cache = await patcherCache(userId, date, visitId, patch);
   await enfiler({ kind: "visit_update", visitId, patch });
   return cache;
 }
 
 export async function terminerVisite(
+  userId: string,
   date: string,
   visitId: string,
   saisie: SaisieCompteRendu,
@@ -130,24 +147,26 @@ export async function terminerVisite(
     relais_centrale: saisie.relaisCentrale,
     report,
   };
-  const cache = await patcherCache(date, visitId, patch);
+  const cache = await patcherCache(userId, date, visitId, patch);
   await enfiler({ kind: "visit_update", visitId, patch });
   return cache;
 }
 
 export async function reporterVisite(
+  userId: string,
   date: string,
   visitId: string,
   motif: string
 ): Promise<TourneeCache | null> {
   const patch = { status: "reportee" as const, motif_annulation: motif };
-  const cache = await patcherCache(date, visitId, patch);
+  const cache = await patcherCache(userId, date, visitId, patch);
   await enfiler({ kind: "visit_update", visitId, patch });
   return cache;
 }
 
 /** Compresse, range le blob, puis met l'envoi en file. Rien n'attend le réseau. */
 export async function ajouterPhoto(
+  userId: string,
   date: string,
   visitId: string,
   position: number,
@@ -168,7 +187,7 @@ export async function ajouterPhoto(
     height: photo.height,
     takenAt: new Date().toISOString(),
   });
-  const cache = await lireTourneeCache(date);
+  const cache = await lireTourneeCache(userId, date);
   if (!cache) return null;
   const majee: TourneeCache = {
     ...cache,

@@ -11,20 +11,23 @@ import {
   type TourneeCache,
 } from "@/lib/data/tournee";
 import { surChangementOutbox, tailleOutbox, viderOutbox } from "@/lib/data/outbox";
+import { useSession } from "@/lib/session";
 import type { SaisieCompteRendu } from "@/lib/domain/compte-rendu";
 import { aujourdhuiISO } from "@/lib/dates";
 
 export function useTournee(date: string = aujourdhuiISO()) {
+  const { userId } = useSession();
   const [tournee, setTournee] = useState<TourneeCache | null>(null);
   const [chargement, setChargement] = useState(true);
   const [depuisCache, setDepuisCache] = useState(false);
   const [enAttente, setEnAttente] = useState(0);
 
   useEffect(() => {
+    if (!userId) return;
     let monte = true;
     (async () => {
       // 1. Cache d'abord : premier rendu utile sans réseau.
-      const cache = await lireTourneeCache(date);
+      const cache = await lireTourneeCache(userId, date);
       if (monte && cache) {
         setTournee(cache);
         setDepuisCache(true);
@@ -32,7 +35,7 @@ export function useTournee(date: string = aujourdhuiISO()) {
       }
       // 2. Réseau ensuite, en silence.
       try {
-        const frais = await chargerTourneeReseau(date);
+        const frais = await chargerTourneeReseau(userId, date);
         if (monte) {
           setTournee(frais);
           setDepuisCache(false);
@@ -46,7 +49,7 @@ export function useTournee(date: string = aujourdhuiISO()) {
     return () => {
       monte = false;
     };
-  }, [date]);
+  }, [date, userId]);
 
   useEffect(() => {
     tailleOutbox().then(setEnAttente);
@@ -59,37 +62,47 @@ export function useTournee(date: string = aujourdhuiISO()) {
 
   return {
     tournee,
-    chargement,
+    chargement: chargement && userId !== null,
     depuisCache,
     enAttente,
     demarrer: useCallback(
-      async (visitId: string, position: Position) =>
-        appliquer(await demarrerVisite(date, visitId, position)),
-      [date, appliquer]
+      async (visitId: string, position: Position) => {
+        if (!userId) return;
+        appliquer(await demarrerVisite(userId, date, visitId, position));
+      },
+      [date, userId, appliquer]
     ),
     terminer: useCallback(
-      async (visitId: string, saisie: SaisieCompteRendu, nbPhotos: number) =>
-        appliquer(await terminerVisite(date, visitId, saisie, nbPhotos)),
-      [date, appliquer]
+      async (visitId: string, saisie: SaisieCompteRendu, nbPhotos: number) => {
+        if (!userId) return;
+        appliquer(await terminerVisite(userId, date, visitId, saisie, nbPhotos));
+      },
+      [date, userId, appliquer]
     ),
     reporter: useCallback(
-      async (visitId: string, motif: string) => appliquer(await reporterVisite(date, visitId, motif)),
-      [date, appliquer]
+      async (visitId: string, motif: string) => {
+        if (!userId) return;
+        appliquer(await reporterVisite(userId, date, visitId, motif));
+      },
+      [date, userId, appliquer]
     ),
     photographier: useCallback(
-      async (visitId: string, position: number, fichier: File) =>
-        appliquer(await ajouterPhoto(date, visitId, position, fichier)),
-      [date, appliquer]
+      async (visitId: string, position: number, fichier: File) => {
+        if (!userId) return;
+        appliquer(await ajouterPhoto(userId, date, visitId, position, fichier));
+      },
+      [date, userId, appliquer]
     ),
     synchroniser: useCallback(async () => {
+      if (!userId) return;
       await viderOutbox();
       try {
-        setTournee(await chargerTourneeReseau(date));
+        setTournee(await chargerTourneeReseau(userId, date));
         setDepuisCache(false);
       } catch {
         setDepuisCache(true);
       }
-    }, [date]),
+    }, [date, userId]),
   };
 }
 
