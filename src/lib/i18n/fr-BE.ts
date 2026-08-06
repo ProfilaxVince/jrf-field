@@ -81,5 +81,51 @@ export const t = {
     seenAgo: (days: number) => `Vu il y a ${days} ${days > 1 ? "jours" : "jour"}`,
     late: (days: number) => `En retard de ${days} ${days > 1 ? "jours" : "jour"}`,
     neverSeen: "Jamais visité",
+    onTime: "À jour",
+    dueSoon: (days: number) => `À voir dans ${days} ${days > 1 ? "jours" : "jour"}`,
+    dueToday: "À voir maintenant",
+  },
+  nav: {
+    priorities: "À voir",
+    planning: "Semaine",
+    stores: "Magasins",
+    team: "Équipe",
+    stats: "Chiffres",
+    settings: "Réglages",
+    incidents: "Signalements",
+    home: "Accueil",
+  },
+  priorities: {
+    title: "À voir en priorité",
+    subtitle: "Les magasins qui attendent depuis le plus longtemps, les plus importants d'abord.",
+    empty: "Tout est à jour. Rien n'attend.",
+    showAll: "Voir tout le parc",
+    showLateOnly: "Voir seulement les retards",
+    count: (n: number) => `${n} magasin${n > 1 ? "s" : ""}`,
+    lateCount: (n: number) =>
+      n === 0 ? "Aucun magasin en retard" : `${n} magasin${n > 1 ? "s" : ""} en retard`,
+    neverSeenCount: (n: number) =>
+      n === 0 ? "" : `dont ${n} jamais visité${n > 1 ? "s" : ""}`,
+    filterAll: "Tous",
+    lastVisit: (d: string) => `Dernière visite le ${d}`,
+    targetEvery: (days: number) => `Prévu tous les ${days} jours`,
+    loadError: "Impossible de charger les magasins. Vérifie ta connexion.",
+  },
+  capacite: {
+    title: "Ce que l'équipe peut absorber",
+    verdictLabels: {
+      confortable: "Le rythme prévu tient largement.",
+      tendu: "Le rythme prévu tient tout juste.",
+      insuffisant: "Le rythme prévu ne tient pas : il manque du monde.",
+      impossible: "Aucune capacité disponible cette semaine.",
+    } as Record<string, string>,
+    capaciteTotale: (n: number) => `${n} visites possibles par semaine`,
+    besoin: (n: number) => `${n} visites par semaine pour tenir les fréquences visées`,
+    marge: (n: number) =>
+      n >= 0
+        ? `Marge : ${n} visites par semaine`
+        : `Manque : ${Math.abs(n)} visites par semaine`,
+    dontMontage: (n: number) => `dont ${n} pris par les montages de rayon`,
+    unavailable: "Chiffres de capacité indisponibles pour l'instant.",
   },
 } as const;
