@@ -171,9 +171,9 @@
     "source": "intermarche.be, bottin.be"
   },
   "INTERMARCHE ST LAMBERT BY": {
-    "adresse": "",
-    "confiance": "aVerifier",
-    "source": "NON TROUVÉ — aucun Intermarché à Woluwe-Saint-Lambert. Il s'agit probablement de Liège Saint-Lambert : la commune supposée dans le script est peut-être fausse, à confirmer avec Gérardo"
+    "adresse": "Place Saint-Lambert 9",
+    "confiance": "exacte",
+    "source": "intermarche.be/magasins/intermarche-liege-saint-lambert, galeries-st-lambert.be, mappy, facebook MestdaghLiege — CORRECTION : il sagit de LIÈGE (4000), Galeries Saint-Lambert, PAS de Woluwe-Saint-Lambert"
   },
   "INTERMARCHE LUTTRE BY": {
     "adresse": "Rue du Pont Neuf 6a",
@@ -499,5 +499,95 @@
     "adresse": "Rue du Commerce 79",
     "confiance": "exacte",
     "source": "intermarche.be, bottin.be, myfreedelity, ciney.be (fiché « Intermarché – Groupe Mestdagh »)"
+  },
+  "SPAAR GREZ-DOICEAU": {
+    "adresse": "Chaussée de la Libération 47",
+    "confiance": "exacte",
+    "source": "monspar.be (site officiel Colruyt Group), afsca, atout-commerces.be"
+  },
+  "AD DELHAIZE ATH": {
+    "adresse": "Rue de lAbbaye 6",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, mappy, pagesdor"
+  },
+  "AD DELHAIZE AYWAILLE": {
+    "adresse": "Dieupart 39",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, aywaille.be, mappy"
+  },
+  "AD DELHAIZE BARVAUX": {
+    "adresse": "Petit Barvaux 6",
+    "confiance": "aVerifier",
+    "source": "cybo, mappy, lic-immo, tiendeo donnent « Petit Barvaux 6 » ; pubeco écrit « Rue Petit-Barvaux 2D » — commune officielle : Durbuy"
+  },
+  "AD DELHAIZE BERTRIX": {
+    "adresse": "Route des Gohineaux 2",
+    "confiance": "exacte",
+    "source": "pubeco.be, heures.be, obodo.be, mappy, idelux.be"
+  },
+  "AD DELHAIZE BOUFFIOULX": {
+    "adresse": "Avenue Émile Vandervelde 260",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, mappy — commune officielle : Châtelet"
+  },
+  "AD DELHAIZE BOUGE": {
+    "adresse": "Chaussée de Louvain 336",
+    "confiance": "exacte",
+    "source": "pubeco.be, heures.be, myshopi, namur.be — commune officielle : Namur"
+  },
+  "AD DELHAIZE ANTOING": {
+    "adresse": "Rue du Burg",
+    "confiance": "aVerifier",
+    "source": "antoing.net, bottin.be, facebook AdAntoing — NUMÉRO INTROUVABLE : toutes les fiches sappuient sur la rue seule. Le site du magasin (adantoing.be) bloque la consultation automatique. À compléter par Gérardo"
+  },
+  "AD DELHAIZE CHASTRE": {
+    "adresse": "Route Provinciale 98",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, chastre.be"
+  },
+  "AD DELHAIZE CHATELINEAU": {
+    "adresse": "Rue des Mottards 130 bte 12",
+    "confiance": "aVerifier",
+    "source": "press.delhaize.be, toogoodtogo, facebook addelhaizechatelineau (« AD Delhaize Châtelineau FrunPark ») — un second Delhaize existe Rue du Trieu Kaisin 71 (« Châtelineau Galerie »), qui nest pas un AD"
+  },
+  "AD DELHAIZE BRAINE L'ALLEUD": {
+    "adresse": "Avenue Victor Hugo 3",
+    "confiance": "aVerifier",
+    "source": "delhaizemerbraine.be (site du magasin, « AD Delhaize Merbraine »), brainecommerce.be — mappy indique une autre voie ; à confirmer"
+  },
+  "AD DELHAIZE DIKSMUIDE II": {
+    "adresse": "Kaaskerkestraat 82",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.info, openingsuren.vlaanderen, handelsgids.be"
+  },
+  "AD DELHAIZE DINANT": {
+    "adresse": "Place du Cardinal Mercier 12",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, heures.be, kompass — le Proxy dAnseremme (Rue Ariste-Caussin 95) est un autre magasin"
+  },
+  "AD DELHAIZE EEKLO -": {
+    "adresse": "Stationsstraat 19",
+    "confiance": "exacte",
+    "source": "cylex, openingsurengids.be, handelsgids.be, addelhaize-eeklo.be (site du magasin, « AD Delhaize Lasken ») — le Delhaize du Brugsesteenweg 23 est un autre magasin"
+  },
+  "AD DELHAIZE ENGHIEN": {
+    "adresse": "Square de la Dodane 1",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, delhaize-enghien.be — le Proxy (Ch. de Bruxelles 359) est un autre magasin"
+  },
+  "AD DELHAIZE EPINOIS": {
+    "adresse": "Rue Saint-Fiacre 2",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, binche.be, delhaize-epinois.be"
+  },
+  "AD DELHAIZE FERNELMONT": {
+    "adresse": "Rue dEghezée 16",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, fernelmont.be"
+  },
+  "AD DELHAIZE FLORENVILLE": {
+    "adresse": "Rue dArlon 46",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco, heures.be, florenville.be, pagesdor"
   }
 }

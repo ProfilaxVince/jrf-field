@@ -56,7 +56,10 @@ const COMMUNES = {
   "JAMBES": C("Jambes", "5100", "wallonie"),
   "JODOIGNE": C("Jodoigne", "1370", "wallonie"),
   "JUMET": C("Jumet", "6040", "wallonie"),
-  "ST LAMBERT": C("Woluwe-Saint-Lambert", "1200", "bruxelles", "quartier"),
+  // « INTERMARCHE ST LAMBERT BY » = les Galeries Saint-Lambert, à LIÈGE.
+  // Il n'y a pas d'Intermarché à Woluwe-Saint-Lambert : l'hypothèse initiale
+  // était fausse (vérifié sur intermarche.be et galeries-st-lambert.be).
+  "ST LAMBERT": C("Liège", "4000", "wallonie", "quartier"),
   "-HUMBLET": C("Liège", "4000", "wallonie", "quartier"), // « Intermarché Liège Humblet »
   "LUTTRE": C("Luttre", "6238", "wallonie"),
   "MARCINELLE": C("Marcinelle", "6001", "wallonie"),
