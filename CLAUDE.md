@@ -109,74 +109,128 @@ Direct, dense, sans flatterie. Signaler les mauvaises idées immédiatement avec
 l'alternative. Question plutôt qu'hypothèse quand l'enjeu est structurant.
 Ne jamais élargir le périmètre sans demander.
 
-## Session snapshot — reprise Claude Code
+## Session snapshot — reprise Claude Code (état au 2026-08-06)
 
-Résumé rapide (état au 2026-08-05)
-- **Supabase project**: `jrf-field` (ref: `qvjknxswntewkswspmgx`, org: `zvlvfwkxwddlplmtwnjk`).
-- **Migrations appliquées**: toutes les migrations dans [supabase/migrations](supabase/migrations/) ont été poussées sur le projet.
-- **Seed exécuté**: `supabase/seed.sql` a été exécuté et a inséré les données de test (185 magasins + users).
-- **Types générés**: `src/lib/data/database.types.ts` (généré via `supabase gen types`).
-- **Client Supabase**: implémenté dans [src/lib/data/supabase.ts](src/lib/data/supabase.ts) et utilisé par le `SessionProvider`.
-- **Auth**: nom d'utilisateur + code 4 chiffres, vérifié côté serveur (service_role) puis
-  échangé contre une vraie session Supabase. Le magic-link testé au Lot 1 est abandonné. Provider et page:
-  - [src/lib/session.tsx](src/lib/session.tsx)
-  - [src/app/auth/page.tsx](src/app/auth/page.tsx)
-- **.env.local**: créé localement avec les variables suivantes (frontend only):
+### Infrastructure
+
+- **Projet Supabase** : `jrf-field` (ref `qvjknxswntewkswspmgx`, org `zvlvfwkxwddlplmtwnjk`),
+  région Frankfurt.
+- **Migrations** : toutes celles de [supabase/migrations](supabase/migrations/) sont
+  appliquées, jusqu'à `00014_terrain_autonome.sql`.
+- **Types générés** : `src/lib/data/database.types.ts`.
+- **Déploiement** : Netlify, `jrfcom.netlify.app`, branche **`main`**.
+  ⚠️ Netlify ne déploie que `main` : tout travail resté sur une branche de session
+  est invisible pour Vincent. Fusionner dans `main` à chaque lot.
+  L'écran Réglages affiche la référence du build pour lever le doute.
+- **Auth** : nom d'utilisateur (surnom) + code 4 chiffres. Admin : **Gerardo**.
+  Le code n'est écrit dans aucun fichier du dépôt — il se pose avec
+  `scripts/set-pin.mjs` (non committé, nécessite la clé service_role).
+- **`.env.local`** (non committé) :
   - `NEXT_PUBLIC_SUPABASE_URL=https://qvjknxswntewkswspmgx.supabase.co`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_K5QulJDusUdXyp55odhnXw_NxiyxoUf`
 
-Commandes utiles pour reprendre (exécuter dans la racine du repo)
-- Login CLI (si déconnecté):
+### Vincent n'a pas de terminal
 
-```bash
-supabase login
+Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qui doit
+être exécuté doit l'être depuis le navigateur** : SQL Editor de Supabase, écran
+« Importer un CSV » de l'app. Les scripts prêts à coller vivent dans
+[supabase/manual/](supabase/manual/), chacun idempotent et s'inscrivant lui-même dans
+`supabase_migrations.schema_migrations` pour ne pas être rejoué par un futur `db push`.
+
+### Modèle métier — deux corrections déjà faites, à ne pas réintroduire
+
+1. **Aucun magasin n'appartient à un commercial.** Tous peuvent traverser tous les
+   magasins. Il n'y a pas de périmètre, pas de secteur, pas d'affectation. (Confirmé
+   par Vincent le 06/08/2026 ; l'écran `/perimetres` et `lib/data/team.ts` ont été
+   supprimés.)
+2. **Pas de remplissage automatique de la semaine.** Gérardo compose lui-même :
+   modèles de tournée (`/templates`), ajout manuel de magasins, « vider la semaine »
+   par commercial. `repartirSemaine` a été supprimé de `lib/domain/planning.ts`,
+   qui ne garde que `distanceKm()` et `ordonnerParProximite()`.
+
+### Import des magasins réels — état exact
+
+Le fichier source est l'Excel de Gérardo `Visites_Inter_Delhaize_31.xlsx`
+(**185 lignes** : 95 Intermarché, 78 AD Delhaize, 6 Delhaize, 5 Proxy, 1 Spar).
+Il ne contient **ni adresse ni GPS** — seulement un libellé par magasin.
+
+**Livré :** [supabase/manual/magasins-reels.csv](supabase/manual/magasins-reels.csv),
+importable tel quel via Magasins → Importer un CSV.
+
+| | |
+|---|---|
+| Commune + code postal | **185/185** |
+| Adresse | **146/185**, retrouvées une par une, chacune avec sa source |
+| dont vérifiées sans ambiguïté | 116 |
+| dont `aVerifier` (deux adresses circulent, ou deux magasins portent le nom) | 31 |
+| Coordonnées GPS | **0/185** — voir ci-dessous |
+
+**Chaîne de production :**
+
+```
+scripts/adresses-magasins.json      table cumulative : libellé Excel → adresse + source
+scripts/extraire-magasins-excel.mjs table des communes + conversion Excel → CSV
+supabase/manual/magasins-reels.csv  le résultat, à importer
 ```
 
-- Lier le repo à un projet (si besoin):
+Pour régénérer après avoir complété le JSON :
 
 ```bash
-supabase link --project-ref qvjknxswntewkswspmgx
+node scripts/extraire-magasins-excel.mjs <fichier.xlsx> supabase/manual/magasins-reels.csv
 ```
 
-- Re-pousser les migrations (optionnel — déjà appliquées):
+**Pourquoi pas de GPS** : Overpass, Nominatim, `stores.delhaize.be` et `intermarche.be`
+renvoient tous 403 depuis cet environnement. La recherche web ne donne que les
+coordonnées de la **commune**, qui enverraient le commercial sur la grand-place au lieu
+du magasin et fausseraient « Ranger par trajet ». La colonne est donc laissée vide
+délibérément. Ce n'est pas bloquant : `lienItineraire` bascule sur l'adresse postale,
+donc le bouton Google Maps fonctionne sans coordonnées.
+
+**39 adresses restent à trouver** (toutes AD Delhaize, Proxy ou Delhaize — le bloc
+Intermarché est terminé). Reprendre la boucle : une recherche web par magasin,
+écriture dans `scripts/adresses-magasins.json`, régénération du CSV.
+
+```
+AD DELHAIZE OTTIGNIES · OUDENAARDE · PRINCE DE LIEGE · ROODEBEEK · SCHOTEN · SERAING
+AD DELHAIZE TOURNAI · TUBIZE · UCCLE DEFRE · VIRTON · WAASLAND · WATERLOO · WAVRE
+AD DELHAIZE WILRIJK · WONDELGEM · ZEDELGEM · EVERE · FERRIERES
+AD WAREGEM (×2) · ZWIJNAARDE · JODOIGNE · BELGRADE · RECOGNE · WANZE · FORT JACO
+AD GENVAL · CROIX DE GUERRE · LA LOUVIERE
+PROXY BEERZEL · HOEILLART · WOLUWE ST LAMBERT · SCHAERBEEK · RHISNES
+DELHAIZE VISE · AARDOIE · ZELE · TORHOUT · AARTSELAAR
+```
+
+### Questions ouvertes pour Gérardo — à poser avant l'import définitif
+
+- **Doublons dans son propre fichier** : `AD DELHAIZE HANKAR` / `AD HANKAR` désignent
+  le même magasin (Clos Lucien Outers 1, Auderghem). Idem `AD DELHAIZE MONS` /
+  `AD DELHAIZE NIMY - VAMODIS` (Rue de Nimy 117-121 — Vamodis SA est la société
+  exploitante, pas un autre point de vente). `AD WAREGEM` apparaît deux fois à
+  l'identique. Lesquels supprimer ?
+- **`INTERMARCHE GOSSELIES` vs `INTERMARCHE GOSSELIES BY`** : deux magasins réels
+  (Chaussée de Courcelles 95 et Rue Pont-à-Migneloux 13). L'attribution entre les deux
+  lignes est déduite, pas vérifiée.
+- **`INTERMARCHE LEUZE`** : rattaché à Leuze-en-Hainaut (7900), mais un Intermarché
+  nommé « Leuze » existe aussi à Éghezée. À confirmer.
+- **`AD DELHAIZE ANTOING`** : rue connue (Rue du Burg), numéro introuvable.
+- Corrections de code postal appliquées, à valider : `INTERMARCHE ORCQ` → 7501 (et non
+  7503, qui est Froyennes) ; `AD DELHAIZE FRASNES LEZ GOSSELIES` → 6210 (et non 6250).
+- Correction déjà faite : `INTERMARCHE ST LAMBERT BY` est aux **Galeries
+  Saint-Lambert à Liège** (4000), pas à Woluwe-Saint-Lambert.
+
+### Avant l'import
+
+Exécuter [supabase/manual/remplacer-magasins-fictifs.sql](supabase/manual/remplacer-magasins-fictifs.sql)
+dans le SQL Editor : il désactive les 185 magasins fictifs du seed (`active = false`,
+aucune suppression physique) et les visites qui les référencent. Puis importer
+`magasins-reels.csv` via Magasins → Importer un CSV.
+
+### Vérifications avant de dire « c'est fait »
 
 ```bash
-supabase db push --linked
+npm run build && npm run lint
 ```
 
-- Exécuter le seed SQL (optionnel — déjà exécuté):
-
-```bash
-supabase db query --linked --file supabase/seed.sql
-```
-
-- Générer les types TS (si besoin de régénérer):
-
-```bash
-supabase gen types --linked --schema public > src/lib/data/database.types.ts
-```
-
-- Builder l'app localement:
-
-```bash
-npm install
-npm run build
-```
-
-Points d'attention pour la reprise sur Claude Code
-- Les **secrets** (service_role key) ne sont pas dans ce dépôt. Ne jamais les mettre dans `.env.local` committé.
-- Le `publishable` key est safe pour le frontend; il est présent dans `.env.local` local.
-- Si tu veux que la première connexion Auth crée automatiquement une ligne `app_users`, il faut ajouter une logique serveur ou client pour créer/mapper `app_users.auth_user_id` au premier signin — je peux l'implémenter (option `auto-create`).
-- Pour lier les comptes seed existants (dans `app_users`) aux comptes Auth, tu peux
-  - soit créer manuellement les users Auth via le Dashboard et copier `auth_user_id` dans la table `app_users`,
-  - soit exécuter un petit script qui recherche par email et met à jour `app_users.auth_user_id`.
-
-Checklist rapide (pour la reprise)
-- **[ ]** Ouvrir le repo et `npm run build` (vérifier que `.env.local` est présent).
-- **[ ]** `supabase login` si la CLI demande une authentification.
-- **[ ]** Lancer `supabase link` si le lien a été perdu.
-- **[ ]** Tester l'auth magic-link depuis `/auth` et vérifier que `app_users` est lié.
-
-Si tu veux, je peux générer un script utilitaire `scripts/link-seed-users.mjs` qui automatise le mapping `app_users.auth_user_id` depuis les emails présents dans `app_users` vers les utilisateurs Supabase Auth (exécutable via CLI). Dis "génère le script" et je l'ajoute.
-
-*** Fin de la snapshot — reprise possible depuis Claude Code ***
+Et un test réel dans le navigateur. Un build qui passe ne prouve pas qu'une mise en
+page tient : la barre de navigation a été livrée cassée sur téléphone parce qu'un
+`flex` sans direction avait été relu trop vite.

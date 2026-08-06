@@ -714,5 +714,35 @@
     "adresse": "Vliegveld 770 (Brucargo)",
     "confiance": "exacte",
     "source": "stores.delhaize.be, cybo, bottin.be, hours.be, steenokkerzeel.be — commune officielle : Steenokkerzeel, zone Brucargo"
+  },
+  "AD DELHAIZE METTET": {
+    "adresse": "Rue Hennevauche 72",
+    "confiance": "exacte",
+    "source": "admettet.be (site du magasin), stores.delhaize.be, infobel, data.be"
+  },
+  "AD DELHAIZE MONS": {
+    "adresse": "Rue de Nimy 117-121",
+    "confiance": "exacte",
+    "source": "admons.be (site du magasin, « AD Delhaize Mons Nimy »), pubeco, heures.be, monscentreville.be"
+  },
+  "AD DELHAIZE NIMY - VAMODIS": {
+    "adresse": "Rue de Nimy 117-121",
+    "confiance": "aVerifier",
+    "source": "MÊME MAGASIN que « AD DELHAIZE MONS » : la société exploitante est Vamodis SA (admons.be, zoominfo). Le fichier contient donc deux lignes pour un seul point de vente — demander à Gérardo laquelle supprimer"
+  },
+  "AD DELHAIZE MONTIGNY LE TILLEUL": {
+    "adresse": "Rue de Gozée 400",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, delhaize-montigny.be (site du magasin), pubeco.be, heures.be, montigny-le-tilleul.be"
+  },
+  "AD DELHAIZE MORLANWELZ": {
+    "adresse": "Chaussée Brunehault 500",
+    "confiance": "exacte",
+    "source": "delhaizemorlanwelz.be (site du magasin), stores.delhaize.be, pubeco.be, heures.be"
+  },
+  "AD DELHAIZE OOSTKAMP": {
+    "adresse": "Kortrijksestraat 103-105",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.vlaanderen, openingsurengids.be, buurtsuper.be"
   }
 }
