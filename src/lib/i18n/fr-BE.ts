@@ -51,6 +51,8 @@ export const t = {
     importFailed: "Import impossible.",
     importDuplicate:
       "Import impossible : une référence de magasin existe déjà en base. Retire la colonne de référence du fichier, ou vide d'abord les magasins actuels.",
+    importRefsExistantes: (refs: string[]) =>
+      `Import impossible : ${refs.length} référence${refs.length > 1 ? "s de ce fichier existent" : " de ce fichier existe"} déjà en base (${refs.slice(0, 5).join(", ")}${refs.length > 5 ? `, et ${refs.length - 5} autre${refs.length - 5 > 1 ? "s" : ""}` : ""}). Ces magasins ont déjà été importés : retire-les d'abord, ou supprime la colonne « reference » du fichier.`,
     name: "Nom",
     city: "Ville",
     postalCode: "Code postal",

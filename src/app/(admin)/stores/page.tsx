@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { t } from "@/lib/i18n/fr-BE";
 import { ListeGroupee } from "@/components/store/liste-groupee";
 import { parseDelimited } from "@/lib/csv";
+import { detailErreur, estConflitDeCle } from "@/lib/data/erreurs";
 import {
   ENSEIGNES,
   REGIONS,
@@ -375,6 +376,18 @@ export default function AdminStoresPage() {
 
   async function confirmImport() {
     if (!csvRows || csvRows.some((r) => !r.valid)) return;
+
+    // Les références déjà en base se voient AVANT d'écrire : la base répondrait
+    // « duplicate key » sur la première seulement, sans dire laquelle ni
+    // combien. Ici on les nomme, et l'import n'a rien tenté.
+    const dejaPrises = csvRows
+      .map((r) => r.data.external_ref.trim())
+      .filter((ref) => ref && stores.some((s) => s.external_ref === ref));
+    if (dejaPrises.length > 0) {
+      setError(t.stores.importRefsExistantes(dejaPrises));
+      return;
+    }
+
     setSaving(true);
     try {
       const inserted = await importStores(csvRows.map((r) => draftToInsert(r.data)));
@@ -384,10 +397,12 @@ export default function AdminStoresPage() {
     } catch (e) {
       // La cause exacte compte : un doublon de référence ne se corrige pas
       // comme un fichier mal formé, et « import impossible » n'aide personne.
-      const detail = e instanceof Error ? e.message : "";
+      // Tout ce que la base a dit est repris, `hint` compris — c'est souvent là
+      // qu'est la correction à appliquer.
+      const detail = detailErreur(e);
       setError(
-        detail.includes("duplicate key")
-          ? t.stores.importDuplicate
+        estConflitDeCle(e)
+          ? `${t.stores.importDuplicate}${detail ? ` (${detail})` : ""}`
           : `${t.stores.importFailed}${detail ? ` (${detail})` : ""}`
       );
     } finally {
