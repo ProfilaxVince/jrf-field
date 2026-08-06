@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { t } from "@/lib/i18n/fr-BE";
-import { generatePin, listAppUsers, type AppUserRow } from "@/lib/data/users";
+import {
+  definirPorteVisites,
+  generatePin,
+  listAppUsers,
+  type AppUserRow,
+} from "@/lib/data/users";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AppUserRow[]>([]);
@@ -35,10 +40,25 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function basculerPorteVisites(u: AppUserRow, porte: boolean) {
+    const precedent = users;
+    setUsers((prev) => prev.map((p) => (p.id === u.id ? { ...p, porte_visites: porte } : p)));
+    try {
+      await definirPorteVisites(u.id, porte);
+      setError(null);
+    } catch {
+      setUsers(precedent);
+      setError(t.adminUsers.updateError);
+    }
+  }
+
   return (
     <main className="p-6">
       <div className="mx-auto max-w-2xl space-y-6">
-        <h1 className="text-2xl font-semibold text-jrf-green-800">{t.adminUsers.title}</h1>
+        <h1 className="font-display text-2xl font-bold uppercase tracking-[0.12em] text-jrf-800">
+          {t.adminUsers.title}
+        </h1>
+        <p className="text-base text-neutral-700">{t.adminUsers.carriesVisitsHint}</p>
 
         {error && <p className="text-base text-[color:var(--state-critical)]">{error}</p>}
 
@@ -89,17 +109,28 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant={u.pin_hash ? "outline" : "default"}
-                  disabled={busyId === u.id}
-                  onClick={() => handleGenerate(u)}
-                >
-                  {busyId === u.id
-                    ? t.adminUsers.generating
-                    : u.pin_hash
-                      ? t.adminUsers.regenerateCode
-                      : t.adminUsers.generateCode}
-                </Button>
+                <div className="flex items-center gap-4">
+                  <label className="flex min-h-[44px] items-center gap-2 text-base">
+                    <input
+                      type="checkbox"
+                      className="size-5"
+                      checked={u.porte_visites}
+                      onChange={(e) => basculerPorteVisites(u, e.target.checked)}
+                    />
+                    {t.adminUsers.carriesVisits}
+                  </label>
+                  <Button
+                    variant={u.pin_hash ? "outline" : "default"}
+                    disabled={busyId === u.id}
+                    onClick={() => handleGenerate(u)}
+                  >
+                    {busyId === u.id
+                      ? t.adminUsers.generating
+                      : u.pin_hash
+                        ? t.adminUsers.regenerateCode
+                        : t.adminUsers.generateCode}
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

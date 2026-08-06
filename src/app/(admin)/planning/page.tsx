@@ -1,6 +1,5 @@
 "use client";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { ChevronLeft, ChevronRight, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UndoBar } from "@/components/ui/undo-bar";
@@ -35,9 +34,6 @@ export default function PlanningPage() {
     setRetiree(visit);
     await planning.retirer(visit);
   }
-
-  const perimetreVide =
-    !planning.loading && planning.users.length > 0 && planning.priorites.length > 0 && !aDesVisites;
 
   return (
     <main className="px-4 py-6">
@@ -114,18 +110,13 @@ export default function PlanningPage() {
 
         {planning.loading ? (
           <p className="text-base text-neutral-500">{t.common.loading}</p>
-        ) : planning.users.length === 0 ? (
-          <p className="rounded-lg border border-border bg-card px-4 py-6 text-lg">{t.planning.noTeam}</p>
+        ) : planning.erreur ? null /* l'erreur est déjà affichée plus haut ; ne pas
+             la déguiser en « équipe vide », c'est ce qui a envoyé sur une fausse piste */ : planning.users.length === 0 ? (
+          <p className="rounded-lg border border-border bg-card px-4 py-6 text-lg">
+            {t.planning.noTeam}
+          </p>
         ) : (
           <>
-            {perimetreVide && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3">
-                <p className="text-base text-neutral-700">{t.planning.noPerimeter}</p>
-                <Button variant="outline" asChild>
-                  <Link href="/perimetres">{t.perimetres.openLink}</Link>
-                </Button>
-              </div>
-            )}
             <SemaineGrille
               users={planning.users}
               jours={planning.jours}

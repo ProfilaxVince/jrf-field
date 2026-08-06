@@ -187,9 +187,6 @@ export default function SettingsPage() {
               <Link href="/users">{t.settings.teamOpen}</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/perimetres">{t.settings.perimetresOpen}</Link>
-            </Button>
-            <Button variant="outline" asChild>
               <Link href="/absences">{t.settings.absencesOpen}</Link>
             </Button>
           </CardContent>

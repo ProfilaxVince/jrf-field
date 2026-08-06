@@ -82,11 +82,22 @@ export function ordonnerParProximite<T extends { lat: number | null; lng: number
   return ordonnes;
 }
 
-export type EntreePlanification = {
-  userId: string;
-  /** Jours ouvrés réellement travaillés par cette personne (absences/fériés déjà retirés). */
-  jours: string[];
-  /** Magasins de son périmètre, triés par priorité décroissante, jamais planifiés dans l'horizon. */
+/** Un commercial, un jour : une case à remplir. */
+export type Creneau = { userId: string; date: string };
+
+export type EntreeRepartition = {
+  /**
+   * Créneaux à servir, DANS L'ORDRE. L'appelant les range jour par jour
+   * (lundi pour tout le monde, puis mardi…) : ainsi les magasins qui
+   * attendent le plus partent en début de semaine, répartis sur l'équipe.
+   */
+  creneaux: Creneau[];
+  /**
+   * Tout le parc, trié par priorité décroissante. Il n'y a PAS de périmètre :
+   * n'importe quel commercial peut passer dans n'importe quel magasin
+   * (politique confirmée le 06/08/2026). Le pool est donc commun, et un
+   * magasin servi à quelqu'un disparaît pour les autres.
+   */
   candidats: Candidat[];
   /** Magasins éligibles au montage de 6 h, du moins récemment monté au plus récent. */
   candidatsMontage: string[];
@@ -94,32 +105,43 @@ export type EntreePlanification = {
   montagesParJour: number;
 };
 
-/** Construit la proposition de semaine d'UNE personne. */
-export function proposerSemaine(entree: EntreePlanification): JourneeProposee[] {
+/** Choisit le voisin le plus proche parmi les plus prioritaires encore libres. */
+function prendreLePlusProche(depuis: Candidat, restants: Candidat[]): Candidat {
+  const fenetre = Math.min(PROFONDEUR_VOISINAGE, restants.length);
+  let meilleur = 0;
+  let meilleureDistance = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < fenetre; i++) {
+    const d = distanceKm(depuis, restants[i]);
+    if (d < meilleureDistance) {
+      meilleureDistance = d;
+      meilleur = i;
+    }
+  }
+  return restants.splice(meilleur, 1)[0];
+}
+
+/**
+ * Répartit le parc sur les créneaux de la semaine.
+ *
+ * Un seul pool pour toute l'équipe : le magasin le plus en attente ouvre le
+ * premier créneau, ses voisins remplissent la journée, et le suivant ouvre le
+ * créneau d'après. Personne ne se voit attribuer deux fois le même magasin
+ * puisqu'il sort du pool dès qu'il est servi.
+ */
+export function repartirSemaine(entree: EntreeRepartition): JourneeProposee[] {
   const restants = [...entree.candidats];
   const montages = [...entree.candidatsMontage];
   const parJour = Math.max(0, Math.round(entree.visitesParJour));
   const journees: JourneeProposee[] = [];
 
-  for (const date of entree.jours) {
+  for (const creneau of entree.creneaux) {
     if (restants.length === 0 && montages.length === 0) break;
 
     const choisis: Candidat[] = [];
-    if (restants.length > 0 && parJour > 0) {
+    if (parJour > 0 && restants.length > 0) {
       choisis.push(restants.shift() as Candidat);
       while (choisis.length < parJour && restants.length > 0) {
-        const fenetre = restants.slice(0, PROFONDEUR_VOISINAGE);
-        const dernier = choisis[choisis.length - 1];
-        let meilleur = 0;
-        let meilleureDistance = Number.POSITIVE_INFINITY;
-        fenetre.forEach((candidat, index) => {
-          const d = distanceKm(dernier, candidat);
-          if (d < meilleureDistance) {
-            meilleureDistance = d;
-            meilleur = index;
-          }
-        });
-        choisis.push(restants.splice(meilleur, 1)[0]);
+        choisis.push(prendreLePlusProche(choisis[choisis.length - 1], restants));
       }
     }
 
@@ -127,8 +149,8 @@ export function proposerSemaine(entree: EntreePlanification): JourneeProposee[] 
     if (choisis.length === 0 && montageStoreId === null) continue;
 
     journees.push({
-      userId: entree.userId,
-      date,
+      userId: creneau.userId,
+      date: creneau.date,
       // `choisis` est déjà chaîné de proche en proche depuis le magasin le plus
       // prioritaire : le rejouer ne changerait rien. `ordonnerParProximite` est
       // réservé au bouton « Réordonner » après une modification manuelle.

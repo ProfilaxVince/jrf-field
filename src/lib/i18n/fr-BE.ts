@@ -69,6 +69,9 @@ export const t = {
   },
   adminUsers: {
     title: "Équipe",
+    carriesVisits: "Fait des visites",
+    carriesVisitsHint: "Décoche pour quelqu'un qui ne fait pas de tournée (la semaine ne lui en donnera plus).",
+    updateError: "Le changement n'a pas pu être enregistré. Réessaie.",
     generateCode: "Donner un code à 4 chiffres",
     regenerateCode: "Changer le code à 4 chiffres",
     hasCode: "Code actif",
@@ -133,9 +136,8 @@ export const t = {
     remove: "Retirer",
     removed: "Arrêt retiré.",
     stops: (n: number) => `${n} arrêt${n > 1 ? "s" : ""}`,
-    noTeam: "Personne ne porte de visites pour l'instant. Ajoute au moins un commercial dans Réglages.",
-    noPerimeter:
-      "Aucun magasin n'est attribué. Attribue les magasins aux commerciaux dans Réglages, puis reviens remplir la semaine.",
+    noTeam:
+      "Personne n'est marqué comme faisant des visites. Ouvre Réglages → Codes d'accès de l'équipe et active « Fait des visites » pour au moins une personne.",
     errors: {
       chargement: "Impossible de charger la semaine. Vérifie ta connexion.",
       remplissage: "Le remplissage n'a pas abouti. Réessaie.",
@@ -227,7 +229,6 @@ export const t = {
     tiersRecalcDone: "Catégories mises à jour.",
     teamTitle: "L'équipe",
     teamOpen: "Codes d'accès de l'équipe",
-    perimetresOpen: "Qui s'occupe de quoi",
     absencesTitle: "Congés et absences",
     absencesOpen: "Gérer les absences",
     exportTitle: "Exports",
@@ -320,23 +321,6 @@ export const t = {
     relaisFrom: (magasin: string, date: string) => `${magasin} — ${date}`,
     loadError: "Impossible de charger les signalements. Vérifie ta connexion.",
     saveError: "Le changement n'a pas pu être enregistré. Réessaie.",
-  },
-  perimetres: {
-    title: "Qui s'occupe de quoi",
-    subtitle: "Chaque magasin a un responsable. Sans ça, la semaine ne peut pas se remplir.",
-    unassigned: "Sans responsable",
-    assignedTo: "Responsable",
-    none: "—",
-    search: "Chercher un magasin ou une ville",
-    filterUnassignedOnly: "Seulement les magasins sans responsable",
-    bulkTo: "Attribuer les magasins affichés à",
-    bulkApply: (n: number) => `Attribuer ces ${n} magasins`,
-    bulkDone: (n: number, surnom: string) => `${n} magasins confiés à ${surnom}.`,
-    saved: "Enregistré.",
-    saveError: "L'attribution n'a pas pu être enregistrée. Réessaie.",
-    counts: (attribues: number, total: number) => `${attribues} magasins sur ${total} ont un responsable`,
-    moreHidden: (n: number) => `… et ${n} autres. Affine la recherche pour les voir.`,
-    openLink: "Ouvrir « Qui s'occupe de quoi »",
   },
   capacite: {
     title: "Ce que l'équipe peut absorber",

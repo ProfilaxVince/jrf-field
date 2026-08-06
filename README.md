@@ -28,12 +28,11 @@ Portail responsable (`/admin`, réservé à `is_admin`)
 | `/admin` | À voir en priorité + verdict de capacité |
 | `/planning` | Semaine : remplissage assisté, réordonnancement, undo 10 s |
 | `/stores` | Parc : ajout, modification, import CSV |
-| `/perimetres` | Qui s'occupe de quoi (attribution unitaire ou en lot) |
 | `/incidents` | Signalements à traiter + remontées à la centrale |
 | `/stats` | Les chiffres (lecture des vues SQL) |
 | `/settings` | Rythme, catégories, équipe, exports |
+| `/users` | Codes d'accès et « fait des visites » |
 | `/absences` | Congés et absences |
-| `/users` | Codes d'accès de l'équipe |
 
 Portail commercial (`/field`, mobile, hors ligne)
 

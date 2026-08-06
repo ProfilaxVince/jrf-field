@@ -10,8 +10,6 @@ import {
   type DiagnosticCapacite,
   type StorePriorite,
 } from "@/lib/data/dette";
-import { couleursParMagasin, listAssignments } from "@/lib/data/team";
-import { listAppUsers } from "@/lib/data/users";
 import { detteAffichable } from "@/lib/domain/dette";
 import { t } from "@/lib/i18n/fr-BE";
 
@@ -19,7 +17,6 @@ const APERCU = 25;
 
 export default function AdminPrioritesPage() {
   const [priorites, setPriorites] = useState<StorePriorite[]>([]);
-  const [couleurs, setCouleurs] = useState<Map<string, string>>(new Map());
   const [diagnostic, setDiagnostic] = useState<DiagnosticCapacite | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,15 +26,9 @@ export default function AdminPrioritesPage() {
     let monte = true;
     (async () => {
       try {
-        const [items, users, assignments, diag] = await Promise.all([
-          listStorePriorites(),
-          listAppUsers(),
-          listAssignments(),
-          getDiagnosticCapacite(),
-        ]);
+        const [items, diag] = await Promise.all([listStorePriorites(), getDiagnosticCapacite()]);
         if (!monte) return;
         setPriorites(items);
-        setCouleurs(couleursParMagasin(users, assignments));
         setDiagnostic(diag);
       } catch {
         if (monte) setError(t.priorities.loadError);
@@ -101,11 +92,7 @@ export default function AdminPrioritesPage() {
             ) : (
               <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
                 {liste.map((item) => (
-                  <StorePrioriteRow
-                    key={item.store.id}
-                    item={item}
-                    couleurPersonne={couleurs.get(item.store.id)}
-                  />
+                  <StorePrioriteRow key={item.store.id} item={item} />
                 ))}
               </ul>
             )}

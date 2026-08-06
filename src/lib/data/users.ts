@@ -34,3 +34,12 @@ export async function generatePin(appUserId: string): Promise<{ pin: string }> {
   if (!res.ok) throw new Error(data.error ?? "generate_failed");
   return data;
 }
+
+/** Active ou retire quelqu'un de la planification. Aucune suppression de compte. */
+export async function definirPorteVisites(appUserId: string, porte: boolean): Promise<void> {
+  const { error } = await supabase
+    .from("app_users")
+    .update({ porte_visites: porte })
+    .eq("id", appUserId);
+  if (error) throw error;
+}

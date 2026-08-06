@@ -7,26 +7,22 @@ import type { StorePriorite } from "@/lib/data/dette";
 
 /**
  * Une ligne de la liste « À voir en priorité ».
- * Liseré gauche = couleur de la personne qui couvre le magasin (jamais un état).
+ * Pas de couleur de personne ici : aucun magasin n'appartient à quiconque,
+ * n'importe quel commercial peut y passer (politique confirmée le 06/08/2026).
  * Aucun chiffre de score à l'écran : l'ordre porte l'information.
  */
 export function StorePrioriteRow({
   item,
-  couleurPersonne,
   action,
 }: {
   item: StorePriorite;
-  couleurPersonne?: string | null;
   action?: React.ReactNode;
 }) {
   const { store, dette } = item;
   const affichage = detteAffichable(dette, t.visite);
 
   return (
-    <li
-      className="flex items-center gap-4 border-l-4 border-border bg-card px-4 py-3 first:rounded-t-lg last:rounded-b-lg"
-      style={couleurPersonne ? { borderLeftColor: couleurPersonne } : undefined}
-    >
+    <li className="flex items-center gap-4 bg-card px-4 py-3 first:rounded-t-lg last:rounded-b-lg">
       <div className="min-w-0 flex-1">
         <p className="truncate text-lg font-semibold">{store.name}</p>
         <p className="truncate text-sm text-neutral-500">
