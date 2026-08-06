@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/data/supabaseAdmin";
 import {
-  generateAccessCode,
   generatePin,
   hashSecret,
   makeInternalAuthEmail,
@@ -9,10 +8,11 @@ import {
 } from "@/lib/data/authServer";
 
 /**
- * Génère (ou régénère) le code d'accès + PIN d'un app_user. Réservé à
- * l'admin. Le code + PIN ne sont jamais stockés en clair et ne sont
- * renvoyés qu'une seule fois dans cette réponse — l'admin les communique
- * de vive voix / sur papier au commercial concerné.
+ * Génère (ou régénère) le PIN d'un app_user. Réservé à l'admin.
+ * Le nom d'utilisateur, lui, est le surnom : il est déjà connu de tous,
+ * seul le PIN est un secret. Il n'est jamais stocké en clair et n'est
+ * renvoyé qu'une seule fois dans cette réponse — l'admin le communique
+ * de vive voix au commercial concerné.
  */
 export async function POST(request: Request) {
   const admin = createSupabaseAdminClient();
@@ -57,16 +57,14 @@ export async function POST(request: Request) {
     authUserId = created.user.id;
   }
 
-  const accessCode = generateAccessCode();
   const pin = generatePin();
-  const [accessCodeHash, pinHash] = await Promise.all([hashSecret(accessCode), hashSecret(pin)]);
+  const pinHash = await hashSecret(pin);
 
   const { error: updateError } = await admin
     .from("app_users")
     .update({
       auth_user_id: authUserId,
       internal_auth_email: internalAuthEmail,
-      access_code_hash: accessCodeHash,
       pin_hash: pinHash,
       failed_login_attempts: 0,
       locked_until: null,
@@ -76,8 +74,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Erreur serveur, réessaie." }, { status: 500 });
   }
 
-  // Nouveaux identifiants → les anciens appareils ne doivent plus pouvoir se rafraîchir.
+  // Nouveau PIN → les anciens appareils ne doivent plus pouvoir se rafraîchir.
   await admin.from("device_sessions").update({ revoked: true }).eq("user_id", target.id).eq("revoked", false);
 
-  return NextResponse.json({ access_code: accessCode, pin });
+  return NextResponse.json({ pin });
 }
