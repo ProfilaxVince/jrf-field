@@ -744,5 +744,185 @@
     "adresse": "Kortrijksestraat 103-105",
     "confiance": "exacte",
     "source": "stores.delhaize.be, openingsuren.vlaanderen, openingsurengids.be, buurtsuper.be"
+  },
+  "AD DELHAIZE OTTIGNIES": {
+    "adresse": "Centre Commercial du Douaire 1",
+    "confiance": "aVerifier",
+    "source": "heures.be, pubeco.be, uw-folder.be donnent « Delhaize Ottignies — Centre Commercial du Douaire 1 » ; toogoodtogo liste bien un « AD Delhaize Ottignies-Louvain-la-Neuve » mais sans adresse. Trois autres Delhaize existent dans la commune (Esplanade LLN, Shop & Go Bd Baudouin 1er, Douaire)."
+  },
+  "AD DELHAIZE OUDENAARDE": {
+    "adresse": "Nederenamestraat 122",
+    "confiance": "exacte",
+    "source": "kompass.be — fiche « A.D. Delhaize - Oudenaarde, Nederenamestraat 122 » ; webhero.be"
+  },
+  "AD DELHAIZE PRINCE DE LIEGE": {
+    "adresse": "Chaussée de Ninove 1024",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, cybo, heures.be, myshopi — le magasin est à MOLENBEEK-SAINT-JEAN (1080), pas à Anderlecht : le boulevard Prince de Liège est à Anderlecht mais le magasin qui en porte le nom est chaussée de Ninove"
+  },
+  "AD DELHAIZE ROODEBEEK": {
+    "adresse": "Chaussée de Roodebeek 199",
+    "confiance": "exacte",
+    "source": "instagram @ad_delhaize_roodebeek, stores.delhaize.be, bottin.be, waze, yelp"
+  },
+  "AD DELHAIZE SCHOTEN": {
+    "adresse": "Theofiel Van Cauwenberghslei 90",
+    "confiance": "aVerifier",
+    "source": "openingsuren.vlaanderen, openingsurengids.be, bottin.be — seul Delhaize de Schoten ; press.delhaize.be annonce de « nouveaux exploitants » (donc affilié), mais aucune source ne l écrit « AD »"
+  },
+  "AD DELHAIZE SERAING": {
+    "adresse": "Rue des Bas-Sarts 212",
+    "confiance": "exacte",
+    "source": "heures.be et pubeco.be nomment tous deux « AD Delhaize Seraing » ; pagesdor.be. Deux autres Delhaize à Seraing (Rue de Rotheux 12, Rue de Tilff 120 à Boncelles)"
+  },
+  "AD DELHAIZE TOURNAI": {
+    "adresse": "Boulevard Walter de Marvis 22",
+    "confiance": "aVerifier",
+    "source": "heures.be (« Delhaize Les Bastions »), pubeco.be, mappy, tournai.be — seul supermarché Delhaize de Tournai hors Shop & Go (Bd des Nerviens 3) et Louis Delhaize (Av. de Maire 100, autre groupe) ; aucune source ne l écrit « AD »"
+  },
+  "AD DELHAIZE TUBIZE": {
+    "adresse": "Rue de la Déportation 61",
+    "confiance": "exacte",
+    "source": "toogoodtogo liste « AD Delhaize Tubize » ; heures.be, pubeco.be, foursquare, press.delhaize.be pour l adresse. Ne pas confondre avec le Louis Delhaize rue de Nivelles"
+  },
+  "AD DELHAIZE UCCLE DEFRE": {
+    "adresse": "Avenue De Fré 94",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be (« Delhaize Defré »), pubeco.be, ucclecity.be, bx1.be (nouvel exploitant = affilié), openingsuren.info"
+  },
+  "AD DELHAIZE VIRTON": {
+    "adresse": "Rue d'Arlon 59",
+    "confiance": "exacte",
+    "source": "pubeco.be, heures.be, pagesdor.be, facebook « AD Delhaize Virton », fedex — tous nomment AD Delhaize"
+  },
+  "AD DELHAIZE WAASLAND": {
+    "adresse": "Kapelstraat 100",
+    "confiance": "aVerifier",
+    "source": "« Delhaize Waasland » = Waasland Shopping Center, Kapelstraat 100 (openingsurengids.be, waaslandshopping.com, press.delhaize.be : exploitants indépendants depuis 11/2023). Autre candidat possible : « AD Ten Bos », Nieuwkerkenstraat 24A à Nieuwkerken-Waas"
+  },
+  "AD DELHAIZE WILRIJK": {
+    "adresse": "Boomsesteenweg 176",
+    "confiance": "exacte",
+    "source": "companyweb.be — siège social de « AD Wilrijk SRL » à cette adresse ; openingsuren.vlaanderen, stores.delhaize.be"
+  },
+  "AD DELHAIZE WONDELGEM -": {
+    "adresse": "Botestraat 14",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.info, yelp, wondelgemonderneemt.be — seul Delhaize de Wondelgem"
+  },
+  "AD DELHAIZE ZEDELGEM": {
+    "adresse": "Torhoutsesteenweg 136",
+    "confiance": "exacte",
+    "source": "openingsuren.info, open-winkel.be, myshopi (« AD Zedelgem »), delhaizezedelgem.be"
+  },
+  "AD DELHAIZE EVERE": {
+    "adresse": "Rue du Bon Pasteur 59",
+    "confiance": "exacte",
+    "source": "pubeco.be (« AD Delhaize Evere »), koifaire, openingsuren.info. Distinct du « AD DELHAIZE LEOPOLD III EVERE » (Rue de Genève 2) et du Delhaize Reyers (Av. Léonard Mommaerts 14)"
+  },
+  "AD DELHAIZE FERRIERES": {
+    "adresse": "Rue du Pré du Fa 6A",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, ferrieres.be — ATTENTION : toutes les sources l annoncent en PROXY Delhaize, pas en AD"
+  },
+  "AD WAREGEM": {
+    "adresse": "Gentseweg 602",
+    "confiance": "exacte",
+    "source": "handelsgids.be, openingsurengids.be, facebook « AD Delhaize Waregem », waregem.be — le magasin est à Sint-Eloois-Vijve, section de Waregem, code postal 8793 et non 8790"
+  },
+  "AD ZWIJNAARDE": {
+    "adresse": "Oudenaardsesteenweg 80",
+    "confiance": "exacte",
+    "source": "openingsuren.vlaanderen, openingsurengids.be, facebook « AD Delhaize Zwijnaarde », buurtslagers"
+  },
+  "AD JODOIGNE": {
+    "adresse": "Chaussée de Wavre 90c",
+    "confiance": "exacte",
+    "source": "pubeco.be, hours.be, bottin.be, foursquare — tous nomment AD Delhaize Jodoigne"
+  },
+  "AD BELGRADE": {
+    "adresse": "Chemin de la Plaine 6",
+    "confiance": "exacte",
+    "source": "adbelgrade.be (site du magasin), pubeco.be, heures.be, openingsuren.info"
+  },
+  "PROXY BEERZEL": {
+    "adresse": "Koningsbaan 37",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be (« Proxy Delhaize Koningsbaan »), openingsuren.vlaanderen, myshopi, hours.be"
+  },
+  "AD RECOGNE": {
+    "adresse": "Rue du Flosse 6",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be (« Delhaize Recogne »), heures.be, cybo, waze — commune officielle Libramont-Chevigny, 6800"
+  },
+  "AD WANZE": {
+    "adresse": "Chaussée de Wavre 57",
+    "confiance": "aVerifier",
+    "source": "pubeco.be écrit « AD Delhaize Wanze, Chaussée de Wavre 57 » ; mappy écrit 55. delhaizewanze.be existe mais n a pas pu être lu (403)"
+  },
+  "AD FORT JACO": {
+    "adresse": "Chaussée de Waterloo 1363",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, heures.be, waze, ucclecity.be, delhaize-fortjaco.be"
+  },
+  "AD GENVAL": {
+    "adresse": "Avenue Albert Ier 13",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, uw-folder.be, delhaize-genval.be — commune officielle Rixensart"
+  },
+  "AD CROIX DE GUERRE": {
+    "adresse": "Rue de Heembeek 125",
+    "confiance": "exacte",
+    "source": "openingsuren.info, delhaize-croixdeguerre.be, its-energy — le magasin est à NEDER-OVER-HEEMBEEK (1120), pas à Laeken"
+  },
+  "AD LA LOUVIERE": {
+    "adresse": "Rue Kéramis 28",
+    "confiance": "exacte",
+    "source": "heures.be, pubeco.be, pagesdor.be nomment « AD Delhaize La Louvière » ; à ne pas confondre avec le nouveau Delhaize intégré rue de la Franco-Belge 228 (ouvert 01/2026)"
+  },
+  "PROXY HOEILLART": {
+    "adresse": "Albert Biesmanslaan 1a",
+    "confiance": "aVerifier",
+    "source": "pubeco.be, heures.be, mappy, 1207.be nomment tous « AD Delhaize Hoeilaart » et non Proxy ; openingsuren.info écrit le n° 5 au lieu de 1a. Aucun Proxy Delhaize recensé à Hoeilaart"
+  },
+  "PROXY WOLUWE ST LAMBERT": {
+    "adresse": "Clos des Peupliers 72",
+    "confiance": "aVerifier",
+    "source": "stores.delhaize.be nomme « Proxy Delhaize Woluwe » ; heures.be donne Clos des Peupliers 72. Quatre autres Proxy dans la commune : Marcel Thiry 194, Roi Chevalier 53, Georges Henri 481, Chaussée de Stockel 306"
+  },
+  "PROXY SCHAERBEEK": {
+    "adresse": "Chaussée d'Haecht 224",
+    "confiance": "aVerifier",
+    "source": "pubeco.be nomme « Proxy Delhaize Schaerbeek » à cette adresse ; mappy, waze, heures.be. Deux autres Proxy à Schaerbeek : Henri Jacobs 34 et Émile Verhaeren 84"
+  },
+  "PROXY RHISNES": {
+    "adresse": "Rue de Gembloux 670",
+    "confiance": "exacte",
+    "source": "infobel, cylex, waze, facebook « Proxy Delhaize Rhisnes » — commune officielle La Bruyère"
+  },
+  "DELHAIZE VISE": {
+    "adresse": "Rue de Dalhem 15",
+    "confiance": "exacte",
+    "source": "pubeco.be et heures.be nomment « AD Delhaize Visé » (et non Delhaize intégré) ; stores.delhaize.be, mappy"
+  },
+  "DELHAIZE AARDOIE": {
+    "adresse": "Watervalstraat 22A",
+    "confiance": "exacte",
+    "source": "openingsuren.vlaanderen, openingsurengids.be, buurtslagers — nommé « AD Delhaize Ardooie » partout"
+  },
+  "DELHAIZE ZELE": {
+    "adresse": "Lokerenbaan 20",
+    "confiance": "exacte",
+    "source": "adzele.be (site du magasin), handelsgids.be, openingsuren.info — nommé « AD Delhaize Zele »"
+  },
+  "DELHAIZE TORHOUT": {
+    "adresse": "Karel de Goedelaan 8",
+    "confiance": "exacte",
+    "source": "openingsuren.vlaanderen, openingsurengids.be, handelsgids.be, buurtslagers — nommé « AD Delhaize Torhout »"
+  },
+  "DELHAIZE AARTSELAAR": {
+    "adresse": "Baron van Ertbornstraat 30",
+    "confiance": "exacte",
+    "source": "radiozuidrand.be et buurtsuper.be : le magasin a QUITTÉ la Kapellestraat pour Baron van Ertbornstraat 30 ; openingsuren.vlaanderen, hours.be, adaartselaar.com — nommé « AD Delhaize Aartselaar »"
   }
 }

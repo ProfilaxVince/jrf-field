@@ -160,20 +160,30 @@ importable tel quel via Magasins → Importer un CSV.
 | | |
 |---|---|
 | Commune + code postal | **185/185** |
-| Adresse | **146/185**, retrouvées une par une, chacune avec sa source |
-| dont vérifiées sans ambiguïté | 116 |
-| dont `aVerifier` (deux adresses circulent, ou deux magasins portent le nom) | 31 |
+| Adresse | **183/185**, retrouvées une par une, chacune avec sa source |
+| dont vérifiées sans ambiguïté | 144 |
+| dont `aVerifier` (deux adresses circulent, ou deux magasins portent le nom) | 39 |
 | Coordonnées GPS | **0/185** — voir ci-dessous |
 
 **Chaîne de production :**
 
 ```
+scripts/communes-magasins.mjs       libellé Excel → commune + code postal (source unique)
 scripts/adresses-magasins.json      table cumulative : libellé Excel → adresse + source
-scripts/extraire-magasins-excel.mjs table des communes + conversion Excel → CSV
+scripts/extraire-magasins-excel.mjs conversion Excel → CSV (exige le .xlsx)
+scripts/completer-magasins-csv.mjs  remet le CSV à jour SANS le .xlsx
 supabase/manual/magasins-reels.csv  le résultat, à importer
 ```
 
-Pour régénérer après avoir complété le JSON :
+**L'Excel n'est pas dans le dépôt.** Après avoir complété le JSON ou corrigé une
+commune, la commande à lancer est donc celle-ci — elle relit le CSV existant,
+réécrit adresse / code postal / ville / région, et ne touche à rien d'autre :
+
+```bash
+node scripts/completer-magasins-csv.mjs
+```
+
+L'autre chemin sert uniquement quand on repart du fichier source :
 
 ```bash
 node scripts/extraire-magasins-excel.mjs <fichier.xlsx> supabase/manual/magasins-reels.csv
@@ -186,37 +196,78 @@ du magasin et fausseraient « Ranger par trajet ». La colonne est donc laissée
 délibérément. Ce n'est pas bloquant : `lienItineraire` bascule sur l'adresse postale,
 donc le bouton Google Maps fonctionne sans coordonnées.
 
-**39 adresses restent à trouver** (toutes AD Delhaize, Proxy ou Delhaize — le bloc
-Intermarché est terminé). Reprendre la boucle : une recherche web par magasin,
-écriture dans `scripts/adresses-magasins.json`, régénération du CSV.
+**2 adresses restent introuvables**, toutes deux parce que la commune compte
+plusieurs magasins et que le libellé Excel ne dit pas lequel. Ce n'est plus un
+travail de recherche : il faut la réponse de Gérardo (voir plus bas).
 
 ```
-AD DELHAIZE OTTIGNIES · OUDENAARDE · PRINCE DE LIEGE · ROODEBEEK · SCHOTEN · SERAING
-AD DELHAIZE TOURNAI · TUBIZE · UCCLE DEFRE · VIRTON · WAASLAND · WATERLOO · WAVRE
-AD DELHAIZE WILRIJK · WONDELGEM · ZEDELGEM · EVERE · FERRIERES
-AD WAREGEM (×2) · ZWIJNAARDE · JODOIGNE · BELGRADE · RECOGNE · WANZE · FORT JACO
-AD GENVAL · CROIX DE GUERRE · LA LOUVIERE
-PROXY BEERZEL · HOEILLART · WOLUWE ST LAMBERT · SCHAERBEEK · RHISNES
-DELHAIZE VISE · AARDOIE · ZELE · TORHOUT · AARTSELAAR
+AD DELHAIZE WATERLOO   Bd Henri Rolin 7  OU  « AD Delhaize World Be », Drève de l'Infante
+AD DELHAIZE WAVRE      « AD Delhaize Copies », Rue de Bruxelles 19  OU  AD Limal, Av. de la Gare 13-14
 ```
 
 ### Questions ouvertes pour Gérardo — à poser avant l'import définitif
 
-- **Doublons dans son propre fichier** : `AD DELHAIZE HANKAR` / `AD HANKAR` désignent
-  le même magasin (Clos Lucien Outers 1, Auderghem). Idem `AD DELHAIZE MONS` /
-  `AD DELHAIZE NIMY - VAMODIS` (Rue de Nimy 117-121 — Vamodis SA est la société
-  exploitante, pas un autre point de vente). `AD WAREGEM` apparaît deux fois à
-  l'identique. Lesquels supprimer ?
-- **`INTERMARCHE GOSSELIES` vs `INTERMARCHE GOSSELIES BY`** : deux magasins réels
-  (Chaussée de Courcelles 95 et Rue Pont-à-Migneloux 13). L'attribution entre les deux
-  lignes est déduite, pas vérifiée.
-- **`INTERMARCHE LEUZE`** : rattaché à Leuze-en-Hainaut (7900), mais un Intermarché
-  nommé « Leuze » existe aussi à Éghezée. À confirmer.
-- **`AD DELHAIZE ANTOING`** : rue connue (Rue du Burg), numéro introuvable.
-- Corrections de code postal appliquées, à valider : `INTERMARCHE ORCQ` → 7501 (et non
-  7503, qui est Froyennes) ; `AD DELHAIZE FRASNES LEZ GOSSELIES` → 6210 (et non 6250).
-- Correction déjà faite : `INTERMARCHE ST LAMBERT BY` est aux **Galeries
-  Saint-Lambert à Liège** (4000), pas à Woluwe-Saint-Lambert.
+**1. Doublons dans son propre fichier — lesquels supprimer ?**
+
+- `AD DELHAIZE HANKAR` / `AD HANKAR` : même magasin (Clos Lucien Outers 1, Auderghem).
+- `AD DELHAIZE MONS` / `AD DELHAIZE NIMY - VAMODIS` : même magasin (Rue de Nimy 117-121 ;
+  Vamodis SA est la société exploitante, pas un autre point de vente).
+- `AD WAREGEM` apparaît deux fois à l'identique.
+
+**2. Quel magasin, quand la commune en compte plusieurs ?** (bloquant : case laissée vide)
+
+- `AD DELHAIZE WATERLOO` et `AD DELHAIZE WAVRE` — les deux candidats sont listés ci-dessus.
+
+**3. Enseigne annoncée ≠ enseigne réelle.** Sept lignes portent une enseigne que
+toutes les sources contredisent. L'adresse est sûre ; c'est l'étiquette qui cloche,
+et elle décide de `reseau` (`affilie` / `integre`) donc du filtre à l'écran.
+
+| Libellé Excel | Enseigne réelle | Adresse |
+|---|---|---|
+| `AD DELHAIZE FERRIERES` | **Proxy** Delhaize | Rue du Pré du Fa 6A |
+| `PROXY HOEILLART` | **AD** Delhaize | Albert Biesmanslaan 1a |
+| `DELHAIZE VISE` | **AD** Delhaize | Rue de Dalhem 15 |
+| `DELHAIZE AARDOIE` | **AD** Delhaize | Watervalstraat 22A |
+| `DELHAIZE ZELE` | **AD** Delhaize | Lokerenbaan 20 |
+| `DELHAIZE TORHOUT` | **AD** Delhaize | Karel de Goedelaan 8 |
+| `DELHAIZE AARTSELAAR` | **AD** Delhaize | Baron van Ertbornstraat 30 |
+
+**4. Attributions déduites, pas vérifiées — à confirmer une par une.**
+
+- `INTERMARCHE GOSSELIES` vs `INTERMARCHE GOSSELIES BY` : deux magasins réels
+  (Chaussée de Courcelles 95 et Rue Pont-à-Migneloux 13). Lequel est lequel ?
+- `INTERMARCHE LEUZE` : rattaché à Leuze-en-Hainaut (7900), mais un Intermarché
+  nommé « Leuze » existe aussi à Éghezée.
+- `AD DELHAIZE OTTIGNIES` → Centre Commercial du Douaire 1. Quatre Delhaize dans la
+  commune (Douaire, Esplanade LLN, Shop & Go Bd Baudouin 1er).
+- `AD DELHAIZE TOURNAI` → Bd Walter de Marvis 22 (« Delhaize Les Bastions »), seul
+  supermarché Delhaize de la ville hors Shop & Go.
+- `AD DELHAIZE WAASLAND` → Kapelstraat 100 (Waasland Shopping Center). Autre candidat :
+  « AD Ten Bos », Nieuwkerkenstraat 24A à Nieuwkerken-Waas.
+- `AD DELHAIZE SCHOTEN` → Theofiel Van Cauwenberghslei 90 : seul Delhaize de Schoten,
+  mais aucune source ne l'écrit « AD ».
+- `PROXY WOLUWE ST LAMBERT` → Clos des Peupliers 72. **Cinq** Proxy dans la commune
+  (Marcel Thiry 194, Roi Chevalier 53, Georges Henri 481, Chaussée de Stockel 306).
+- `PROXY SCHAERBEEK` → Chaussée d'Haecht 224. Deux autres Proxy à Schaerbeek
+  (Henri Jacobs 34, Émile Verhaeren 84).
+- `AD WANZE` → Chaussée de Wavre : pubeco écrit le n° 57, mappy le n° 55.
+- `AD DELHAIZE ANTOING` : rue connue (Rue du Burg), numéro introuvable.
+
+**5. Corrections de commune appliquées, à valider.**
+
+- `INTERMARCHE ORCQ` → **7501** (et non 7503, qui est Froyennes).
+- `AD DELHAIZE FRASNES LEZ GOSSELIES` → **6210** (et non 6250, qui est Aiseau-Presles).
+  ⚠️ Ces deux-là étaient annoncées faites dans une session précédente mais ne
+  l'étaient pas dans le code. Elles le sont maintenant.
+- `AD DELHAIZE PRINCE DE LIEGE` → **Molenbeek-Saint-Jean 1080**, Chaussée de Ninove 1024.
+  Le boulevard Prince de Liège est bien à Anderlecht, mais le magasin qui en porte le
+  nom n'y est pas.
+- `AD CROIX DE GUERRE` → **Neder-Over-Heembeek 1120** (et non Laeken 1020).
+- `AD WAREGEM` → **Sint-Eloois-Vijve 8793** (et non 8790) : le magasin est Gentseweg 602.
+- `INTERMARCHE ST LAMBERT BY` est aux **Galeries Saint-Lambert à Liège** (4000), pas à
+  Woluwe-Saint-Lambert.
+- `AD DELHAIZE AARTSELAAR` a **déménagé** de la Kapellestraat vers Baron van
+  Ertbornstraat 30. Si Gérardo a l'ancienne adresse en tête, c'est normal.
 
 ### Avant l'import
 

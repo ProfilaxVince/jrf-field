@@ -74,7 +74,7 @@ Intermarché Morlanwelz;Intermarché;independant;Rue des Ateliers 122;7140;Morla
 Intermarché Mouscron;Intermarché;independant;Avenue Wolfgang Amadeus Mozart 22;7700;Mouscron;wallonie;;;;;;;ITM-073;INTERMARCHE MOUSCRON
 Intermarché Nessonvaux;Intermarché;independant;Rue Franklin Roosevelt 249A;4870;Nessonvaux;wallonie;;;;;;;ITM-074;INTERMARCHE NESSONVAUX
 Intermarché Ohey;Intermarché;independant;Rue de Ciney 14b;5350;Ohey;wallonie;;;;;;;ITM-075;INTERMARCHE OHEY
-Intermarché Orcq;Intermarché;independant;Chaussée de Lille 433;7503;Orcq;wallonie;;;;;;;ITM-076;INTERMARCHE ORCQ
+Intermarché Orcq;Intermarché;independant;Chaussée de Lille 433;7501;Orcq;wallonie;;;;;;;ITM-076;INTERMARCHE ORCQ
 Intermarché Peruwelz Hainaut;Intermarché;independant;Neuve Chaussée 86c;7600;Péruwelz;wallonie;;;;;;;ITM-077;INTERMARCHE PERUWELZ HAINAUT
 Intermarché Perwez B-W;Intermarché;independant;Chaussée de Charleroi 24a;1360;Perwez;wallonie;;;;;;;ITM-078;INTERMARCHE PERWEZ B-W
 Intermarché Pont De Loup;Intermarché;independant;Rue du Campinaire 66;6250;Pont-de-Loup;wallonie;;;;;;;ITM-079;INTERMARCHE PONT DE LOUP
@@ -118,7 +118,7 @@ AD Delhaize Fernelmont;AD Delhaize;affilie;Rue dEghezée 16;5380;Fernelmont;wall
 AD Delhaize Flagey;AD Delhaize;affilie;Rue de Hennin 18;1050;Ixelles;bruxelles;;;;;;;ADD-021;AD DELHAIZE FLAGEY
 AD Delhaize Florenville;AD Delhaize;affilie;Rue dArlon 46;6820;Florenville;wallonie;;;;;;;ADD-022;AD DELHAIZE FLORENVILLE
 AD Delhaize Forest;AD Delhaize;affilie;Chaussée de Neerstalle 8-12;1190;Forest;bruxelles;;;;;;;ADD-023;AD DELHAIZE FOREST
-AD Delhaize Frasnes Lez Gosselies;AD Delhaize;affilie;Chaussée de Bruxelles 527;6250;Frasnes-lez-Gosselies;wallonie;;;;;;;ADD-024;AD DELHAIZE FRASNES LEZ GOSSELIES
+AD Delhaize Frasnes Lez Gosselies;AD Delhaize;affilie;Chaussée de Bruxelles 527;6210;Frasnes-lez-Gosselies;wallonie;;;;;;;ADD-024;AD DELHAIZE FRASNES LEZ GOSSELIES
 AD Delhaize Gembloux;AD Delhaize;affilie;Chaussée de Wavre 42a;5030;Gembloux;wallonie;;;;;;;ADD-025;AD DELHAIZE GEMBLOUX
 AD Delhaize Genappe;AD Delhaize;affilie;Chaussée de Bruxelles 4b;1470;Genappe;wallonie;;;;;;;ADD-026;AD DELHAIZE GENAPPE
 AD Delhaize Gent Ster;AD Delhaize;affilie;Kortrijksesteenweg 906;9000;Gand;flandre;;;;;;;ADD-027;AD DELHAIZE GENT STER
@@ -143,44 +143,44 @@ AD Delhaize Montigny Le Tilleul;AD Delhaize;affilie;Rue de Gozée 400;6110;Monti
 AD Delhaize Morlanwelz;AD Delhaize;affilie;Chaussée Brunehault 500;7140;Morlanwelz;wallonie;;;;;;;ADD-046;AD DELHAIZE MORLANWELZ
 AD Delhaize Nimy - Vamodis;AD Delhaize;affilie;Rue de Nimy 117-121;7020;Nimy;wallonie;;;;;;;ADD-047;AD DELHAIZE NIMY - VAMODIS
 AD Delhaize Oostkamp;AD Delhaize;affilie;Kortrijksestraat 103-105;8020;Oostkamp;flandre;;;;;;;ADD-048;AD DELHAIZE OOSTKAMP
-AD Delhaize Ottignies;AD Delhaize;affilie;;1340;Ottignies;wallonie;;;;;;;ADD-049;AD DELHAIZE OTTIGNIES
-AD Delhaize Oudenaarde;AD Delhaize;affilie;;9700;Audenarde;flandre;;;;;;;ADD-050;AD DELHAIZE OUDENAARDE
-AD Delhaize Prince De Liege;AD Delhaize;affilie;;1070;Anderlecht;bruxelles;;;;;;;ADD-051;AD DELHAIZE PRINCE DE LIEGE
-AD Delhaize Roodebeek;AD Delhaize;affilie;;1200;Woluwe-Saint-Lambert;bruxelles;;;;;;;ADD-052;AD DELHAIZE ROODEBEEK
-AD Delhaize Schoten;AD Delhaize;affilie;;2900;Schoten;flandre;;;;;;;ADD-053;AD DELHAIZE SCHOTEN
-AD Delhaize Seraing;AD Delhaize;affilie;;4100;Seraing;wallonie;;;;;;;ADD-054;AD DELHAIZE SERAING
-AD Delhaize Tournai;AD Delhaize;affilie;;7500;Tournai;wallonie;;;;;;;ADD-055;AD DELHAIZE TOURNAI
-AD Delhaize Tubize;AD Delhaize;affilie;;1480;Tubize;wallonie;;;;;;;ADD-056;AD DELHAIZE TUBIZE
-AD Delhaize Uccle Defre;AD Delhaize;affilie;;1180;Uccle;bruxelles;;;;;;;ADD-057;AD DELHAIZE UCCLE DEFRE
-AD Delhaize Virton;AD Delhaize;affilie;;6760;Virton;wallonie;;;;;;;ADD-058;AD DELHAIZE VIRTON
-AD Delhaize Waasland;AD Delhaize;affilie;;9100;Sint-Niklaas;flandre;;;;;;;ADD-059;AD DELHAIZE WAASLAND
+AD Delhaize Ottignies;AD Delhaize;affilie;Centre Commercial du Douaire 1;1340;Ottignies;wallonie;;;;;;;ADD-049;AD DELHAIZE OTTIGNIES
+AD Delhaize Oudenaarde;AD Delhaize;affilie;Nederenamestraat 122;9700;Audenarde;flandre;;;;;;;ADD-050;AD DELHAIZE OUDENAARDE
+AD Delhaize Prince De Liege;AD Delhaize;affilie;Chaussée de Ninove 1024;1080;Molenbeek-Saint-Jean;bruxelles;;;;;;;ADD-051;AD DELHAIZE PRINCE DE LIEGE
+AD Delhaize Roodebeek;AD Delhaize;affilie;Chaussée de Roodebeek 199;1200;Woluwe-Saint-Lambert;bruxelles;;;;;;;ADD-052;AD DELHAIZE ROODEBEEK
+AD Delhaize Schoten;AD Delhaize;affilie;Theofiel Van Cauwenberghslei 90;2900;Schoten;flandre;;;;;;;ADD-053;AD DELHAIZE SCHOTEN
+AD Delhaize Seraing;AD Delhaize;affilie;Rue des Bas-Sarts 212;4100;Seraing;wallonie;;;;;;;ADD-054;AD DELHAIZE SERAING
+AD Delhaize Tournai;AD Delhaize;affilie;Boulevard Walter de Marvis 22;7500;Tournai;wallonie;;;;;;;ADD-055;AD DELHAIZE TOURNAI
+AD Delhaize Tubize;AD Delhaize;affilie;Rue de la Déportation 61;1480;Tubize;wallonie;;;;;;;ADD-056;AD DELHAIZE TUBIZE
+AD Delhaize Uccle Defre;AD Delhaize;affilie;Avenue De Fré 94;1180;Uccle;bruxelles;;;;;;;ADD-057;AD DELHAIZE UCCLE DEFRE
+AD Delhaize Virton;AD Delhaize;affilie;Rue d'Arlon 59;6760;Virton;wallonie;;;;;;;ADD-058;AD DELHAIZE VIRTON
+AD Delhaize Waasland;AD Delhaize;affilie;Kapelstraat 100;9100;Sint-Niklaas;flandre;;;;;;;ADD-059;AD DELHAIZE WAASLAND
 AD Delhaize Waterloo;AD Delhaize;affilie;;1410;Waterloo;wallonie;;;;;;;ADD-060;AD DELHAIZE WATERLOO
 AD Delhaize Wavre;AD Delhaize;affilie;;1300;Wavre;wallonie;;;;;;;ADD-061;AD DELHAIZE WAVRE
-AD Delhaize Wilrijk;AD Delhaize;affilie;;2610;Wilrijk;flandre;;;;;;;ADD-062;AD DELHAIZE WILRIJK
-AD Delhaize Wondelgem -;AD Delhaize;affilie;;9032;Wondelgem;flandre;;;;;;;ADD-063;AD DELHAIZE WONDELGEM -
-AD Delhaize Zedelgem;AD Delhaize;affilie;;8210;Zedelgem;flandre;;;;;;;ADD-064;AD DELHAIZE ZEDELGEM
-AD Delhaize Evere;AD Delhaize;affilie;;1140;Evere;bruxelles;;;;;;;ADD-065;AD DELHAIZE EVERE
-AD Delhaize Ferrieres;AD Delhaize;affilie;;4190;Ferrières;wallonie;;;;;;;ADD-066;AD DELHAIZE FERRIERES
-AD Delhaize Waregem;AD Delhaize;affilie;;8790;Waregem;flandre;;;;;;;ADD-067;AD WAREGEM
-AD Delhaize Zwijnaarde;AD Delhaize;affilie;;9052;Zwijnaarde;flandre;;;;;;;ADD-068;AD ZWIJNAARDE
-AD Delhaize Jodoigne;AD Delhaize;affilie;;1370;Jodoigne;wallonie;;;;;;;ADD-069;AD JODOIGNE
-AD Delhaize Waregem;AD Delhaize;affilie;;8790;Waregem;flandre;;;;;;;ADD-070;AD WAREGEM
-AD Delhaize Belgrade;AD Delhaize;affilie;;5001;Namur;wallonie;;;;;;;ADD-071;AD BELGRADE
-Proxy Delhaize Beerzel;Proxy Delhaize;affilie;;2580;Beerzel;flandre;;;;;;;PXY-001;PROXY BEERZEL
-AD Delhaize Recogne;AD Delhaize;affilie;;6800;Recogne;wallonie;;;;;;;ADD-072;AD RECOGNE
-AD Delhaize Wanze;AD Delhaize;affilie;;4520;Wanze;wallonie;;;;;;;ADD-073;AD WANZE
-AD Delhaize Fort Jaco;AD Delhaize;affilie;;1180;Uccle;bruxelles;;;;;;;ADD-074;AD FORT JACO
-AD Delhaize Genval;AD Delhaize;affilie;;1332;Genval;wallonie;;;;;;;ADD-075;AD GENVAL
-AD Delhaize Croix De Guerre;AD Delhaize;affilie;;1020;Laeken;bruxelles;;;;;;;ADD-076;AD CROIX DE GUERRE
-AD Delhaize La Louviere;AD Delhaize;affilie;;7100;La Louvière;wallonie;;;;;;;ADD-077;AD LA LOUVIERE
+AD Delhaize Wilrijk;AD Delhaize;affilie;Boomsesteenweg 176;2610;Wilrijk;flandre;;;;;;;ADD-062;AD DELHAIZE WILRIJK
+AD Delhaize Wondelgem -;AD Delhaize;affilie;Botestraat 14;9032;Wondelgem;flandre;;;;;;;ADD-063;AD DELHAIZE WONDELGEM -
+AD Delhaize Zedelgem;AD Delhaize;affilie;Torhoutsesteenweg 136;8210;Zedelgem;flandre;;;;;;;ADD-064;AD DELHAIZE ZEDELGEM
+AD Delhaize Evere;AD Delhaize;affilie;Rue du Bon Pasteur 59;1140;Evere;bruxelles;;;;;;;ADD-065;AD DELHAIZE EVERE
+AD Delhaize Ferrieres;AD Delhaize;affilie;Rue du Pré du Fa 6A;4190;Ferrières;wallonie;;;;;;;ADD-066;AD DELHAIZE FERRIERES
+AD Delhaize Waregem;AD Delhaize;affilie;Gentseweg 602;8793;Sint-Eloois-Vijve;flandre;;;;;;;ADD-067;AD WAREGEM
+AD Delhaize Zwijnaarde;AD Delhaize;affilie;Oudenaardsesteenweg 80;9052;Zwijnaarde;flandre;;;;;;;ADD-068;AD ZWIJNAARDE
+AD Delhaize Jodoigne;AD Delhaize;affilie;Chaussée de Wavre 90c;1370;Jodoigne;wallonie;;;;;;;ADD-069;AD JODOIGNE
+AD Delhaize Waregem;AD Delhaize;affilie;Gentseweg 602;8793;Sint-Eloois-Vijve;flandre;;;;;;;ADD-070;AD WAREGEM
+AD Delhaize Belgrade;AD Delhaize;affilie;Chemin de la Plaine 6;5001;Namur;wallonie;;;;;;;ADD-071;AD BELGRADE
+Proxy Delhaize Beerzel;Proxy Delhaize;affilie;Koningsbaan 37;2580;Beerzel;flandre;;;;;;;PXY-001;PROXY BEERZEL
+AD Delhaize Recogne;AD Delhaize;affilie;Rue du Flosse 6;6800;Recogne;wallonie;;;;;;;ADD-072;AD RECOGNE
+AD Delhaize Wanze;AD Delhaize;affilie;Chaussée de Wavre 57;4520;Wanze;wallonie;;;;;;;ADD-073;AD WANZE
+AD Delhaize Fort Jaco;AD Delhaize;affilie;Chaussée de Waterloo 1363;1180;Uccle;bruxelles;;;;;;;ADD-074;AD FORT JACO
+AD Delhaize Genval;AD Delhaize;affilie;Avenue Albert Ier 13;1332;Genval;wallonie;;;;;;;ADD-075;AD GENVAL
+AD Delhaize Croix De Guerre;AD Delhaize;affilie;Rue de Heembeek 125;1120;Neder-Over-Heembeek;bruxelles;;;;;;;ADD-076;AD CROIX DE GUERRE
+AD Delhaize La Louviere;AD Delhaize;affilie;Rue Kéramis 28;7100;La Louvière;wallonie;;;;;;;ADD-077;AD LA LOUVIERE
 AD Delhaize Hankar;AD Delhaize;affilie;Clos Lucien Outers 1;1160;Auderghem;bruxelles;;;;;;;ADD-078;AD HANKAR
-Proxy Delhaize Hoeilaart;Proxy Delhaize;affilie;;1560;Hoeilaart;flandre;;;;;;;PXY-002;PROXY HOEILLART
-Proxy Delhaize Woluwe St Lambert;Proxy Delhaize;affilie;;1200;Woluwe-Saint-Lambert;bruxelles;;;;;;;PXY-003;PROXY WOLUWE ST LAMBERT
-Proxy Delhaize Schaerbeek;Proxy Delhaize;affilie;;1030;Schaerbeek;bruxelles;;;;;;;PXY-004;PROXY SCHAERBEEK
-Proxy Delhaize Rhisnes;Proxy Delhaize;affilie;;5080;Rhisnes;wallonie;;;;;;;PXY-005;PROXY RHISNES
+Proxy Delhaize Hoeilaart;Proxy Delhaize;affilie;Albert Biesmanslaan 1a;1560;Hoeilaart;flandre;;;;;;;PXY-002;PROXY HOEILLART
+Proxy Delhaize Woluwe St Lambert;Proxy Delhaize;affilie;Clos des Peupliers 72;1200;Woluwe-Saint-Lambert;bruxelles;;;;;;;PXY-003;PROXY WOLUWE ST LAMBERT
+Proxy Delhaize Schaerbeek;Proxy Delhaize;affilie;Chaussée d'Haecht 224;1030;Schaerbeek;bruxelles;;;;;;;PXY-004;PROXY SCHAERBEEK
+Proxy Delhaize Rhisnes;Proxy Delhaize;affilie;Rue de Gembloux 670;5080;Rhisnes;wallonie;;;;;;;PXY-005;PROXY RHISNES
 Delhaize Reet;Delhaize;integre;'s Herenbaan 178;2840;Rumst;flandre;;;;;;;DEL-001;DELHAIZE REER
-Delhaize Vise;Delhaize;integre;;4600;Visé;wallonie;;;;;;;DEL-002;DELHAIZE VISE
-Delhaize Ardooie;Delhaize;integre;;8850;Ardooie;flandre;;;;;;;DEL-003;DELHAIZE AARDOIE
-Delhaize Zele;Delhaize;integre;;9240;Zele;flandre;;;;;;;DEL-004;DELHAIZE ZELE
-Delhaize Torhout;Delhaize;integre;;8820;Torhout;flandre;;;;;;;DEL-005;DELHAIZE TORHOUT
-Delhaize Aartselaar;Delhaize;integre;;2630;Aartselaar;flandre;;;;;;;DEL-006;DELHAIZE AARTSELAAR
+Delhaize Vise;Delhaize;integre;Rue de Dalhem 15;4600;Visé;wallonie;;;;;;;DEL-002;DELHAIZE VISE
+Delhaize Ardooie;Delhaize;integre;Watervalstraat 22A;8850;Ardooie;flandre;;;;;;;DEL-003;DELHAIZE AARDOIE
+Delhaize Zele;Delhaize;integre;Lokerenbaan 20;9240;Zele;flandre;;;;;;;DEL-004;DELHAIZE ZELE
+Delhaize Torhout;Delhaize;integre;Karel de Goedelaan 8;8820;Torhout;flandre;;;;;;;DEL-005;DELHAIZE TORHOUT
+Delhaize Aartselaar;Delhaize;integre;Baron van Ertbornstraat 30;2630;Aartselaar;flandre;;;;;;;DEL-006;DELHAIZE AARTSELAAR
