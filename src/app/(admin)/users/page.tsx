@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { t } from "@/lib/i18n/fr-BE";
-import { generateCredentials, listAppUsers, type AppUserRow } from "@/lib/data/users";
+import { generatePin, listAppUsers, type AppUserRow } from "@/lib/data/users";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AppUserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [reveal, setReveal] = useState<{ userId: string; nickname: string; accessCode: string; pin: string } | null>(
+  const [reveal, setReveal] = useState<{ userId: string; nickname: string; pin: string } | null>(
     null
   );
 
@@ -25,9 +25,9 @@ export default function AdminUsersPage() {
     setBusyId(u.id);
     setError(null);
     try {
-      const { access_code, pin } = await generateCredentials(u.id);
-      setReveal({ userId: u.id, nickname: u.nickname, accessCode: access_code, pin });
-      setUsers((prev) => prev.map((p) => (p.id === u.id ? { ...p, access_code_hash: "x" } : p)));
+      const { pin } = await generatePin(u.id);
+      setReveal({ userId: u.id, nickname: u.nickname, pin });
+      setUsers((prev) => prev.map((p) => (p.id === u.id ? { ...p, pin_hash: "x" } : p)));
     } catch {
       setError("Génération impossible. Réessaie.");
     } finally {
@@ -49,11 +49,10 @@ export default function AdminUsersPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <p className="text-base">{reveal.nickname}</p>
                 <div className="flex gap-6">
                   <div>
-                    <div className="text-sm text-neutral-600">{t.auth.codeLabel}</div>
-                    <div className="text-2xl font-semibold tracking-widest">{reveal.accessCode}</div>
+                    <div className="text-sm text-neutral-600">{t.auth.usernameLabel}</div>
+                    <div className="text-2xl font-semibold">{reveal.nickname}</div>
                   </div>
                   <div>
                     <div className="text-sm text-neutral-600">{t.auth.pinLabel}</div>
@@ -85,19 +84,19 @@ export default function AdminUsersPage() {
                   <div>
                     <div className="text-lg font-semibold">{u.nickname}</div>
                     <div className="text-sm text-neutral-600">
-                      {u.access_code_hash ? t.adminUsers.hasCode : t.adminUsers.noCode}
+                      {u.pin_hash ? t.adminUsers.hasCode : t.adminUsers.noCode}
                       {u.is_admin ? " · admin" : ""}
                     </div>
                   </div>
                 </div>
                 <Button
-                  variant={u.access_code_hash ? "outline" : "default"}
+                  variant={u.pin_hash ? "outline" : "default"}
                   disabled={busyId === u.id}
                   onClick={() => handleGenerate(u)}
                 >
                   {busyId === u.id
                     ? t.adminUsers.generating
-                    : u.access_code_hash
+                    : u.pin_hash
                       ? t.adminUsers.regenerateCode
                       : t.adminUsers.generateCode}
                 </Button>

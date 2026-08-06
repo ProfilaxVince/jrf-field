@@ -69,8 +69,12 @@ supabase/migrations/ numérotées, figées       docs/DECISIONS.md      1 ligne/
   Pas offline = pas terminé. Tournée du jour affichée depuis le cache avant tout réseau.
 - **Performance** : premier rendu utile < 2 s en 3G simulée.
 - **Sécurité** : aucun secret côté client, pas de service_role exposé, pas de code d'accès
-  en clair (base/logs/URL). Auth = code 8 car. + PIN 6 chiffres → JWT longue durée lié à
-  l'appareil, révocable, rate-limité.
+  en clair (base/logs/URL). Auth = **nom d'utilisateur (le surnom) + code 4 chiffres**
+  (changement demandé le 06/08/2026, remplace « code 8 car. + PIN 6 chiffres ») → JWT
+  longue durée lié à l'appareil, révocable, rate-limité.
+  ⚠️ Le nom d'utilisateur n'est pas un secret : il ne reste que 10 000 combinaisons.
+  **Le verrouillage après 5 échecs (15 min) est la seule protection réelle du compte** —
+  ne jamais l'assouplir, ne jamais le contourner « pour tester ».
 - **RGPD/CCT n°81** : géoloc ponctuelle au check-in, optionnelle, annoncée.
   Jamais de suivi continu. Hébergement UE (Supabase Frankfurt).
 - **Accessibilité** : contraste AA, cibles ≥ 44 px, focus visible, `prefers-reduced-motion`.
@@ -113,7 +117,8 @@ Résumé rapide (état au 2026-08-05)
 - **Seed exécuté**: `supabase/seed.sql` a été exécuté et a inséré les données de test (185 magasins + users).
 - **Types générés**: `src/lib/data/database.types.ts` (généré via `supabase gen types`).
 - **Client Supabase**: implémenté dans [src/lib/data/supabase.ts](src/lib/data/supabase.ts) et utilisé par le `SessionProvider`.
-- **Auth**: le `dev-auth` a été remplacé par une authentification Supabase (magic link). Provider et page:
+- **Auth**: nom d'utilisateur + code 4 chiffres, vérifié côté serveur (service_role) puis
+  échangé contre une vraie session Supabase. Le magic-link testé au Lot 1 est abandonné. Provider et page:
   - [src/lib/session.tsx](src/lib/session.tsx)
   - [src/app/auth/page.tsx](src/app/auth/page.tsx)
 - **.env.local**: créé localement avec les variables suivantes (frontend only):

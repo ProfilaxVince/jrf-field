@@ -3,57 +3,55 @@ import { createSupabaseAdminClient } from "@/lib/data/supabaseAdmin";
 import {
   LOCK_MINUTES,
   MAX_FAILED_ATTEMPTS,
+  PIN_LENGTH,
   createDeviceToken,
+  memeIdentifiant,
   mintSupabaseSession,
   verifySecret,
 } from "@/lib/data/authServer";
 
-// Hash factice comparé quand aucun code ne correspond, pour lisser le temps
-// de réponse et ne pas laisser deviner l'existence d'un code par timing.
+// Hash factice comparé quand aucun nom d'utilisateur ne correspond, pour lisser
+// le temps de réponse : sans ça, un nom inexistant répondrait plus vite qu'un
+// mauvais PIN, et il suffirait de chronométrer pour énumérer l'équipe.
 const DUMMY_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8lF3l9tNQGiHkrVOASxK8pODXfXCvi";
 
-const GENERIC_ERROR = "Code ou PIN incorrect.";
+const GENERIC_ERROR = "Nom d'utilisateur ou code incorrect.";
 
 export async function POST(request: Request) {
-  let body: { access_code?: unknown; pin?: unknown; device_label?: unknown };
+  let body: { username?: unknown; pin?: unknown; device_label?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 400 });
   }
 
-  const accessCode = typeof body.access_code === "string" ? body.access_code.trim().toUpperCase() : "";
+  const username = typeof body.username === "string" ? body.username.trim() : "";
   const pin = typeof body.pin === "string" ? body.pin.trim() : "";
   const deviceLabel = typeof body.device_label === "string" ? body.device_label.slice(0, 100) : null;
 
-  if (accessCode.length !== 8 || !/^\d{6}$/.test(pin)) {
+  if (username.length === 0 || !new RegExp(`^\\d{${PIN_LENGTH}}$`).test(pin)) {
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 400 });
   }
 
   const admin = createSupabaseAdminClient();
 
+  // L'équipe tient sur six lignes : on charge les comptes actifs et on compare
+  // le nom en mémoire. Un `ilike` traiterait `%` comme un joker.
   const { data: candidates, error: fetchError } = await admin
     .from("app_users")
     .select(
-      "id, nickname, is_admin, active, access_code_hash, pin_hash, auth_user_id, internal_auth_email, failed_login_attempts, locked_until"
+      "id, nickname, is_admin, active, pin_hash, auth_user_id, internal_auth_email, failed_login_attempts, locked_until"
     )
     .eq("active", true)
-    .not("access_code_hash", "is", null);
+    .not("pin_hash", "is", null);
 
   if (fetchError) {
     return NextResponse.json({ error: "Erreur serveur, réessaie." }, { status: 500 });
   }
 
-  let matched: (typeof candidates)[number] | null = null;
-  for (const candidate of candidates ?? []) {
-    if (await verifySecret(accessCode, candidate.access_code_hash)) {
-      matched = candidate;
-      break;
-    }
-  }
+  const matched = (candidates ?? []).find((c) => memeIdentifiant(username, c.nickname)) ?? null;
 
   if (!matched) {
-    // Comparaison factice pour normaliser le temps de réponse.
     await verifySecret(pin, DUMMY_HASH);
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
   }
@@ -67,6 +65,8 @@ export async function POST(request: Request) {
 
   const pinOk = await verifySecret(pin, matched.pin_hash);
   if (!pinOk) {
+    // Le verrouillage est désormais LA protection du compte : avec 4 chiffres,
+    // c'est lui — et lui seul — qui empêche de parcourir les 10 000 possibilités.
     const attempts = matched.failed_login_attempts + 1;
     const lockedUntil =
       attempts >= MAX_FAILED_ATTEMPTS
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
   if (!matched.auth_user_id || !matched.internal_auth_email) {
     return NextResponse.json(
-      { error: "Compte non provisionné. Demande au responsable de régénérer ton code d'accès." },
+      { error: "Compte non provisionné. Demande au responsable de régénérer ton code." },
       { status: 409 }
     );
   }

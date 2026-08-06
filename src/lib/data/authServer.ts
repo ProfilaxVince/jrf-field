@@ -7,19 +7,24 @@ import type { Database } from "./database.types";
 export const MAX_FAILED_ATTEMPTS = 5;
 export const LOCK_MINUTES = 15;
 const BCRYPT_COST = 10;
-// Exclut les caractères ambigus à l'oral/à l'écrit (0/O, 1/I/L).
-const CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
-export function generateAccessCode(): string {
-  let out = "";
-  for (let i = 0; i < 8; i++) out += CODE_ALPHABET[randomInt(CODE_ALPHABET.length)];
-  return out;
-}
+/** Longueur du PIN — 4 chiffres depuis le 06/08/2026 (voir migration 00011). */
+export const PIN_LENGTH = 4;
 
 export function generatePin(): string {
   let out = "";
-  for (let i = 0; i < 6; i++) out += randomInt(10).toString();
+  for (let i = 0; i < PIN_LENGTH; i++) out += randomInt(10).toString();
   return out;
+}
+
+/**
+ * Le nom d'utilisateur est comparé sans tenir compte de la casse ni des
+ * espaces de saisie. Comparaison en mémoire plutôt qu'un `ilike` : l'équipe
+ * tient sur six lignes, et un `ilike` accepterait `%` comme joker — un
+ * utilisateur pourrait alors se présenter sous un nom qui n'est pas le sien.
+ */
+export function memeIdentifiant(saisi: string, connu: string): boolean {
+  return saisi.trim().toLocaleLowerCase("fr") === connu.trim().toLocaleLowerCase("fr");
 }
 
 export async function hashSecret(secret: string): Promise<string> {

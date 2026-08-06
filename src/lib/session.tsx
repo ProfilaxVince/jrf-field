@@ -20,7 +20,7 @@ type Session = {
   isAdmin: boolean;
   authenticated: boolean;
   loading: boolean;
-  login: (accessCode: string, pin: string) => Promise<LoginResult>;
+  login: (username: string, pin: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
 };
 
@@ -100,12 +100,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [hydrate]);
 
   const login = useCallback(
-    async (accessCode: string, pin: string): Promise<LoginResult> => {
+    async (username: string, pin: string): Promise<LoginResult> => {
       try {
         const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_code: accessCode, pin, device_label: deviceLabel() }),
+          body: JSON.stringify({ username, pin, device_label: deviceLabel() }),
         });
         const data = await res.json();
         if (!res.ok) return { ok: false, error: data.error ?? "Erreur de connexion." };

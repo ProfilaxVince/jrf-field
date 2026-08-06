@@ -15,9 +15,8 @@ export async function listAppUsers(): Promise<AppUserRow[]> {
   return data;
 }
 
-export async function generateCredentials(
-  appUserId: string
-): Promise<{ access_code: string; pin: string }> {
+/** Régénère le PIN d'un membre de l'équipe. Le nom d'utilisateur est son surnom. */
+export async function generatePin(appUserId: string): Promise<{ pin: string }> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
