@@ -1,0 +1,69 @@
+{
+  "_lisezmoi": [
+    "Adresses des magasins, vérifiées UNE PAR UNE avec leur source.",
+    "Ce fichier est cumulatif : chaque adresse retrouvée y est ajoutée, et",
+    "`scripts/extraire-magasins-excel.mjs` le lit pour remplir la colonne adresse.",
+    "",
+    "La clé est le libellé EXACT du fichier Excel de Gérardo — c'est le seul",
+    "identifiant stable dont on dispose avant l'import.",
+    "",
+    "confiance = 'exacte'  : la source nomme le magasin ET la rue sans ambiguïté.",
+    "confiance = 'aVerifier' : plusieurs magasins de ce nom dans la commune,",
+    "                          le choix repose sur un indice (le marqueur « BY »).",
+    "",
+    "Aucune coordonnée GPS ici : elles ne sont pas trouvables par recherche web.",
+    "Seules les coordonnées de la COMMUNE le sont, et elles enverraient le",
+    "commercial sur la grand-place au lieu du magasin."
+  ],
+
+  "INTERMARCHE ANDERLECHT BY": {
+    "adresse": "Boulevard Industriel 41",
+    "confiance": "aVerifier",
+    "source": "bottin.be, waze — un second Intermarché existe à Anderlecht (Nautilus)"
+  },
+  "INTERMARCHE ANS BY": {
+    "adresse": "Rue des Français 155",
+    "confiance": "exacte",
+    "source": "mappy.com, intermarche.be"
+  },
+  "INTERMARCHE BRAINE LE CONTE BY": {
+    "adresse": "Rue des Digues 60",
+    "confiance": "exacte",
+    "source": "mappy.com — fiche « Intermarché By Mestdagh Braine Le Comte » ; l'autre magasin de la commune (Alix de Namur 2) n'est pas By Mestdagh"
+  },
+  "INTERMARCHE CERFONTAINE BY": {
+    "adresse": "Rue de la Gare 22",
+    "confiance": "exacte",
+    "source": "intermarche.be, tiendeo.be"
+  },
+  "INTERMARCHE CHAPELLE-LEZ-HERLEMONT BY": {
+    "adresse": "Rue de la Hestre 93",
+    "confiance": "exacte",
+    "source": "infobel.be, intermarche.be"
+  },
+  "INTERMARCHE ANDENNE": {
+    "adresse": "Avenue de Belle Mine 7",
+    "confiance": "aVerifier",
+    "source": "ethiquable.be (fiche « Intermarché by Mestdagh Andenne »), bottin.be — or la ligne Excel ne porte pas le marqueur BY"
+  },
+  "INTERMARCHE BINCHE": {
+    "adresse": "Rue Zéphirin Fontaine 140",
+    "confiance": "exacte",
+    "source": "infobel.com"
+  },
+  "INTERMARCHE -HUMBLET BY": {
+    "adresse": "Rue de la Cathédrale 63-67",
+    "confiance": "exacte",
+    "source": "intermarche.be — fiche « Intermarché Liège Humblet »"
+  },
+  "AD DELHAIZE AUNOI -": {
+    "adresse": "Rue de Houdeng 212",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be — Le Rœulx"
+  },
+  "DELHAIZE REER": {
+    "adresse": "'s Herenbaan 178",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be — Delhaize Reet, commune de Rumst"
+  }
+}

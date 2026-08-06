@@ -202,22 +202,17 @@ const COMMUNES = {
 };
 
 /**
- * Adresses VÉRIFIÉES une par une, avec leur source. Rien n'est ici sans avoir
- * été retrouvé : une adresse inventée envoie un commercial au mauvais endroit,
- * ce qui est pire qu'une case vide.
+ * Adresses vérifiées une par une, chargées depuis `adresses-magasins.json`.
+ * Fichier séparé et cumulatif : la recherche des 185 adresses se fait par
+ * lots, et chaque lot doit s'ajouter sans risquer d'écraser le précédent.
  *
- * Les 181 autres restent vides — voir le rapport en fin d'exécution.
+ * Rien n'y figure sans source. Une adresse inventée envoie un commercial à la
+ * mauvaise porte — bien pire qu'une case vide, parce que personne ne va la
+ * vérifier avant d'y être.
  */
-const ADRESSES_VERIFIEES = {
-  // infobel.com — Intermarché Binche
-  "INTERMARCHE BINCHE": "Rue Zéphirin Fontaine 140",
-  // intermarche.be — Intermarché Liège Humblet
-  "INTERMARCHE -HUMBLET BY": "Rue de la Cathédrale 63-67",
-  // stores.delhaize.be — AD Delhaize Aunoi
-  "AD DELHAIZE AUNOI -": "Rue de Houdeng 212",
-  // stores.delhaize.be — Delhaize Reet
-  "DELHAIZE REER": "'s Herenbaan 178",
-};
+const ADRESSES_VERIFIEES = JSON.parse(
+  fs.readFileSync(new URL("./adresses-magasins.json", import.meta.url), "utf8")
+);
 
 // Corrections de frappe relevées dans l'Excel, appliquées au nom affiché.
 // Chacune est listée dans le rapport : rien n'est corrigé en silence.
@@ -317,7 +312,7 @@ for (const cols of lignes) {
     nom: joliNom(libelle, enseigne),
     enseigne,
     reseau,
-    adresse: ADRESSES_VERIFIEES[libelle.toUpperCase()] ?? "",
+    adresse: ADRESSES_VERIFIEES[libelle.toUpperCase()]?.adresse ?? "",
     code_postal: commune?.cp ?? "",
     ville: commune?.ville ?? "",
     region: commune?.region ?? "",
@@ -368,10 +363,18 @@ for (const [e, n] of Object.entries(parEnseigne).sort((a, b) => b[1] - a[1])) {
 }
 console.log(`\nCommune renseignée : ${magasins.filter((m) => m.ville).length}/${magasins.length}`);
 const avecAdresse = magasins.filter((m) => m.adresse).length;
+const adressesADouble = Object.entries(ADRESSES_VERIFIEES).filter(
+  ([cle, v]) => !cle.startsWith("_") && v.confiance === "aVerifier"
+);
 console.log(
   `Adresse renseignée : ${avecAdresse}/${magasins.length}  ` +
-    `(absente du fichier source, vérifiée une par une)`
+    `(absente du fichier source, retrouvée une par une)`
 );
+console.log(`Coordonnées GPS    : 0/${magasins.length}  (non trouvables par recherche web)`);
+if (adressesADouble.length) {
+  console.log(`\n⚠️  ${adressesADouble.length} adresse(s) à confirmer :`);
+  for (const [cle, v] of adressesADouble) console.log(`     ${cle} → ${v.adresse}`);
+}
 
 if (doublons.length) {
   console.log(`\n⚠️  ${doublons.length} nom(s) en double DANS LE FICHIER SOURCE :`);
