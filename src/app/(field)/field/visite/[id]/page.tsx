@@ -66,6 +66,19 @@ export default function VisitePage() {
     router.push("/field");
   }
 
+  /**
+   * Reporter n'annule rien : la visite reste dans l'historique avec son motif,
+   * et le magasin retrouve sa place dans les priorités (sa dette continue de
+   * courir tant qu'aucun compte rendu n'a été soumis).
+   */
+  async function reporter() {
+    if (!visite) return;
+    setEnCours(true);
+    await tournee.reporter(visite.id, t.saisieVisite.postponeMotif);
+    setEnCours(false);
+    router.push("/field");
+  }
+
   async function photographier(fichier: File, position: number) {
     if (!visite) return;
     setErreurPhoto(null);
@@ -162,6 +175,15 @@ export default function VisitePage() {
               {montage && <p className="text-sm text-neutral-500">{t.field.montage}</p>}
               <Button variant="outline" size="lg" className="w-full" asChild>
                 <Link href={`/field/signaler/${visite.store_id}`}>{t.incidents.report}</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="w-full"
+                onClick={reporter}
+                disabled={enCours}
+              >
+                {t.saisieVisite.postpone}
               </Button>
             </div>
           </>

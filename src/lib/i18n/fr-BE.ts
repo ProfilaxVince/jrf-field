@@ -187,7 +187,8 @@ export const t = {
     finishHint: "Réponds d'abord à la question sur le rayon.",
     finished: "Visite enregistrée.",
     postpone: "Reporter cette visite",
-    postponeReason: "Pourquoi ?",
+    /** Motif enregistré en base (pas un libellé d'écran). */
+    postponeMotif: "reporté depuis le terrain",
     postponed: "Visite reportée.",
     savedOffline: "Pas de réseau. C'est enregistré, ça partira tout seul.",
     back: "Retour à ma tournée",
