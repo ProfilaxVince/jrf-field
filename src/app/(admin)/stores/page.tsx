@@ -50,10 +50,84 @@ const EMPTY_DRAFT: Draft = {
   jrf_revenue_year: "",
 };
 
+/**
+ * Nombre écrit à l'européenne : « 68.000,50 », « 68 000 € », « 68000 ».
+ * Un `Number()` direct renvoie NaN sur les trois premières formes — et un CA
+ * à NaN devient un magasin sans chiffre d'affaires, donc mal catégorisé.
+ */
 function nombreOuNull(valeur: string): number | null {
-  if (!valeur.trim()) return null;
-  const n = Number(valeur.replace(",", ".").replace(/\s/g, ""));
+  const brut = valeur.replace(/[^\d.,-]/g, "").trim();
+  if (!brut) return null;
+  const aVirgule = brut.includes(",");
+  const aPoint = brut.includes(".");
+  let normalise = brut;
+  if (aVirgule && aPoint) {
+    // Le dernier séparateur rencontré est le décimal.
+    normalise =
+      brut.lastIndexOf(",") > brut.lastIndexOf(".")
+        ? brut.replace(/\./g, "").replace(",", ".")
+        : brut.replace(/,/g, "");
+  } else if (aVirgule) {
+    normalise = brut.replace(",", ".");
+  } else if (aPoint && /\.\d{3}(\D|$)/.test(brut)) {
+    normalise = brut.replace(/\./g, ""); // « 68.000 » = milliers, pas décimales
+  }
+  const n = Number(normalise);
   return Number.isFinite(n) ? n : null;
+}
+
+/** Débarrasse un libellé de sa casse, de ses accents et de sa ponctuation. */
+function simplifier(valeur: string): string {
+  return valeur
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * Les enseignes telles qu'un humain les écrit — « Intermarché », « AD Delhaize »,
+ * « ITM ». Exiger les valeurs techniques du schéma reviendrait à demander à
+ * Gérardo de retravailler son fichier Excel avant chaque import.
+ * L'ordre compte : « AD Delhaize » et « Proxy Delhaize » contiennent tous deux
+ * « delhaize », ils doivent être reconnus AVANT le Delhaize seul.
+ */
+function reconnaitreEnseigne(valeur: string): string {
+  const v = simplifier(valeur);
+  if (!v) return "";
+  if (v.includes("proxy")) return "proxy_delhaize";
+  if (v.includes("addelhaize") || v === "ad" || v.startsWith("ad") && v.includes("delhaize"))
+    return "ad_delhaize";
+  if (v.includes("intermarche") || v.includes("itm")) return "intermarche";
+  if (v.includes("spar")) return "spar";
+  if (v.includes("delhaize")) return "delhaize";
+  return v;
+}
+
+function reconnaitreRegion(valeur: string): string {
+  const v = simplifier(valeur);
+  if (!v) return "";
+  if (v.includes("wallon")) return "wallonie";
+  if (v.includes("brux") || v.includes("brussel") || v === "bxl" || v.includes("bruxelles"))
+    return "bruxelles";
+  if (v.includes("fland") || v.includes("vlaand") || v.includes("flemish")) return "flandre";
+  return v;
+}
+
+/**
+ * Région déduite du code postal belge, quand la colonne est absente du fichier.
+ * Découpage officiel : 1000-1299 Bruxelles, puis alternance Flandre/Wallonie.
+ * Ce n'est pas une supposition confortable, c'est la règle postale belge —
+ * mais elle n'est appliquée QUE si la colonne région manque.
+ */
+function regionDepuisCodePostal(codePostal: string): string {
+  const cp = Number(codePostal.replace(/\D/g, "").slice(0, 4));
+  if (!Number.isFinite(cp) || cp < 1000 || cp > 9999) return "";
+  if (cp < 1300) return "bruxelles";
+  if (cp < 1500) return "wallonie"; // Brabant wallon
+  if (cp < 4000) return "flandre"; // Brabant flamand, Anvers, Limbourg
+  if (cp < 8000) return "wallonie"; // Liège, Namur, Luxembourg, Hainaut
+  return "flandre"; // Flandre occidentale et orientale
 }
 
 function draftToInsert(d: Draft): StoreInsert {
@@ -136,8 +210,10 @@ function parseCsv(text: string): CsvRow[] {
       address: lire("address"),
       postal_code: lire("postal_code"),
       city: lire("city"),
-      enseigne: lire("enseigne").toLowerCase().replace(/[^a-z_]/g, ""),
-      region: lire("region").toLowerCase().replace(/[^a-z_]/g, ""),
+      enseigne: reconnaitreEnseigne(lire("enseigne")),
+      // Sans colonne région, on la déduit du code postal plutôt que de rejeter
+      // la ligne : c'est une information mécanique, pas un choix métier.
+      region: reconnaitreRegion(lire("region")) || regionDepuisCodePostal(lire("postal_code")),
       lat: lire("lat"),
       lng: lire("lng"),
       contact_name: lire("contact_name"),
@@ -148,9 +224,17 @@ function parseCsv(text: string): CsvRow[] {
 
     if (!data.name || !data.city) return { data, valid: false, error: "Nom et ville obligatoires" };
     if (!ENSEIGNES.includes(data.enseigne as (typeof ENSEIGNES)[number]))
-      return { data, valid: false, error: `Enseigne inconnue : ${data.enseigne || "(vide)"}` };
+      return {
+        data,
+        valid: false,
+        error: `Enseigne non reconnue : « ${lire("enseigne") || "(vide)"} »`,
+      };
     if (!REGIONS.includes(data.region as (typeof REGIONS)[number]))
-      return { data, valid: false, error: `Région inconnue : ${data.region || "(vide)"}` };
+      return {
+        data,
+        valid: false,
+        error: `Région non reconnue et code postal absent ou hors Belgique : « ${lire("region") || "(vide)"} »`,
+      };
     return { data, valid: true };
   });
 }
@@ -276,8 +360,15 @@ export default function AdminStoresPage() {
       setStores((prev) => [...prev, ...inserted].sort((a, b) => a.name.localeCompare(b.name)));
       setCsvRows(null);
       setPanel(null);
-    } catch {
-      setError("Import impossible. Vérifie le fichier et réessaie.");
+    } catch (e) {
+      // La cause exacte compte : un doublon de référence ne se corrige pas
+      // comme un fichier mal formé, et « import impossible » n'aide personne.
+      const detail = e instanceof Error ? e.message : "";
+      setError(
+        detail.includes("duplicate key")
+          ? t.stores.importDuplicate
+          : `${t.stores.importFailed}${detail ? ` (${detail})` : ""}`
+      );
     } finally {
       setSaving(false);
     }

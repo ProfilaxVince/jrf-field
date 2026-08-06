@@ -48,6 +48,9 @@ export const t = {
     total: (n: number) => `${n} magasins au total`,
     searchResults: (trouves: number, total: number) => `${trouves} sur ${total}`,
     noMatch: "Aucun magasin ne correspond à cette recherche.",
+    importFailed: "Import impossible.",
+    importDuplicate:
+      "Import impossible : une référence de magasin existe déjà en base. Retire la colonne de référence du fichier, ou vide d'abord les magasins actuels.",
     name: "Nom",
     city: "Ville",
     postalCode: "Code postal",
