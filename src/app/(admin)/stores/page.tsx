@@ -25,6 +25,7 @@ type Draft = {
   postal_code: string;
   city: string;
   enseigne: string;
+  reseau: string;
   region: string;
   lat: string;
   lng: string;
@@ -41,6 +42,7 @@ const EMPTY_DRAFT: Draft = {
   postal_code: "",
   city: "",
   enseigne: ENSEIGNES[0],
+  reseau: "",
   region: REGIONS[0],
   lat: "",
   lng: "",
@@ -104,6 +106,21 @@ function reconnaitreEnseigne(valeur: string): string {
   return v;
 }
 
+/**
+ * Réseau : « BY » (Intermarché by Mestdagh), indépendant, affilié, intégré.
+ * Valeur facultative — un réseau non reconnu est laissé vide plutôt que de
+ * faire échouer la ligne : ce n'est pas une information critique.
+ */
+function reconnaitreReseau(valeur: string): string {
+  const v = simplifier(valeur);
+  if (!v) return "";
+  if (v.includes("mestdagh") || v === "by" || v.includes("bymestdagh")) return "by_mestdagh";
+  if (v.includes("independ") || v.includes("inde")) return "independant";
+  if (v.includes("affili")) return "affilie";
+  if (v.includes("integr")) return "integre";
+  return "";
+}
+
 function reconnaitreRegion(valeur: string): string {
   const v = simplifier(valeur);
   if (!v) return "";
@@ -138,6 +155,7 @@ function draftToInsert(d: Draft): StoreInsert {
     postal_code: d.postal_code.trim() || null,
     city: d.city.trim(),
     enseigne: d.enseigne as StoreInsert["enseigne"],
+    network: (d.reseau || null) as StoreInsert["network"],
     region: d.region as StoreInsert["region"],
     lat: nombreOuNull(d.lat),
     lng: nombreOuNull(d.lng),
@@ -165,6 +183,7 @@ const ALIAS: Record<keyof Omit<Draft, "id">, string[]> = {
   postal_code: ["postal_code", "code_postal", "cp", "npa"],
   city: ["city", "ville", "commune", "localite"],
   enseigne: ["enseigne", "chaine", "chaîne"],
+  reseau: ["reseau", "réseau", "network", "type"],
   region: ["region", "région", "province"],
   lat: ["lat", "latitude"],
   lng: ["lng", "lon", "long", "longitude"],
@@ -211,6 +230,7 @@ function parseCsv(text: string): CsvRow[] {
       postal_code: lire("postal_code"),
       city: lire("city"),
       enseigne: reconnaitreEnseigne(lire("enseigne")),
+      reseau: reconnaitreReseau(lire("reseau")),
       // Sans colonne région, on la déduit du code postal plutôt que de rejeter
       // la ligne : c'est une information mécanique, pas un choix métier.
       region: reconnaitreRegion(lire("region")) || regionDepuisCodePostal(lire("postal_code")),
@@ -278,6 +298,7 @@ export default function AdminStoresPage() {
       id: s.id,
       external_ref: s.external_ref ?? "",
       name: s.name,
+      reseau: s.network ?? "",
       address: s.address ?? "",
       postal_code: s.postal_code ?? "",
       city: s.city,
