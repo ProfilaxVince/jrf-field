@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "./button";
 import { t } from "@/lib/i18n/fr-BE";
 
@@ -19,10 +19,16 @@ export function UndoBar({
   onUndo: () => void;
   onExpire: () => void;
 }) {
+  // Le compte à rebours est armé UNE fois par message. Passer `onExpire` en
+  // dépendance le réarmerait à chaque rendu du parent (fonction recréée à
+  // chaque fois) : la barre ne disparaîtrait jamais toute seule.
+  const expirer = useRef(onExpire);
+  expirer.current = onExpire;
+
   useEffect(() => {
-    const timer = setTimeout(onExpire, DELAI_MS);
+    const timer = setTimeout(() => expirer.current(), DELAI_MS);
     return () => clearTimeout(timer);
-  }, [onExpire, message]);
+  }, [message]);
 
   return (
     <div

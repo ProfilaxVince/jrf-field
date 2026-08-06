@@ -14,7 +14,6 @@ export type EffortParTier = Views["v_stats_effort_par_tier"]["Row"];
 export type FrequenceReelle = Views["v_frequence_reelle_magasin"]["Row"];
 export type SuiviMontage = Views["v_suivi_montage_mois"]["Row"];
 export type RotationMontage = Views["v_rotation_montage"]["Row"];
-export type ChargeSemaine = Views["v_charge_semaine"]["Row"];
 
 export async function statsParc(): Promise<StatsParc[]> {
   const { data, error } = await supabase.from("v_stats_parc").select("*");
@@ -62,16 +61,6 @@ export async function suiviMontage(limite = 6): Promise<SuiviMontage[]> {
 
 export async function rotationMontage(): Promise<RotationMontage | null> {
   const { data, error } = await supabase.from("v_rotation_montage").select("*").maybeSingle();
-  if (error) throw error;
-  return data;
-}
-
-export async function chargeSemaine(anneeIso: number): Promise<ChargeSemaine[]> {
-  const { data, error } = await supabase
-    .from("v_charge_semaine")
-    .select("*")
-    .eq("annee_iso", anneeIso)
-    .order("semaine_iso");
   if (error) throw error;
   return data;
 }

@@ -23,14 +23,21 @@ on conflict (id) do update
 
 -- Le chemin d'un objet est `<visit_id>/<position>-<horodatage>.jpg` :
 -- le premier segment porte l'identifiant de visite, ce qui suffit à décider.
+-- Le premier segment est validé AVANT d'être casté : un chemin fabriqué à la
+-- main ferait sinon échouer la policy sur une erreur de cast au lieu d'un refus.
 create or replace function peut_acceder_photo(p_chemin text)
 returns boolean
 language sql stable security definer set search_path = public as $$
-  select is_admin() or exists (
-    select 1 from visits v
-    where v.id = nullif(split_part(p_chemin, '/', 1), '')::uuid
-      and v.user_id = current_app_user_id()
-  );
+  select case
+    when split_part(p_chemin, '/', 1) !~*
+      '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then false
+    when is_admin() then true
+    else exists (
+      select 1 from visits v
+      where v.id = split_part(p_chemin, '/', 1)::uuid
+        and v.user_id = current_app_user_id()
+    )
+  end;
 $$;
 
 create policy photos_storage_read on storage.objects for select to authenticated
