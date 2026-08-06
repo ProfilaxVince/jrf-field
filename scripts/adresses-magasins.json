@@ -444,5 +444,60 @@
     "adresse": "Chaussée de Douai 1bis",
     "confiance": "exacte",
     "source": "intermarche.be, pubeco.be, tiendeo, heures.be, mappy"
+  },
+  "INTERMARCHE SART DAMES AVELINE": {
+    "adresse": "Chaussée de Namur 113",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, mappy, villers-la-ville.be — commune officielle : Villers-la-Ville"
+  },
+  "INTERMARCHE TEMPLEUVE": {
+    "adresse": "Rue de Formanoir 89",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, pubeco.be, heures.be donnent 89 ; infobel donne 85 — commune officielle : Tournai"
+  },
+  "INTERMARCHE TUBIZE": {
+    "adresse": "Rue du Bailli 26",
+    "confiance": "exacte",
+    "source": "intermarche.be (fiche « Intermarché Tubize »), mappy, koifaire — un second magasin existe à Clabecq (Rue Raymond Piéret 1), absent du fichier"
+  },
+  "INTERMARCHE ESTAIMPUIS": {
+    "adresse": "Rue Jules Vantieghem 3",
+    "confiance": "exacte",
+    "source": "intermarche.be, uw-folder.be, heures.be, promobutler, mappy"
+  },
+  "INTERMARCHE EGHEZEE": {
+    "adresse": "Chaussée de Louvain 64",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, mappy, myfreedelity. ATTENTION : un autre Intermarché porte le nom « Leuze » et se trouve à Éghezée (Chaussée de Namur 323) — jai rattaché la ligne « INTERMARCHE LEUZE » du fichier à Leuze-en-Hainaut (7900). À confirmer avec Gérardo"
+  },
+  "INTERMARCHE MONT SUR MARCHIENNE": {
+    "adresse": "Avenue Paul Pastur 179",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be, cylex, myfreedelity — commune officielle : Charleroi"
+  },
+  "INTERMARCHE HANNUT": {
+    "adresse": "Rue de Hesbaye 1",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, heures.be, cybo donnent Rue de Hesbaye 1 ; pubeco et yelp donnent Chaussée de Landen 53a — deux adresses circulent"
+  },
+  "INTERMARCHE ST GOERGES": {
+    "adresse": "Rue Albert Ier 20",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, uw-folder.be, myshopi, tiendeo — le libellé du fichier contient une coquille (ST GOERGES)"
+  },
+  "INTERMARCHE LESSINES": {
+    "adresse": "Chemin des Croix 99",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, lessines.be, heures.be, mappy"
+  },
+  "INTERMARCHE JETTE": {
+    "adresse": "Rue Léopold I 513",
+    "confiance": "exacte",
+    "source": "intermarche.be, myshopi, heures.be, mappy"
+  },
+  "INTERMARCHE CINEY": {
+    "adresse": "Rue du Commerce 79",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be, myfreedelity, ciney.be (fiché « Intermarché – Groupe Mestdagh »)"
   }
 }
