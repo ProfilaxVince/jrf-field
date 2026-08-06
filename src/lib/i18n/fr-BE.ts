@@ -134,6 +134,8 @@ export const t = {
     nextWeek: "Semaine suivante",
     today: "Cette semaine",
     refresh: "Actualiser",
+    dayPicker: "Choisir le jour",
+    noOneToday: "Personne ne travaille ce jour-là.",
     add: "Ajouter",
     addTo: (surnom: string, jour: string) => `Ajouter à ${surnom} — ${jour}`,
     addStore: "Un magasin",

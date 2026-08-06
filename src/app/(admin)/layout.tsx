@@ -4,9 +4,14 @@ import { AdminNav } from "@/components/admin/admin-nav";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RouteGuard role="admin">
-      {/* Colonne de navigation à gauche, contenu à droite. Sur téléphone la
-          colonne est un tiroir : elle sort de l'écran tant qu'on ne l'ouvre pas. */}
-      <div className="flex min-h-dvh bg-background md:flex-row">
+      {/*
+        `flex-col` sur téléphone, `flex-row` à partir de md. Sans le `flex-col`,
+        la direction par défaut est la RANGÉE : la barre supérieure du téléphone
+        se retrouvait à gauche du contenu, en colonne, et écrasait l'écran.
+        Sur téléphone la colonne de navigation est en `fixed`, donc hors flux :
+        elle ne prend aucune place tant qu'elle n'est pas ouverte.
+      */}
+      <div className="flex min-h-dvh flex-col bg-background md:flex-row">
         <AdminNav />
         <div className="min-w-0 flex-1">{children}</div>
       </div>

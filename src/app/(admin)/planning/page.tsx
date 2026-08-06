@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { UndoBar } from "@/components/ui/undo-bar";
 import { AjoutArret } from "@/components/planning/ajout-arret";
 import { SemaineGrille } from "@/components/planning/semaine-grille";
+import { SemaineJour } from "@/components/planning/semaine-jour";
 import { usePlanningSemaine } from "@/hooks/use-planning-semaine";
 import { listTemplates, listTousLesStops, type TemplateRow } from "@/lib/data/templates";
 import {
@@ -202,22 +203,45 @@ export default function PlanningPage() {
             {t.planning.noTeam}
           </p>
         ) : (
-          <SemaineGrille
-            users={planning.users}
-            jours={planning.jours}
-            visitesParCellule={planning.visitesParCellule}
-            indisponibilites={planning.indisponibilites}
-            prioritesParStore={prioritesParStore}
-            onMonter={(v) => planning.deplacer(v, -1)}
-            onDescendre={(v) => planning.deplacer(v, 1)}
-            onRetirer={retirer}
-            onAjouter={(userId, date) => {
-              setMessage(null);
-              setCellule({ userId, date });
-            }}
-            onRanger={ranger}
-            onVider={vider}
-          />
+          <>
+            {/* Téléphone : un jour à la fois. Ordinateur : la semaine entière. */}
+            <div className="md:hidden">
+              <SemaineJour
+                users={planning.users}
+                jours={planning.jours}
+                visitesParCellule={planning.visitesParCellule}
+                indisponibilites={planning.indisponibilites}
+                prioritesParStore={prioritesParStore}
+                onMonter={(v) => planning.deplacer(v, -1)}
+                onDescendre={(v) => planning.deplacer(v, 1)}
+                onRetirer={retirer}
+                onAjouter={(userId, date) => {
+                  setMessage(null);
+                  setCellule({ userId, date });
+                }}
+                onRanger={ranger}
+                onVider={vider}
+              />
+            </div>
+            <div className="hidden md:block">
+              <SemaineGrille
+                users={planning.users}
+                jours={planning.jours}
+                visitesParCellule={planning.visitesParCellule}
+                indisponibilites={planning.indisponibilites}
+                prioritesParStore={prioritesParStore}
+                onMonter={(v) => planning.deplacer(v, -1)}
+                onDescendre={(v) => planning.deplacer(v, 1)}
+                onRetirer={retirer}
+                onAjouter={(userId, date) => {
+                  setMessage(null);
+                  setCellule({ userId, date });
+                }}
+                onRanger={ranger}
+                onVider={vider}
+              />
+            </div>
+          </>
         )}
       </div>
     </main>

@@ -22,8 +22,8 @@ export function StorePrioriteRow({
   const affichage = detteAffichable(dette, t.visite);
 
   return (
-    <li className="flex items-center gap-4 bg-card px-4 py-3 first:rounded-t-lg last:rounded-b-lg">
-      <div className="min-w-0 flex-1">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-card px-4 py-3 first:rounded-t-lg last:rounded-b-lg">
+      <div className="min-w-0 flex-[1_1_60%]">
         <p className="truncate text-lg font-semibold">{store.name}</p>
         <p className="truncate text-sm text-neutral-500">
           {store.city} — {t.stores.enseigneLabels[store.enseigne] ?? store.enseigne}

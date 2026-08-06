@@ -116,8 +116,8 @@ export function AjoutArret({
             const deja = dejaPlanifies.has(item.store.id);
             const affichage = detteAffichable(item.dette, t.visite);
             return (
-              <li key={item.store.id} className="flex items-center gap-3 py-2">
-                <div className="min-w-0 flex-1">
+              <li key={item.store.id} className="flex flex-wrap items-center gap-2 py-2">
+                <div className="min-w-0 flex-[1_1_100%] sm:flex-1">
                   <p className="truncate text-base font-medium">{item.store.name}</p>
                   <p className="truncate text-sm text-neutral-500">
                     {item.store.postal_code ? `${item.store.postal_code} ` : ""}
