@@ -2,22 +2,37 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UndoBar } from "@/components/ui/undo-bar";
 import { t } from "@/lib/i18n/fr-BE";
+import { detailErreur, estConflitDeCle } from "@/lib/data/erreurs";
 import {
-  definirPorteVisites,
+  FICHE_VIDE,
+  FormulaireCommercial,
+  ficheDepuis,
+} from "@/components/admin/fiche-commercial";
+import { LigneCommercial } from "@/components/admin/ligne-commercial";
+import {
+  creerCommercial,
   generatePin,
   listAppUsers,
+  modifierCommercial,
+  reactiverCommercial,
+  retirerCommercial,
   type AppUserRow,
+  type FicheCommercial,
 } from "@/lib/data/users";
+
+type Edition = { id: string | null; fiche: FicheCommercial };
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AppUserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [reveal, setReveal] = useState<{ userId: string; nickname: string; pin: string } | null>(
-    null
-  );
+  const [saving, setSaving] = useState(false);
+  const [edition, setEdition] = useState<Edition | null>(null);
+  const [retire, setRetire] = useState<AppUserRow | null>(null);
+  const [reveal, setReveal] = useState<{ nickname: string; pin: string } | null>(null);
 
   useEffect(() => {
     listAppUsers()
@@ -26,12 +41,15 @@ export default function AdminUsersPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const trier = (l: AppUserRow[]) =>
+    [...l].sort((a, b) => Number(b.is_admin) - Number(a.is_admin) || a.nickname.localeCompare(b.nickname));
+
   async function handleGenerate(u: AppUserRow) {
     setBusyId(u.id);
     setError(null);
     try {
       const { pin } = await generatePin(u.id);
-      setReveal({ userId: u.id, nickname: u.nickname, pin });
+      setReveal({ nickname: u.nickname, pin });
       setUsers((prev) => prev.map((p) => (p.id === u.id ? { ...p, pin_hash: "x" } : p)));
     } catch {
       setError("Génération impossible. Réessaie.");
@@ -40,15 +58,55 @@ export default function AdminUsersPage() {
     }
   }
 
-  async function basculerPorteVisites(u: AppUserRow, porte: boolean) {
-    const precedent = users;
-    setUsers((prev) => prev.map((p) => (p.id === u.id ? { ...p, porte_visites: porte } : p)));
+  async function enregistrer() {
+    if (!edition) return;
+    setSaving(true);
+    setError(null);
     try {
-      await definirPorteVisites(u.id, porte);
+      const ligne = edition.id
+        ? await modifierCommercial(edition.id, edition.fiche)
+        : await creerCommercial(edition.fiche);
+      setUsers((prev) =>
+        trier(edition.id ? prev.map((p) => (p.id === ligne.id ? ligne : p)) : [...prev, ligne])
+      );
+      setEdition(null);
+    } catch (e) {
+      const detail = detailErreur(e);
+      setError(
+        estConflitDeCle(e)
+          ? t.adminUsers.nicknameTaken
+          : `${t.adminUsers.saveError}${detail ? ` (${detail})` : ""}`
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Le retrait est appliqué tout de suite et la barre d'annulation le défait
+  // pendant 10 secondes — pas de modale de confirmation avant l'action.
+  async function retirer(u: AppUserRow) {
+    setUsers((prev) => prev.filter((p) => p.id !== u.id));
+    setRetire(u);
+    try {
+      await retirerCommercial(u.id);
       setError(null);
     } catch {
-      setUsers(precedent);
-      setError(t.adminUsers.updateError);
+      setUsers((prev) => trier([...prev, u]));
+      setRetire(null);
+      setError(t.adminUsers.removeError);
+    }
+  }
+
+  async function annulerRetrait() {
+    if (!retire) return;
+    const u = retire;
+    setRetire(null);
+    setUsers((prev) => trier([...prev, u]));
+    try {
+      await reactiverCommercial(u.id, u.porte_visites);
+    } catch {
+      setUsers((prev) => prev.filter((p) => p.id !== u.id));
+      setError(t.adminUsers.removeError);
     }
   }
 
@@ -62,6 +120,14 @@ export default function AdminUsersPage() {
 
         {error && <p className="text-base text-[color:var(--state-critical)]">{error}</p>}
 
+        {retire && (
+          <UndoBar
+            message={t.adminUsers.removeConfirm(retire.nickname)}
+            onUndo={annulerRetrait}
+            onExpire={() => setRetire(null)}
+          />
+        )}
+
         {reveal && (
           <Card className="border-[color:var(--state-warning)]">
             <CardHeader>
@@ -69,7 +135,7 @@ export default function AdminUsersPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-6">
                   <div>
                     <div className="text-sm text-neutral-600">{t.auth.usernameLabel}</div>
                     <div className="text-2xl font-semibold">{reveal.nickname}</div>
@@ -86,52 +152,42 @@ export default function AdminUsersPage() {
           </Card>
         )}
 
+        {edition ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {edition.id ? t.adminUsers.editTitle(edition.fiche.nickname) : t.adminUsers.addTitle}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormulaireCommercial
+                fiche={edition.fiche}
+                onChange={(fiche) => setEdition({ ...edition, fiche })}
+                onValider={enregistrer}
+                onAnnuler={() => setEdition(null)}
+                enCours={saving}
+              />
+            </CardContent>
+          </Card>
+        ) : (
+          <Button onClick={() => setEdition({ id: null, fiche: FICHE_VIDE })}>
+            {t.adminUsers.add}
+          </Button>
+        )}
+
         {loading ? (
           <p className="text-base text-neutral-600">{t.common.loading}</p>
         ) : (
           <div className="space-y-3">
             {users.map((u) => (
-              <div
+              <LigneCommercial
                 key={u.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    aria-hidden
-                    className="size-3 rounded-full"
-                    style={{ backgroundColor: u.color_hex }}
-                  />
-                  <div>
-                    <div className="text-lg font-semibold">{u.nickname}</div>
-                    <div className="text-sm text-neutral-600">
-                      {u.pin_hash ? t.adminUsers.hasCode : t.adminUsers.noCode}
-                      {u.is_admin ? " · admin" : ""}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <label className="flex min-h-[44px] items-center gap-2 text-base">
-                    <input
-                      type="checkbox"
-                      className="size-5"
-                      checked={u.porte_visites}
-                      onChange={(e) => basculerPorteVisites(u, e.target.checked)}
-                    />
-                    {t.adminUsers.carriesVisits}
-                  </label>
-                  <Button
-                    variant={u.pin_hash ? "outline" : "default"}
-                    disabled={busyId === u.id}
-                    onClick={() => handleGenerate(u)}
-                  >
-                    {busyId === u.id
-                      ? t.adminUsers.generating
-                      : u.pin_hash
-                        ? t.adminUsers.regenerateCode
-                        : t.adminUsers.generateCode}
-                  </Button>
-                </div>
-              </div>
+                u={u}
+                busy={busyId === u.id}
+                onModifier={() => setEdition({ id: u.id, fiche: ficheDepuis(u) })}
+                onRetirer={() => retirer(u)}
+                onGenerer={() => handleGenerate(u)}
+              />
             ))}
           </div>
         )}

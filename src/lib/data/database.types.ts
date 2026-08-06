@@ -87,13 +87,17 @@ export type Database = {
           auth_user_id: string | null
           color_hex: string
           created_at: string
+          email: string | null
           failed_login_attempts: number
+          first_name: string | null
           full_name: string
           id: string
           internal_auth_email: string | null
           is_admin: boolean
+          last_name: string | null
           locked_until: string | null
           nickname: string
+          phone: string | null
           pin_hash: string | null
           porte_visites: boolean
         }
@@ -103,13 +107,17 @@ export type Database = {
           auth_user_id?: string | null
           color_hex: string
           created_at?: string
+          email?: string | null
           failed_login_attempts?: number
-          full_name: string
+          first_name?: string | null
+          full_name?: string
           id?: string
           internal_auth_email?: string | null
           is_admin?: boolean
+          last_name?: string | null
           locked_until?: string | null
           nickname: string
+          phone?: string | null
           pin_hash?: string | null
           porte_visites?: boolean
         }
@@ -119,13 +127,17 @@ export type Database = {
           auth_user_id?: string | null
           color_hex?: string
           created_at?: string
+          email?: string | null
           failed_login_attempts?: number
+          first_name?: string | null
           full_name?: string
           id?: string
           internal_auth_email?: string | null
           is_admin?: boolean
+          last_name?: string | null
           locked_until?: string | null
           nickname?: string
+          phone?: string | null
           pin_hash?: string | null
           porte_visites?: boolean
         }
