@@ -28,7 +28,7 @@ Portail responsable (`/admin`, réservé à `is_admin`)
 | `/admin` | À voir en priorité + verdict de capacité |
 | `/planning` | Semaine : ajout manuel, modèles de tournée, réordonnancement, undo 10 s |
 | `/templates` | Modèles de tournée réutilisables |
-| `/stores` | Parc : ajout, modification, import CSV |
+| `/stores` | Parc groupé par enseigne puis région, recherche, import CSV |
 | `/incidents` | Signalements à traiter + remontées à la centrale |
 | `/stats` | Les chiffres (lecture des vues SQL) |
 | `/settings` | Rythme, catégories, équipe, exports |

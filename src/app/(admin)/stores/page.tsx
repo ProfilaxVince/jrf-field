@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { t } from "@/lib/i18n/fr-BE";
+import { ListeGroupee } from "@/components/store/liste-groupee";
 import { parseDelimited } from "@/lib/csv";
 import {
   ENSEIGNES,
@@ -156,6 +157,7 @@ function parseCsv(text: string): CsvRow[] {
 
 export default function AdminStoresPage() {
   const [stores, setStores] = useState<StoreRow[]>([]);
+  const [recherche, setRecherche] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [panel, setPanel] = useState<"add" | "import" | null>(null);
@@ -282,6 +284,18 @@ export default function AdminStoresPage() {
   }
 
   const invalidCount = csvRows?.filter((r) => !r.valid).length ?? 0;
+
+  // La recherche filtre AVANT le regroupement : les compteurs affichés
+  // correspondent donc toujours à ce qui est réellement à l'écran.
+  const filtres = useMemo(() => {
+    const terme = recherche.trim().toLowerCase();
+    if (!terme) return stores;
+    return stores.filter((s) =>
+      `${s.name} ${s.city} ${s.postal_code ?? ""} ${s.address ?? ""} ${s.external_ref ?? ""}`
+        .toLowerCase()
+        .includes(terme)
+    );
+  }, [stores, recherche]);
 
   return (
     <main className="p-6">
@@ -434,45 +448,30 @@ export default function AdminStoresPage() {
           </Card>
         )}
 
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            className="min-h-[44px] flex-1 rounded border border-border px-3 text-base"
+            placeholder={t.stores.search}
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+          />
+          <span className="text-base text-neutral-600">
+            {recherche.trim()
+              ? t.stores.searchResults(filtres.length, stores.length)
+              : t.stores.total(stores.length)}
+          </span>
+        </div>
+
         {loading ? (
           <p className="text-base text-neutral-600">{t.common.loading}</p>
         ) : stores.length === 0 ? (
           <p className="text-base text-neutral-600">{t.stores.empty}</p>
+        ) : filtres.length === 0 ? (
+          <p className="text-base text-neutral-600">{t.stores.noMatch}</p>
         ) : (
-          <div className="space-y-3">
-            {stores.map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3"
-              >
-                <div>
-                  <div className="text-lg font-semibold">{s.name}</div>
-                  <div className="text-sm text-neutral-600">
-                    {s.postal_code ? `${s.postal_code} ` : ""}
-                    {s.city} — {t.stores.enseigneLabels[s.enseigne] ?? s.enseigne}
-                  </div>
-                  {/* Adresse et référence affichées : sans elles, deux magasins
-                      homonymes dans la même ville sont impossibles à distinguer. */}
-                  {(s.address || s.external_ref) && (
-                    <div className="text-sm text-neutral-500">
-                      {s.address ?? ""}
-                      {s.address && s.external_ref ? " · " : ""}
-                      {s.external_ref ?? ""}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => startEdit(s)}>
-                    {t.stores.edit}
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleRemove(s)}>
-                    {t.stores.remove}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ListeGroupee magasins={filtres} onModifier={startEdit} onRetirer={handleRemove} />
         )}
+
       </div>
     </main>
   );
