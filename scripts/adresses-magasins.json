@@ -136,19 +136,19 @@
     "source": "intermarche.be (« Intermarché Gilly Moulin »), pubeco.be — l'autre Gilly du fichier est le Vélodrome"
   },
   "INTERMARCHE GOSSELIES BY": {
-    "adresse": "Chaussée de Courcelles 95",
+    "adresse": "Rue Pont-à-Migneloux 13",
     "confiance": "aVerifier",
-    "source": "obodo.be — plusieurs Intermarché à Gosselies (Courcelles 95, Grand Vivier 21, Pont-à-Migneloux 13)"
+    "source": "intermarche.be (fiche « Gosselies N5 »). Attribution DÉDUITE : lautre Gosselies (Ch. de Courcelles 95) est exploité par « Pana&Co S.A. » (obodo.be), donc un indépendant ; le magasin sans société nommée est celui du réseau Mestdagh, do le marqueur BY. À faire confirmer par Gérardo"
   },
   "INTERMARCHE GOSSELIES": {
-    "adresse": "",
+    "adresse": "Chaussée de Courcelles 95",
     "confiance": "aVerifier",
-    "source": "NON TRANCHÉ — le fichier contient deux lignes Gosselies et la commune compte au moins trois Intermarché"
+    "source": "pubeco.be, openingsuren.info, heures.be, obodo.be (« Intermarché Gosselies (Pana&Co S.A.) ») — indépendant présumé ; voir la note de INTERMARCHE GOSSELIES BY"
   },
   "INTERMARCHE GOZEE BY": {
-    "adresse": "Rue de Bomerée 1",
-    "confiance": "aVerifier",
-    "source": "pubeco.be, thuin.be — deux fiches Gozée (Bomerée et Marchienne) ; commune officielle : Thuin"
+    "adresse": "Rue de Marchienne 204",
+    "confiance": "exacte",
+    "source": "facebook.com/MestdaghGozee (« Intermarché Gozée Rue de Marchienne »), intermarche.be/magasins/intermarche-gozee-marchienne — cest le magasin du réseau Mestdagh, do le marqueur BY du fichier"
   },
   "INTERMARCHE HAMME-MILLE BY": {
     "adresse": "Rue des Épinoches 5",
@@ -274,5 +274,175 @@
     "adresse": "Chaussée de Mons 225",
     "confiance": "aVerifier",
     "source": "intermarche.be (« Anderlues Ch. de Mons ») — attribution déduite, la raison sociale Capandere n'apparaît sur aucune fiche"
+  },
+  "INTERMARCHE ANHEE/HOLEBO SA": {
+    "adresse": "Chaussée de Dinant 127",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, adlanhee.be"
+  },
+  "INTERMARCHE ANTHEE": {
+    "adresse": "Rue du Maréchal Franchet d'Esperey 2",
+    "confiance": "exacte",
+    "source": "intermarche.be, mappy, pubeco.be — commune officielle : Onhaye"
+  },
+  "INTERMARCHE ASSESSE": {
+    "adresse": "Rue Melville Wilson 3",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, yelp"
+  },
+  "INTERMARCHE BOIS DE VILLERS": {
+    "adresse": "Rue Biname Bajart 1",
+    "confiance": "exacte",
+    "source": "pubeco.fr, pagesdor.be, profondeville.be — commune officielle : Profondeville ; heures.be écrit « Rue Jules Binamé 1 »"
+  },
+  "INTERMARCHE BOUSSU": {
+    "adresse": "Rue des Chaufours 19",
+    "confiance": "exacte",
+    "source": "intermarche.be, uw-folder.be, infobel, yelp"
+  },
+  "INTERMARCHE COURT-SAINT-ETIENNE": {
+    "adresse": "Place Baudouin 1er 12",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, tiendeo, court-st-etienne.be"
+  },
+  "INTERMARCHE FLEURUS": {
+    "adresse": "Chaussée de Charleroi 787",
+    "confiance": "exacte",
+    "source": "intermarche.be, mappy — à ne pas confondre avec Lambusart, même code postal 6220"
+  },
+  "INTERMARCHE LAMBUSRT": {
+    "adresse": "Rue du Wainage 236",
+    "confiance": "exacte",
+    "source": "intermarche.be (fiche « Intermarché Lambusart »), mappy, moovit — commune officielle : Fleurus"
+  },
+  "INTERMARCHE FORCHIES": {
+    "adresse": "Rue Chaussée 229",
+    "confiance": "exacte",
+    "source": "intermarche.be, uw-folder.be, villedefontaine.be — commune officielle : Fontaine-lÉvêque"
+  },
+  "INTERMARCHE FRAMERIES": {
+    "adresse": "Route Nationale 29",
+    "confiance": "aVerifier",
+    "source": "intermarche.be et heures.be donnent Route Nationale 29 ; mappy et pagesdor citent Rue Archimède 5 et Rue Ferrer 316 — trois adresses circulent, à confirmer sur place"
+  },
+  "INTERMARCHE FRASNES LEZ ANVAING": {
+    "adresse": "Route dHacquegnies 53",
+    "confiance": "exacte",
+    "source": "intermarche.be, uw-folder.be, heures.be, pagesdor — commune postale : Frasnes-lez-Buissenal"
+  },
+  "INTERMARCHE GEDINNE": {
+    "adresse": "Rue de Charleville 48",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, foursquare"
+  },
+  "INTERMARCHE GIVRY": {
+    "adresse": "Chaussée de Beaumont 71",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, cylex, moovit — pubeco écrit « Route de Beaumont 71 » ; numéro sûr, type de voie à confirmer. Commune officielle : Quévy"
+  },
+  "INTERMARCHE GOZEE": {
+    "adresse": "Rue de Bomerée 1",
+    "confiance": "exacte",
+    "source": "intermarche.be/magasins/intermarche-gozee (« Gozée Bomerée »), pubeco.be, thuin.be, heures.be — magasin indépendant, distinct du Mestdagh de la Rue de Marchienne"
+  },
+  "INTERMARCHE HELECINE": {
+    "adresse": "Chaussée de Hannut 116",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, uw-folder.be, myshopi"
+  },
+  "INTERMARCHE HERMALLE SOUS ARGENTEAU": {
+    "adresse": "Rue dArgenteau 13",
+    "confiance": "exacte",
+    "source": "intermarche.be, chargemap, coparking — commune officielle : Oupeye"
+  },
+  "INTERMARCHE HERSTAL": {
+    "adresse": "Rue Ernest Solvay 90",
+    "confiance": "aVerifier",
+    "source": "intermarche.be et mappy donnent Rue Ernest Solvay 90 ; pubeco et yelp donnent Rue Arnold Delsupexhe 36 — deux adresses circulent, à confirmer"
+  },
+  "INTERMARCHE HOLLAIN": {
+    "adresse": "Rue du Marais 5",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, bottin.be — commune officielle : Brunehaut"
+  },
+  "INTERMARCHE JURBISE": {
+    "adresse": "Route dAth 177",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, jurbise.be, uw-folder.be"
+  },
+  "INTERMARCHE LEUZE": {
+    "adresse": "Rue de lArtisanat 4",
+    "confiance": "exacte",
+    "source": "intermarche.be, tiendeo, myshopi, clickandcollect.intermarche.be"
+  },
+  "INTERMARCHE LIEGE BURENVILLE": {
+    "adresse": "Avenue Olympe Gilbart 1c",
+    "confiance": "exacte",
+    "source": "intermarche.be, chargemap, myfreedelity"
+  },
+  "INTERMARCHE MONS": {
+    "adresse": "Chemin de la Procession 399",
+    "confiance": "exacte",
+    "source": "intermarche.be, heures.be, mappy — le magasin « Maisières » (Rue Grande 208) est un autre point de vente, absent du fichier"
+  },
+  "INTERMARCHE MORLANWELZ": {
+    "adresse": "Rue des Ateliers 122",
+    "confiance": "exacte",
+    "source": "intermarche.be (fiche « Intermarché Morlanwelz »), pubeco.be, mappy — un second point de vente existe Rue Pont du Nil 3, absent du fichier"
+  },
+  "INTERMARCHE MOUSCRON": {
+    "adresse": "Avenue Wolfgang Amadeus Mozart 22",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, mappy, opendi"
+  },
+  "INTERMARCHE OHEY": {
+    "adresse": "Rue de Ciney 14b",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, tiendeo, heures.be donnent le n° 14b ; pubeco écrit « Chaussée de Ciney 14b » — numéro sûr, type de voie à confirmer"
+  },
+  "INTERMARCHE ORCQ": {
+    "adresse": "Chaussée de Lille 433",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, bottin.be — ATTENTION : code postal réel 7501 (le fichier laisse deviner 7503, qui est Froyennes). Commune : Tournai"
+  },
+  "INTERMARCHE PERUWELZ HAINAUT": {
+    "adresse": "Neuve Chaussée 86c",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco, heures.be, mappy"
+  },
+  "INTERMARCHE PERWEZ B-W": {
+    "adresse": "Chaussée de Charleroi 24a",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, mappy — section de Thorembais-Saint-Trond"
+  },
+  "INTERMARCHE PONT DE LOUP": {
+    "adresse": "Rue du Campinaire 66",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, aiseau-presles.be — commune officielle : Aiseau-Presles"
+  },
+  "INTERMARCHE QUEVAUCAMPS -QUEVIM": {
+    "adresse": "Rue du Brugnon 88",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, heures.be, mappy, infobel — commune officielle : Beloeil"
+  },
+  "INTERMARCHE RANSART": {
+    "adresse": "Rue Charbonnel 100",
+    "confiance": "aVerifier",
+    "source": "pubeco.be, heures.be, bottin.be donnent le n° 100 ; infobel a une seconde fiche au n° 104 — même magasin, numéro à confirmer. Commune officielle : Charleroi"
+  },
+  "INTERMARCHE REBECQ": {
+    "adresse": "Chaussée dEnghien 79",
+    "confiance": "exacte",
+    "source": "intermarche.be, uw-folder.be, myshopi, moovit"
+  },
+  "INTERMARCHE RHISNES": {
+    "adresse": "Rue aux Cailloux 34",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, myshopi, ethiquable.be — commune officielle : La Bruyère"
+  },
+  "INTERMARCHE RUMES": {
+    "adresse": "Chaussée de Douai 1bis",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, tiendeo, heures.be, mappy"
   }
 }
