@@ -30,8 +30,10 @@ type Draft = {
   region: string;
   lat: string;
   lng: string;
-  contact_name: string;
-  contact_phone: string;
+  adherent_name: string;
+  adherent_phone: string;
+  fl_manager_name: string;
+  fl_manager_phone: string;
   jrf_revenue_eur: string;
   jrf_revenue_year: string;
 };
@@ -47,8 +49,10 @@ const EMPTY_DRAFT: Draft = {
   region: REGIONS[0],
   lat: "",
   lng: "",
-  contact_name: "",
-  contact_phone: "",
+  adherent_name: "",
+  adherent_phone: "",
+  fl_manager_name: "",
+  fl_manager_phone: "",
   jrf_revenue_eur: "",
   jrf_revenue_year: "",
 };
@@ -160,8 +164,10 @@ function draftToInsert(d: Draft): StoreInsert {
     region: d.region as StoreInsert["region"],
     lat: nombreOuNull(d.lat),
     lng: nombreOuNull(d.lng),
-    contact_name: d.contact_name.trim() || null,
-    contact_phone: d.contact_phone.trim() || null,
+    adherent_name: d.adherent_name.trim() || null,
+    adherent_phone: d.adherent_phone.trim() || null,
+    fl_manager_name: d.fl_manager_name.trim() || null,
+    fl_manager_phone: d.fl_manager_phone.trim() || null,
     jrf_revenue_eur: nombreOuNull(d.jrf_revenue_eur),
     jrf_revenue_year:
       nombreOuNull(d.jrf_revenue_year) ??
@@ -188,8 +194,15 @@ const ALIAS: Record<keyof Omit<Draft, "id">, string[]> = {
   region: ["region", "région", "province"],
   lat: ["lat", "latitude"],
   lng: ["lng", "lon", "long", "longitude"],
-  contact_name: ["contact_name", "contact", "chef_de_rayon", "responsable"],
-  contact_phone: ["contact_phone", "telephone", "téléphone", "tel", "gsm"],
+  adherent_name: ["adherent_name", "adherent", "adhérent", "exploitant", "patron", "gerant", "gérant"],
+  adherent_phone: ["adherent_phone", "telephone_adherent", "tel_adherent", "gsm_adherent"],
+  fl_manager_name: [
+    "fl_manager_name", "contact_name", "contact", "chef_de_rayon",
+    "responsable", "responsable_fl", "responsable_fruits_et_legumes",
+  ],
+  fl_manager_phone: [
+    "fl_manager_phone", "contact_phone", "telephone", "téléphone", "tel", "gsm",
+  ],
   jrf_revenue_eur: ["jrf_revenue_eur", "ca_jrf", "ca", "chiffre_affaires", "montant"],
   jrf_revenue_year: ["jrf_revenue_year", "exercice", "annee", "année"],
 };
@@ -237,8 +250,10 @@ function parseCsv(text: string): CsvRow[] {
       region: reconnaitreRegion(lire("region")) || regionDepuisCodePostal(lire("postal_code")),
       lat: lire("lat"),
       lng: lire("lng"),
-      contact_name: lire("contact_name"),
-      contact_phone: lire("contact_phone"),
+      adherent_name: lire("adherent_name"),
+      adherent_phone: lire("adherent_phone"),
+      fl_manager_name: lire("fl_manager_name"),
+      fl_manager_phone: lire("fl_manager_phone"),
       jrf_revenue_eur: lire("jrf_revenue_eur"),
       jrf_revenue_year: lire("jrf_revenue_year"),
     };
@@ -307,8 +322,10 @@ export default function AdminStoresPage() {
       region: s.region,
       lat: s.lat != null ? String(s.lat) : "",
       lng: s.lng != null ? String(s.lng) : "",
-      contact_name: s.contact_name ?? "",
-      contact_phone: s.contact_phone ?? "",
+      adherent_name: s.adherent_name ?? "",
+      adherent_phone: s.adherent_phone ?? "",
+      fl_manager_name: s.fl_manager_name ?? "",
+      fl_manager_phone: s.fl_manager_phone ?? "",
       jrf_revenue_eur: s.jrf_revenue_eur != null ? String(s.jrf_revenue_eur) : "",
       jrf_revenue_year: s.jrf_revenue_year != null ? String(s.jrf_revenue_year) : "",
     });
@@ -515,6 +532,43 @@ export default function AdminStoresPage() {
                   value={draft.jrf_revenue_eur}
                   onChange={(e) => setDraft({ ...draft, jrf_revenue_eur: e.target.value.replace(/\D/g, "") })}
                 />
+
+                {/* Les deux contacts du magasin. Saisis ici par le responsable,
+                    lus par les commerciaux sur le terrain — jamais modifiés
+                    par eux (décision du 06/08). */}
+                <fieldset className="space-y-2">
+                  <legend className="text-base font-semibold">{t.stores.adherent}</legend>
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.contactName}
+                    value={draft.adherent_name}
+                    onChange={(e) => setDraft({ ...draft, adherent_name: e.target.value })}
+                  />
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.contactPhone}
+                    type="tel"
+                    value={draft.adherent_phone}
+                    onChange={(e) => setDraft({ ...draft, adherent_phone: e.target.value })}
+                  />
+                </fieldset>
+
+                <fieldset className="space-y-2">
+                  <legend className="text-base font-semibold">{t.stores.flManager}</legend>
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.contactName}
+                    value={draft.fl_manager_name}
+                    onChange={(e) => setDraft({ ...draft, fl_manager_name: e.target.value })}
+                  />
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.contactPhone}
+                    type="tel"
+                    value={draft.fl_manager_phone}
+                    onChange={(e) => setDraft({ ...draft, fl_manager_phone: e.target.value })}
+                  />
+                </fieldset>
                 <div className="flex justify-end gap-2">
                   <Button variant="secondary" onClick={() => setPanel(null)}>
                     {t.common.cancel}

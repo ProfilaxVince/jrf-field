@@ -12,6 +12,7 @@ import { SAISIE_VIDE, compteRenduValide, type SaisieCompteRendu } from "@/lib/do
 import { formatHeure } from "@/lib/dates";
 import { lienItineraire } from "@/lib/maps";
 import { t } from "@/lib/i18n/fr-BE";
+import { ContactsMagasin } from "@/components/store/contacts-magasin";
 
 export default function VisitePage() {
   const params = useParams<{ id: string }>();
@@ -131,15 +132,17 @@ export default function VisitePage() {
               </a>
             </Button>
           )}
-          {magasin?.contact_phone && (
+          {magasin?.fl_manager_phone && (
             <Button variant="outline" className="flex-1" asChild>
-              <a href={`tel:${magasin.contact_phone}`}>
+              <a href={`tel:${magasin.fl_manager_phone.replace(/\s/g, "")}`}>
                 <Phone aria-hidden />
                 {t.field.call}
               </a>
             </Button>
           )}
         </div>
+
+        <ContactsMagasin magasin={magasin} />
 
         {statut === "a_faire" ? (
           <section className="space-y-3">

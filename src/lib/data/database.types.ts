@@ -641,13 +641,15 @@ export type Database = {
         Row: {
           active: boolean
           address: string | null
+          adherent_name: string | null
+          adherent_phone: string | null
           city: string
           contact_lang: Database["public"]["Enums"]["contact_lang"]
-          contact_name: string | null
-          contact_phone: string | null
           created_at: string
           enseigne: Database["public"]["Enums"]["enseigne"]
           external_ref: string | null
+          fl_manager_name: string | null
+          fl_manager_phone: string | null
           id: string
           jrf_revenue_eur: number | null
           jrf_revenue_year: number | null
@@ -670,13 +672,15 @@ export type Database = {
         Insert: {
           active?: boolean
           address?: string | null
+          adherent_name?: string | null
+          adherent_phone?: string | null
           city: string
           contact_lang?: Database["public"]["Enums"]["contact_lang"]
-          contact_name?: string | null
-          contact_phone?: string | null
           created_at?: string
           enseigne: Database["public"]["Enums"]["enseigne"]
           external_ref?: string | null
+          fl_manager_name?: string | null
+          fl_manager_phone?: string | null
           id?: string
           jrf_revenue_eur?: number | null
           jrf_revenue_year?: number | null
@@ -699,13 +703,15 @@ export type Database = {
         Update: {
           active?: boolean
           address?: string | null
+          adherent_name?: string | null
+          adherent_phone?: string | null
           city?: string
           contact_lang?: Database["public"]["Enums"]["contact_lang"]
-          contact_name?: string | null
-          contact_phone?: string | null
           created_at?: string
           enseigne?: Database["public"]["Enums"]["enseigne"]
           external_ref?: string | null
+          fl_manager_name?: string | null
+          fl_manager_phone?: string | null
           id?: string
           jrf_revenue_eur?: number | null
           jrf_revenue_year?: number | null
