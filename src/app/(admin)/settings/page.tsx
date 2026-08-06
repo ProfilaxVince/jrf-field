@@ -7,7 +7,7 @@ import { ReglageNombre } from "@/components/admin/reglage-nombre";
 import { getDeriveTiers, recalculerTiers, type DeriveTiers } from "@/lib/data/dette";
 import { exporterMagasins, exporterRelais, exporterVisites } from "@/lib/data/exports";
 import { listSettings, nombre, objet, texte, updateSetting, type Settings } from "@/lib/data/settings";
-import { formatDate } from "@/lib/dates";
+import { formatDate, formatDateTime } from "@/lib/dates";
 import { t } from "@/lib/i18n/fr-BE";
 
 export default function SettingsPage() {
@@ -189,6 +189,23 @@ export default function SettingsPage() {
             <Button variant="outline" asChild>
               <Link href="/absences">{t.settings.absencesOpen}</Link>
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.settings.versionTitle}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            <p className="text-base font-medium tabular-nums">
+              {t.settings.versionValue(
+                process.env.NEXT_PUBLIC_BUILD_REF ?? "?",
+                process.env.NEXT_PUBLIC_BUILD_TIME
+                  ? formatDateTime(process.env.NEXT_PUBLIC_BUILD_TIME)
+                  : "?"
+              )}
+            </p>
+            <p className="text-sm leading-6 text-neutral-500">{t.settings.versionHint}</p>
           </CardContent>
         </Card>
 

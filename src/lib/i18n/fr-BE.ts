@@ -236,6 +236,10 @@ export const t = {
     exportVisits: "Visites des 90 derniers jours (CSV)",
     exportRelais: "Remontées à la centrale (CSV)",
     exportDone: "Fichier téléchargé.",
+    versionTitle: "Version installée",
+    versionValue: (ref: string, date: string) => `${ref} — mise en ligne le ${date}`,
+    versionHint:
+      "Si ce numéro ne change pas après une mise à jour, c'est que ton navigateur affiche une ancienne copie : recharge avec Ctrl+Shift+R.",
   },
   absences: {
     title: "Congés et absences",
