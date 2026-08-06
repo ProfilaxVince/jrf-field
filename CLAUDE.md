@@ -1,7 +1,7 @@
 # CLAUDE.md — JRF Field
 
 Application web installable (PWA) pour le responsable commercial de Jacques Remy & Fils :
-planifier et suivre les visites de 5 commerciaux dans **185 magasins** de la grande
+planifier et suivre les visites de 5 commerciaux dans **182 magasins** de la grande
 distribution (Intermarché, AD Delhaize, Proxy Delhaize, Delhaize, Spar), sans qu'aucun
 magasin ne soit oublié. Le cœur du produit est la **dette de visite**.
 
@@ -151,33 +151,42 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
 ### Import des magasins réels — état exact
 
 Le fichier source est l'Excel de Gérardo `Visites_Inter_Delhaize_31.xlsx`
-(**185 lignes** : 95 Intermarché, 78 AD Delhaize, 6 Delhaize, 5 Proxy, 1 Spar).
-Il ne contient **ni adresse ni GPS** — seulement un libellé par magasin.
+(**185 lignes**). Il ne contient **ni adresse ni GPS** — seulement un libellé par
+magasin. Trois lignes sont des doublons (voir plus bas), donc **182 points de
+vente réels** : 95 Intermarché, 80 AD Delhaize, 5 Proxy, 1 Delhaize, 1 Spar.
 
 **Livré :** [supabase/manual/magasins-reels.csv](supabase/manual/magasins-reels.csv),
 importable tel quel via Magasins → Importer un CSV.
 
 | | |
 |---|---|
-| Commune + code postal | **185/185** |
-| Adresse | **183/185**, retrouvées une par une, chacune avec sa source |
-| dont vérifiées sans ambiguïté | 144 |
-| dont `aVerifier` (deux adresses circulent, ou deux magasins portent le nom) | 39 |
-| Coordonnées GPS | **0/185** — voir ci-dessous |
+| Lignes Excel → magasins | 185 → **182** (3 doublons écartés) |
+| Commune + code postal | **182/182** |
+| Adresse | **180/182**, retrouvées une par une, chacune avec sa source |
+| dont vérifiées sans ambiguïté | 142 |
+| dont `aVerifier` (deux adresses circulent, ou deux magasins portent le nom) | 38 |
+| Coordonnées GPS | **0/182** — voir ci-dessous |
 
 **Chaîne de production :**
 
 ```
-scripts/communes-magasins.mjs       libellé Excel → commune + code postal (source unique)
+scripts/magasins-source.mjs         TOUTE l'interprétation du fichier source :
+                                    commune, enseigne, nom, doublons, référence
 scripts/adresses-magasins.json      table cumulative : libellé Excel → adresse + source
+scripts/magasins-csv.mjs            lecture/écriture du CSV + rapport de fin
 scripts/extraire-magasins-excel.mjs conversion Excel → CSV (exige le .xlsx)
 scripts/completer-magasins-csv.mjs  remet le CSV à jour SANS le .xlsx
 supabase/manual/magasins-reels.csv  le résultat, à importer
 ```
 
+Les deux scripts appellent la même `construireMagasins()` : ils produisent le même
+fichier. Corriger une commune ou une enseigne dans `magasins-source.mjs` la corrige
+dans les deux chemins.
+
 **L'Excel n'est pas dans le dépôt.** Après avoir complété le JSON ou corrigé une
-commune, la commande à lancer est donc celle-ci — elle relit le CSV existant,
-réécrit adresse / code postal / ville / région, et ne touche à rien d'autre :
+table, la commande à lancer est donc celle-ci — elle relit le CSV existant, réécrit
+les colonnes dérivées (nom, enseigne, réseau, adresse, commune, référence) et
+conserve tout ce qui a pu être saisi à la main (téléphone, contact, CA, GPS) :
 
 ```bash
 node scripts/completer-magasins-csv.mjs
@@ -205,34 +214,47 @@ AD DELHAIZE WATERLOO   Bd Henri Rolin 7  OU  « AD Delhaize World Be », Drève 
 AD DELHAIZE WAVRE      « AD Delhaize Copies », Rue de Bruxelles 19  OU  AD Limal, Av. de la Gare 13-14
 ```
 
+### Corrections appliquées au fichier de Gérardo — à lui annoncer, pas à lui demander
+
+Chacune est déclarée dans une table nommée de `magasins-source.mjs` et rapportée à
+l'écran par les deux scripts. Aucune n'est silencieuse, toutes se défont en retirant
+une ligne de la table.
+
+**A. Trois doublons écartés — 185 lignes → 182 magasins.** (`DOUBLONS`)
+L'écran d'import ne déduplique pas : chaque ligne devient un magasin. Un magasin
+fantôme n'est jamais visité, donc sa dette monte indéfiniment et il trône en tête
+des priorités — exactement ce que le produit est censé empêcher.
+
+| Ligne écartée | Ligne conservée | Pourquoi |
+|---|---|---|
+| `AD HANKAR` | `AD DELHAIZE HANKAR` | Même magasin, Clos Lucien Outers 1 à Auderghem |
+| `AD DELHAIZE MONS` | `AD DELHAIZE NIMY - VAMODIS` | Même magasin, Rue de Nimy 117-121. On garde « NIMY » : sa commune est la bonne (Nimy 7020), celle de « MONS » ne l'est pas |
+| `AD WAREGEM` (2ᵉ) | `AD WAREGEM` (1ʳᵉ) | Ligne répétée à l'identique |
+
+**B. Sept enseignes corrigées.** (`ENSEIGNES_CORRIGEES`)
+L'adresse était sûre ; c'est l'étiquette qui clochait, et elle décide de `reseau`
+(`affilie` / `integre`) donc du filtre à l'écran.
+
+| Libellé Excel | Enseigne annoncée | Enseigne réelle | Adresse |
+|---|---|---|---|
+| `AD DELHAIZE FERRIERES` | AD | **Proxy** Delhaize | Rue du Pré du Fa 6A |
+| `PROXY HOEILLART` | Proxy | **AD** Delhaize | Albert Biesmanslaan 1a |
+| `DELHAIZE VISE` | Delhaize | **AD** Delhaize | Rue de Dalhem 15 |
+| `DELHAIZE AARDOIE` | Delhaize | **AD** Delhaize | Watervalstraat 22A |
+| `DELHAIZE ZELE` | Delhaize | **AD** Delhaize | Lokerenbaan 20 |
+| `DELHAIZE TORHOUT` | Delhaize | **AD** Delhaize | Karel de Goedelaan 8 |
+| `DELHAIZE AARTSELAAR` | Delhaize | **AD** Delhaize | Baron van Ertbornstraat 30 |
+
+⚠️ Conséquence à annoncer : il ne reste **qu'un seul « Delhaize » intégré** dans le
+parc. Si Gérardo cherche ses six Delhaize à l'écran, il les trouvera en AD Delhaize.
+
 ### Questions ouvertes pour Gérardo — à poser avant l'import définitif
 
-**1. Doublons dans son propre fichier — lesquels supprimer ?**
-
-- `AD DELHAIZE HANKAR` / `AD HANKAR` : même magasin (Clos Lucien Outers 1, Auderghem).
-- `AD DELHAIZE MONS` / `AD DELHAIZE NIMY - VAMODIS` : même magasin (Rue de Nimy 117-121 ;
-  Vamodis SA est la société exploitante, pas un autre point de vente).
-- `AD WAREGEM` apparaît deux fois à l'identique.
-
-**2. Quel magasin, quand la commune en compte plusieurs ?** (bloquant : case laissée vide)
+**1. Quel magasin, quand la commune en compte plusieurs ?** (bloquant : case laissée vide)
 
 - `AD DELHAIZE WATERLOO` et `AD DELHAIZE WAVRE` — les deux candidats sont listés ci-dessus.
 
-**3. Enseigne annoncée ≠ enseigne réelle.** Sept lignes portent une enseigne que
-toutes les sources contredisent. L'adresse est sûre ; c'est l'étiquette qui cloche,
-et elle décide de `reseau` (`affilie` / `integre`) donc du filtre à l'écran.
-
-| Libellé Excel | Enseigne réelle | Adresse |
-|---|---|---|
-| `AD DELHAIZE FERRIERES` | **Proxy** Delhaize | Rue du Pré du Fa 6A |
-| `PROXY HOEILLART` | **AD** Delhaize | Albert Biesmanslaan 1a |
-| `DELHAIZE VISE` | **AD** Delhaize | Rue de Dalhem 15 |
-| `DELHAIZE AARDOIE` | **AD** Delhaize | Watervalstraat 22A |
-| `DELHAIZE ZELE` | **AD** Delhaize | Lokerenbaan 20 |
-| `DELHAIZE TORHOUT` | **AD** Delhaize | Karel de Goedelaan 8 |
-| `DELHAIZE AARTSELAAR` | **AD** Delhaize | Baron van Ertbornstraat 30 |
-
-**4. Attributions déduites, pas vérifiées — à confirmer une par une.**
+**2. Attributions déduites, pas vérifiées — à confirmer une par une.**
 
 - `INTERMARCHE GOSSELIES` vs `INTERMARCHE GOSSELIES BY` : deux magasins réels
   (Chaussée de Courcelles 95 et Rue Pont-à-Migneloux 13). Lequel est lequel ?
@@ -253,7 +275,7 @@ et elle décide de `reseau` (`affilie` / `integre`) donc du filtre à l'écran.
 - `AD WANZE` → Chaussée de Wavre : pubeco écrit le n° 57, mappy le n° 55.
 - `AD DELHAIZE ANTOING` : rue connue (Rue du Burg), numéro introuvable.
 
-**5. Corrections de commune appliquées, à valider.**
+**3. Corrections de commune appliquées, à valider.**
 
 - `INTERMARCHE ORCQ` → **7501** (et non 7503, qui est Froyennes).
 - `AD DELHAIZE FRASNES LEZ GOSSELIES` → **6210** (et non 6250, qui est Aiseau-Presles).

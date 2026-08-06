@@ -16,7 +16,8 @@ function loadEnv(path = '.env.local') {
       out[m[1]] = m[2].replace(/^"|"$/g, '');
     });
     return out;
-  } catch (e) {
+  } catch {
+    // Pas de .env.local : on rend un objet vide, l'appelant demandera les clés.
     return {};
   }
 }

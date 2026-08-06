@@ -1,15 +1,18 @@
 /**
- * Communes et code postal de chaque magasin, plus la règle qui isole la
- * localité dans un libellé Excel.
+ * Tout ce qui INTERPRÈTE le fichier Excel de Gérardo : commune, enseigne, nom
+ * affiché, doublons, référence. Une seule table par sujet, un seul endroit.
  *
- * Module séparé parce que DEUX scripts en ont besoin :
- *   · extraire-magasins-excel.mjs   génère le CSV depuis l'Excel de Gérardo ;
+ * Module séparé parce que DEUX scripts s'en servent :
+ *   · extraire-magasins-excel.mjs   génère le CSV depuis l'Excel ;
  *   · completer-magasins-csv.mjs    remet à jour le CSV déjà produit, sans
  *     l'Excel (qui n'est pas dans le dépôt).
  *
- * Une seule table, donc une seule vérité : corriger une commune ici la corrige
- * dans les deux chemins.
+ * Corriger une commune ou une enseigne ici la corrige dans les deux chemins.
+ * Rien n'est corrigé en silence : chaque écart au fichier source est déclaré
+ * dans une table nommée, et les scripts le rapportent à l'écran.
  */
+
+import fs from "fs";
 
 // ---------------------------------------------------------------------------
 // 1. Communes. `sur` = d'où vient l'information.
@@ -205,4 +208,157 @@ export function localite(libelle) {
     .replace(/\s*BY( MESTDAGH| MESSTDAGH)?\s*$/, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// ---------------------------------------------------------------------------
+// 2. Adresses, vérifiées une par une avec leur source.
+//    Fichier séparé et cumulatif : la recherche des 185 adresses s'est faite
+//    par lots, et chaque lot devait s'ajouter sans écraser le précédent.
+//    Absente du JSON, la case reste VIDE. Une adresse inventée envoie un
+//    commercial à la mauvaise porte — bien pire qu'une case vide, parce que
+//    personne ne va la vérifier avant d'y être.
+// ---------------------------------------------------------------------------
+export const ADRESSES = JSON.parse(
+  fs.readFileSync(new URL("./adresses-magasins.json", import.meta.url), "utf8")
+);
+
+// ---------------------------------------------------------------------------
+// 3. Fautes de frappe du fichier source, appliquées au NOM affiché seulement.
+// ---------------------------------------------------------------------------
+const CORRECTIONS = {
+  "INTERMARECHE": "Intermarché",
+  "SPAAR": "Spar",
+  "CHAPELLE-LEZ-HERLEMONT": "Chapelle-lez-Herlaimont",
+  "BRAINE LE CONTE": "Braine-le-Comte",
+  "FLORIFOUX": "Floriffoux",
+  "LAMBUSRT": "Lambusart",
+  "ST GOERGES": "Saint-Georges-sur-Meuse",
+  "MESSTDAGH": "Mestdagh",
+  "HOEILLART": "Hoeilaart",
+  "AARDOIE": "Ardooie",
+  "REER": "Reet",
+};
+
+// ---------------------------------------------------------------------------
+// 4. Enseigne annoncée ≠ enseigne réelle.
+//    Sept lignes portent une enseigne que TOUTES les sources contredisent.
+//    L'enjeu n'est pas cosmétique : l'enseigne détermine `reseau`
+//    (affilié / intégré), donc le filtre de l'écran Magasins.
+//    Chaque correction est sourcée dans `adresses-magasins.json`, à la même clé.
+// ---------------------------------------------------------------------------
+export const ENSEIGNES_CORRIGEES = {
+  "AD DELHAIZE FERRIERES": "Proxy Delhaize", // stores.delhaize.be, pubeco, ferrieres.be
+  "PROXY HOEILLART": "AD Delhaize", // pubeco, heures.be, mappy, 1207.be
+  "DELHAIZE VISE": "AD Delhaize", // pubeco, heures.be
+  "DELHAIZE AARDOIE": "AD Delhaize", // openingsuren.vlaanderen, buurtslagers
+  "DELHAIZE ZELE": "AD Delhaize", // adzele.be (site du magasin), handelsgids
+  "DELHAIZE TORHOUT": "AD Delhaize", // openingsuren.vlaanderen, handelsgids
+  "DELHAIZE AARTSELAAR": "AD Delhaize", // adaartselaar.com, buurtsuper.be
+};
+
+// ---------------------------------------------------------------------------
+// 5. Doublons du fichier source : deux lignes, un seul point de vente.
+//    L'écran d'import ne déduplique pas — chaque ligne devient un magasin.
+//    Un magasin fantôme n'est jamais visité, donc sa dette de visite monte
+//    indéfiniment et il trône en tête des priorités. C'est exactement ce que
+//    le produit est censé empêcher.
+//    Valeur = le libellé CONSERVÉ, pour que la ligne écartée reste traçable.
+//    Un libellé strictement répété (« AD WAREGEM », deux fois à l'identique)
+//    est écarté par la règle générale : seule la première occurrence compte.
+// ---------------------------------------------------------------------------
+export const DOUBLONS = {
+  // Même magasin, Clos Lucien Outers 1 à Auderghem. On garde le libellé complet.
+  "AD HANKAR": "AD DELHAIZE HANKAR",
+  // Même magasin, Rue de Nimy 117-121. On garde la ligne « NIMY » : sa commune
+  // est la bonne (Nimy 7020), celle de la ligne « MONS » ne l'est pas (Mons 7000).
+  "AD DELHAIZE MONS": "AD DELHAIZE NIMY - VAMODIS",
+};
+
+/** Enseigne + réseau déduits du libellé. « BY » = Intermarché by Mestdagh. */
+export function enseigneEtReseau(libelle) {
+  const corrigee = ENSEIGNES_CORRIGEES[libelle.toUpperCase()];
+  if (corrigee) return [corrigee, corrigee === "Delhaize" ? "integre" : "affilie"];
+
+  const L = libelle.toUpperCase();
+  if (L.startsWith("SPAAR") || L.startsWith("SPAR")) return ["Spar", "independant"];
+  if (L.startsWith("INTERMARCHE") || L.startsWith("INTERMARECHE")) {
+    return ["Intermarché", /\bBY\b/.test(L) ? "by_mestdagh" : "independant"];
+  }
+  if (L.startsWith("PROXY")) return ["Proxy Delhaize", "affilie"];
+  if (L.startsWith("AD ")) return ["AD Delhaize", "affilie"];
+  if (L.startsWith("DELHAIZE")) return ["Delhaize", "integre"];
+  return ["", ""];
+}
+
+/** « DELHAIZE ZELE » + « AD Delhaize » → « AD Delhaize Zele ». */
+export function joliNom(libelle, enseigne) {
+  let reste = localite(libelle);
+  for (const [faute, correct] of Object.entries(CORRECTIONS)) {
+    if (reste === faute) reste = correct.toUpperCase();
+  }
+  const casse = reste
+    .toLowerCase()
+    .split(/([ \-'])/)
+    .map((m) => (/[ \-']/.test(m) ? m : m.charAt(0).toUpperCase() + m.slice(1)))
+    .join("");
+  return `${enseigne} ${casse}`.replace(/\s+/g, " ").trim();
+}
+
+const PREFIXES = {
+  "Intermarché": "ITM",
+  "AD Delhaize": "ADD",
+  "Proxy Delhaize": "PXY",
+  "Delhaize": "DEL",
+  "Spar": "SPR",
+};
+
+/**
+ * Applique toute l'interprétation à une liste ordonnée de libellés Excel et
+ * renvoie les colonnes DÉRIVÉES de chaque magasin retenu, plus ce qu'il a fallu
+ * écarter ou deviner. Les deux scripts passent par ici : c'est ce qui garantit
+ * qu'ils produisent le même fichier.
+ */
+export function construireMagasins(libelles) {
+  const magasins = [];
+  const ecartes = [];
+  const inconnus = [];
+  const communesAConfirmer = [];
+  const vus = new Set();
+
+  for (const libelle of libelles) {
+    const cle = libelle.toUpperCase();
+    const [enseigne, reseau] = enseigneEtReseau(libelle);
+    if (!enseigne) continue;
+
+    if (DOUBLONS[cle]) {
+      ecartes.push(`${libelle} → même magasin que « ${DOUBLONS[cle]} »`);
+      continue;
+    }
+    if (vus.has(cle)) {
+      ecartes.push(`${libelle} → ligne répétée à l'identique dans le fichier source`);
+      continue;
+    }
+    vus.add(cle);
+
+    const commune = COMMUNES[localite(libelle)];
+    if (!commune?.ville) inconnus.push(libelle);
+    else if (commune.sur !== "sure") communesAConfirmer.push(`${libelle} → ${commune.ville} (${commune.sur})`);
+
+    const prefixe = PREFIXES[enseigne] ?? "MAG";
+    const rang = magasins.filter((m) => m.reference.startsWith(`${prefixe}-`)).length + 1;
+
+    magasins.push({
+      nom: joliNom(libelle, enseigne),
+      enseigne,
+      reseau,
+      adresse: ADRESSES[cle]?.adresse ?? "",
+      code_postal: commune?.cp ?? "",
+      ville: commune?.ville ?? "",
+      region: commune?.region ?? "",
+      reference: `${prefixe}-${String(rang).padStart(3, "0")}`,
+      libelle_excel: libelle,
+    });
+  }
+
+  return { magasins, ecartes, inconnus, communesAConfirmer };
 }
