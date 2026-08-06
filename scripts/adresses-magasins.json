@@ -15,7 +15,6 @@
     "Seules les coordonnées de la COMMUNE le sont, et elles enverraient le",
     "commercial sur la grand-place au lieu du magasin."
   ],
-
   "INTERMARCHE ANDERLECHT BY": {
     "adresse": "Boulevard Industriel 41",
     "confiance": "aVerifier",
@@ -65,5 +64,215 @@
     "adresse": "'s Herenbaan 178",
     "confiance": "exacte",
     "source": "stores.delhaize.be — Delhaize Reet, commune de Rumst"
+  },
+  "INTERMARCHE CHATELET BY": {
+    "adresse": "Rue de la Station 55",
+    "confiance": "exacte",
+    "source": "cybo.com, intermarche.be"
+  },
+  "INTERMARECHE CHATELINEAU BY": {
+    "adresse": "Rue Jules des Essarts 2",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be"
+  },
+  "INTERMARCHE CHAUMONT BY": {
+    "adresse": "Chaussée de Huy 175",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, infobel — DEUX Intermarché à Chaumont-Gistoux (Ch. de Huy 175 et 47)"
+  },
+  "INTERMARCHE CHIEVRES BY": {
+    "adresse": "Rue du Septième Wing 2",
+    "confiance": "exacte",
+    "source": "intermarche.be, pagesdor (fiche « Intermarché by Mestdagh »)"
+  },
+  "INTERMARCHE CORBAIS BY": {
+    "adresse": "Rue Haute 1",
+    "confiance": "exacte",
+    "source": "bottin.be, intermarche.be — commune officielle : Mont-Saint-Guibert"
+  },
+  "INTERMARCHE COUILLET BY": {
+    "adresse": "Route de Philippeville 319",
+    "confiance": "exacte",
+    "source": "bottin.be, intermarche.be"
+  },
+  "INTERMARCHE FLORIFOUX BY": {
+    "adresse": "Rue Emerée 4",
+    "confiance": "exacte",
+    "source": "myfreedelity, intermarche.be — commune officielle : Floreffe"
+  },
+  "INTERMARCHE FONTAINE L'EVEQUE BY": {
+    "adresse": "Rue de Mons 54",
+    "confiance": "exacte",
+    "source": "cybo.com, bottin.be, intermarche.be"
+  },
+  "INTERMARCHE FOREST BY": {
+    "adresse": "Chaussée d'Alsemberg 303",
+    "confiance": "exacte",
+    "source": "intermarche.be, mappy.com"
+  },
+  "INTERMARCHE GENAPPE BY": {
+    "adresse": "Rue Louis Lalieux 22",
+    "confiance": "exacte",
+    "source": "intermarche.be, waze, mappy.com"
+  },
+  "INTERMARCHE GERPINNES BY": {
+    "adresse": "Chaussée de Philippeville 196",
+    "confiance": "exacte",
+    "source": "intermarche.be, infobel, mappy"
+  },
+  "INTERMARCHE GHISLENGHIEN BY": {
+    "adresse": "Chaussée de Bruxelles 458",
+    "confiance": "exacte",
+    "source": "bottin.be, ath.be, intermarche.be"
+  },
+  "INTERMARCHE GILLY VELODROME": {
+    "adresse": "Rue des Vallées 7A",
+    "confiance": "exacte",
+    "source": "intermarche.be (« Intermarché Gilly Vallées ») — le vélodrome de Charleroi est rue des Vallées, ce qui lève l'ambiguïté avec Gilly Moulin"
+  },
+  "INTERMARCHE GILLY": {
+    "adresse": "Rue du Moulin 2",
+    "confiance": "exacte",
+    "source": "intermarche.be (« Intermarché Gilly Moulin »), pubeco.be — l'autre Gilly du fichier est le Vélodrome"
+  },
+  "INTERMARCHE GOSSELIES BY": {
+    "adresse": "Chaussée de Courcelles 95",
+    "confiance": "aVerifier",
+    "source": "obodo.be — plusieurs Intermarché à Gosselies (Courcelles 95, Grand Vivier 21, Pont-à-Migneloux 13)"
+  },
+  "INTERMARCHE GOSSELIES": {
+    "adresse": "",
+    "confiance": "aVerifier",
+    "source": "NON TRANCHÉ — le fichier contient deux lignes Gosselies et la commune compte au moins trois Intermarché"
+  },
+  "INTERMARCHE GOZEE BY": {
+    "adresse": "Rue de Bomerée 1",
+    "confiance": "aVerifier",
+    "source": "pubeco.be, thuin.be — deux fiches Gozée (Bomerée et Marchienne) ; commune officielle : Thuin"
+  },
+  "INTERMARCHE HAMME-MILLE BY": {
+    "adresse": "Rue des Épinoches 5",
+    "confiance": "exacte",
+    "source": "intermarche.be — commune officielle : Beauvechain"
+  },
+  "INTERMARCHE JAMBES BY": {
+    "adresse": "Rue du Major Mascaux 20",
+    "confiance": "exacte",
+    "source": "intermarche.be, pubeco.be, namur.be"
+  },
+  "INTERMARCHE JODOIGNE BY": {
+    "adresse": "Avenue des Commandants Borlée 16",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be, mappy"
+  },
+  "INTERMARCHE JUMET BY": {
+    "adresse": "Rue Louis Biernaux 98",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be"
+  },
+  "INTERMARCHE ST LAMBERT BY": {
+    "adresse": "",
+    "confiance": "aVerifier",
+    "source": "NON TROUVÉ — aucun Intermarché à Woluwe-Saint-Lambert. Il s'agit probablement de Liège Saint-Lambert : la commune supposée dans le script est peut-être fausse, à confirmer avec Gérardo"
+  },
+  "INTERMARCHE LUTTRE BY": {
+    "adresse": "Rue du Pont Neuf 6a",
+    "confiance": "exacte",
+    "source": "intermarche.be, tiendeo, ethiquable (« by Mestdagh Luttre ») — commune : Pont-à-Celles"
+  },
+  "INTERMARCHE MARCINELLE BY": {
+    "adresse": "Avenue Eugène Mascaux 869",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, tiendeo — un second Intermarché à Marcinelle (Av. de Philippeville 284)"
+  },
+  "INTERMARCHE MONCEAU BY": {
+    "adresse": "Rue du Calvaire 141",
+    "confiance": "aVerifier",
+    "source": "intermarche.be — mappy indique Rue de Trazegnies 150 pour Monceau-sur-Sambre, divergence à trancher"
+  },
+  "INTERMARCHE MONTIGNIES -SUR-SAMBRE BY": {
+    "adresse": "Avenue du Centenaire 56",
+    "confiance": "exacte",
+    "source": "cybo.com, intermarche.be"
+  },
+  "INTERMARCHE NANINNE BY": {
+    "adresse": "Chaussée de Marche 860",
+    "confiance": "exacte",
+    "source": "intermarche.be, cylex — commune officielle : Namur"
+  },
+  "INTERMARCHE NIVELLES BY": {
+    "adresse": "Rue Tienne-à-Deux-Vallées 6",
+    "confiance": "exacte",
+    "source": "heures.be, bottin.be, intermarche.be"
+  },
+  "INTERMARCHE OTTIGNIES BY": {
+    "adresse": "Avenue Provinciale 127",
+    "confiance": "exacte",
+    "source": "intermarche.be — l'autre magasin de la commune (Av. Albert Ier 59) est celui de Limelette"
+  },
+  "INTERMARCHE LIMELETTE": {
+    "adresse": "Avenue Albert Ier 59",
+    "confiance": "exacte",
+    "source": "heures.be (« Intermarché Limelette »), uw-folder.be"
+  },
+  "INTERMARCHE PHILIPPEVILLE  BY": {
+    "adresse": "Rue de France 39",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be"
+  },
+  "INTERMARCHE RIXENSART BY": {
+    "adresse": "Avenue John Fitzgerald Kennedy 2",
+    "confiance": "exacte",
+    "source": "intermarche.be, bottin.be — l'Intermarché Genval de la commune est une autre fiche"
+  },
+  "INTERMARCHE ROUX BY": {
+    "adresse": "Rue Edmond Foulon 21",
+    "confiance": "exacte",
+    "source": "intermarche.be, heures-douverture.com"
+  },
+  "INTERMARCHE SCHAERBEEK BY": {
+    "adresse": "Rue de Jérusalem 60",
+    "confiance": "exacte",
+    "source": "intermarche.be (« Schaerbeek Brusillia »), tiendeo"
+  },
+  "INTERMARCHE SOIGNIES BY": {
+    "adresse": "Rue du Nouveau Monde 17",
+    "confiance": "aVerifier",
+    "source": "intermarche.be, heures.be — un second Intermarché à Soignies (Chaussée de Lessines 6)"
+  },
+  "INTERMARCHE TILFF BY MESSTDAGH": {
+    "adresse": "Avenue des Ardennes 8",
+    "confiance": "exacte",
+    "source": "intermarche.be, ethiquable (« by Mestdagh Tilff »), esneux.be — commune : Esneux"
+  },
+  "INTERMARCHE TRAZEGNIES BY": {
+    "adresse": "Rue de Gosselies 76",
+    "confiance": "exacte",
+    "source": "intermarche.be, myfreedelity — commune : Courcelles"
+  },
+  "INTERMARCHE TROOZ BY": {
+    "adresse": "Grand'Rue 40",
+    "confiance": "exacte",
+    "source": "intermarche.be, mappy — l'autre magasin de la commune est celui de Nessonvaux"
+  },
+  "INTERMARCHE NESSONVAUX": {
+    "adresse": "Rue Franklin Roosevelt 249A",
+    "confiance": "exacte",
+    "source": "pubeco.be, infobel (« Intermarché Nessonvaux »), heures.be"
+  },
+  "INTERMARCHE WAVRE BY MESTDAGH": {
+    "adresse": "Avenue des Princes 9",
+    "confiance": "exacte",
+    "source": "intermarche.be, mappy — ancien site Mestdagh, Avenue des Princes"
+  },
+  "INTERMARCHE ANDERLUES": {
+    "adresse": "Rue Émile Vandervelde 16",
+    "confiance": "aVerifier",
+    "source": "pubeco.be, intermarche.be — DEUX Intermarché à Anderlues ; l'autre ligne du fichier (« Capandere SA ») est probablement celui de la Chaussée de Mons"
+  },
+  "INTERMARCHE ANDERLUES 2 CAPANDERE SA": {
+    "adresse": "Chaussée de Mons 225",
+    "confiance": "aVerifier",
+    "source": "intermarche.be (« Anderlues Ch. de Mons ») — attribution déduite, la raison sociale Capandere n'apparaît sur aucune fiche"
   }
 }
