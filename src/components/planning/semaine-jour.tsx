@@ -100,7 +100,7 @@ export function SemaineJour({
                   className="inline-block size-4 shrink-0 rounded-full border border-border"
                   style={{ backgroundColor: user.color_hex }}
                 />
-                <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                <span className="min-w-0 flex-1 break-words text-base font-semibold">
                   {user.nickname}
                 </span>
                 <button

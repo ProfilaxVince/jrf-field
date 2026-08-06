@@ -116,7 +116,7 @@ export default function TourneeDuJourPage() {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button variant="outline" className="flex-1" onClick={() => setAjout((v) => !v)}>
                 <Plus aria-hidden />
                 {t.field.addStop}
@@ -147,7 +147,7 @@ export default function TourneeDuJourPage() {
                 const contenu = (
                   <>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-lg font-semibold">
+                      <p className="break-words text-lg font-semibold">
                         {montage && (
                           <Sunrise aria-hidden className="mr-1 inline size-4 align-[-2px]" />
                         )}
@@ -159,7 +159,7 @@ export default function TourneeDuJourPage() {
                         )}
                         {magasin?.name ?? "—"}
                       </p>
-                      <p className="truncate text-sm text-neutral-500">
+                      <p className="break-words text-sm text-neutral-500">
                         {montage
                           ? t.field.montage
                           : urgent

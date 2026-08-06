@@ -30,7 +30,7 @@ export function ArretRow({
   return (
     <li className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1.5">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-medium">
+        <p className="break-words text-base font-medium">
           {montage && <Sunrise aria-hidden className="mr-1 inline size-4 align-[-2px]" />}
           {priorite?.store.name ?? "—"}
         </p>

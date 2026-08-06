@@ -11,6 +11,7 @@ import {
   Settings,
   Siren,
   Store,
+  Camera,
   Target,
   X,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const LIENS = [
   { href: "/templates", label: t.nav.templates, icone: Route },
   { href: "/stores", label: t.nav.stores, icone: Store },
   { href: "/incidents", label: t.nav.incidents, icone: Siren },
+  { href: "/comptes-rendus", label: t.nav.reports, icone: Camera },
   { href: "/stats", label: t.nav.stats, icone: BarChart3 },
   { href: "/settings", label: t.nav.settings, icone: Settings },
 ];

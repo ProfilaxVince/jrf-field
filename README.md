@@ -30,6 +30,7 @@ Portail responsable (`/admin`, réservé à `is_admin`)
 | `/templates` | Modèles de tournée réutilisables |
 | `/stores` | Parc groupé par enseigne puis région, recherche, import CSV |
 | `/incidents` | Signalements à traiter + remontées à la centrale |
+| `/comptes-rendus` | Comptes rendus terrain et photos de rayon |
 | `/stats` | Les chiffres (lecture des vues SQL) |
 | `/settings` | Rythme, catégories, équipe, exports |
 | `/users` | Codes d'accès et « fait des visites » |

@@ -75,8 +75,8 @@ export function SelecteurMagasin({
           {resultats.map((magasin) => (
             <li key={magasin.id} className="flex flex-wrap items-center gap-2 py-2">
               <div className="min-w-0 flex-[1_1_100%] sm:flex-1">
-                <p className="truncate text-base font-medium">{magasin.name}</p>
-                <p className="truncate text-sm text-neutral-500">
+                <p className="break-words text-base font-medium">{magasin.name}</p>
+                <p className="break-words text-sm text-neutral-500">
                   {magasin.postal_code ? `${magasin.postal_code} ` : ""}
                   {magasin.city}
                   {magasin.address ? ` · ${magasin.address}` : ""}
