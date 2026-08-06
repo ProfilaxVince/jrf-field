@@ -654,5 +654,65 @@
     "adresse": "Clos Lucien Outers 1",
     "confiance": "aVerifier",
     "source": "même magasin que « AD DELHAIZE HANKAR » (Clos Lucien Outers 1, Auderghem). Le fichier de Gérardo contient les deux lignes : demander laquelle supprimer"
+  },
+  "AD DELHAIZE HORNU": {
+    "adresse": "Rue de Mons 208",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco, heures.be, pagesdor — commune officielle : Boussu"
+  },
+  "AD DELHAIZE HOTTON": {
+    "adresse": "Rue de la Scierie 9",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, myshopi, mappy"
+  },
+  "AD DELHAIZE INCOURT -": {
+    "adresse": "Chaussée de Namur 89",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, incourt.be, myshopi — une fiche isolée écrit 90"
+  },
+  "AD DELHAIZE JURBISE": {
+    "adresse": "Route dAth 420",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, pubeco.be, heures.be, jurbise.be — à ne pas confondre avec lIntermarché du n° 177"
+  },
+  "AD DELHAIZE KEERBERGEN": {
+    "adresse": "Lindenstraat 1",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.vlaanderen, openingsuren.info, keerbergen.be — le Proxy Lauzan (Putsebaan 143) est un autre magasin"
+  },
+  "AD DELHAIZE LEDE": {
+    "adresse": "Wichelsesteenweg 192C",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.vlaanderen, openingsurengids.be, obodo.be"
+  },
+  "AD DELHAIZE LEDEBERG -": {
+    "adresse": "Driesstraat 96",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, openingsuren.vlaanderen, cybo, myshopi — commune officielle : Gand"
+  },
+  "AD DELHAIZE LEOPOLD III EVERE": {
+    "adresse": "Rue de Genève 2",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, delhaize-leopold3.be (site du magasin), cybo, openingsuren.info — commune : Evere"
+  },
+  "AD DELHAIZE LESSINES": {
+    "adresse": "Rue du Pont de Pierre 11",
+    "confiance": "exacte",
+    "source": "pubeco.be, myshopi, lessines.be, numero-telephone.be — à ne pas confondre avec lIntermarché du Chemin des Croix"
+  },
+  "AD DELHAIZE LOUVAIN LA NEUVE": {
+    "adresse": "Place de lAccueil 10",
+    "confiance": "aVerifier",
+    "source": "stores.delhaize.be, pubeco.be, heures.be — cest le Delhaize de LEsplanade ; aucune fiche ne le désigne comme un AD. À confirmer avec Gérardo"
+  },
+  "AD DELHAIZE MARCINELLE": {
+    "adresse": "Chaussée de Philippeville 236",
+    "confiance": "aVerifier",
+    "source": "stores.delhaize.be, heures.be, readymap — le type de voie varie selon les fiches (Chaussée / Route / Avenue) ; numéro sûr. Commune : Charleroi"
+  },
+  "AD DELHAIZE MELSBROEK": {
+    "adresse": "Vliegveld 770 (Brucargo)",
+    "confiance": "exacte",
+    "source": "stores.delhaize.be, cybo, bottin.be, hours.be, steenokkerzeel.be — commune officielle : Steenokkerzeel, zone Brucargo"
   }
 }
