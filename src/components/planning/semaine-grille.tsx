@@ -1,5 +1,5 @@
 "use client";
-import { Plus, Route } from "lucide-react";
+import { Eraser, Plus, Route } from "lucide-react";
 import { ArretRow } from "./arret-row";
 import { Button } from "@/components/ui/button";
 import { cellKey } from "@/hooks/use-planning-semaine";
@@ -25,6 +25,7 @@ export function SemaineGrille({
   onRetirer,
   onAjouter,
   onRanger,
+  onVider,
 }: {
   users: AppUserRow[];
   jours: string[];
@@ -36,6 +37,7 @@ export function SemaineGrille({
   onRetirer: (visit: VisitRow) => void;
   onAjouter: (userId: string, date: string) => void;
   onRanger: (userId: string, date: string) => void;
+  onVider: (userId: string) => void;
 }) {
   return (
     <div className="overflow-x-auto">
@@ -50,13 +52,29 @@ export function SemaineGrille({
 
           {users.map((user) => (
             <div key={user.id} className="contents">
-              <div className="flex items-center gap-2 border-l-4 py-2 pl-2" style={{ borderLeftColor: user.color_hex }}>
+              <div
+                className="flex items-center gap-2 border-l-4 py-2 pl-2"
+                style={{ borderLeftColor: user.color_hex }}
+              >
                 <span
                   aria-hidden
                   className="inline-block size-4 shrink-0 rounded-full border border-border"
                   style={{ backgroundColor: user.color_hex }}
                 />
-                <span className="truncate text-base font-semibold">{user.nickname}</span>
+                <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                  {user.nickname}
+                </span>
+                {/* Vidage par personne : on refait rarement la semaine de toute
+                    l'équipe, presque toujours celle de quelqu'un en particulier. */}
+                <button
+                  type="button"
+                  aria-label={t.planning.clearWeekFor(user.nickname)}
+                  title={t.planning.clearWeekFor(user.nickname)}
+                  onClick={() => onVider(user.id)}
+                  className="flex size-11 shrink-0 items-center justify-center rounded-md text-neutral-700 hover:bg-secondary"
+                >
+                  <Eraser aria-hidden className="size-5" />
+                </button>
               </div>
 
               {jours.map((jour) => {

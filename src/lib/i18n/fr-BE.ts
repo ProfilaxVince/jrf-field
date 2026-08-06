@@ -139,6 +139,14 @@ export const t = {
     templateStops: (n: number) => `${n} arrêt${n > 1 ? "s" : ""}`,
     close: "Fermer",
     reorderByRoute: "Ranger par trajet",
+    clearWeek: "Vider",
+    clearWeekFor: (surnom: string) => `Vider la semaine de ${surnom}`,
+    cleared: (n: number, surnom: string) =>
+      `${n} arrêt${n > 1 ? "s" : ""} retiré${n > 1 ? "s" : ""} de la semaine de ${surnom}.`,
+    clearedShort: (n: number) => `${n} arrêt${n > 1 ? "s" : ""} retiré${n > 1 ? "s" : ""}.`,
+    nothingToClear: "Rien à vider : aucune visite prévue cette semaine.",
+    doneKept: (n: number) =>
+      `${n} visite${n > 1 ? "s" : ""} déjà faite${n > 1 ? "s" : ""} conservée${n > 1 ? "s" : ""}.`,
     reordered: "Journée rangée dans l'ordre du trajet.",
     emptyDay: "Rien de prévu",
     absent: "Absent",
@@ -155,6 +163,7 @@ export const t = {
     errors: {
       chargement: "Impossible de charger la semaine. Vérifie ta connexion.",
       ajout: "L'ajout n'a pas pu être enregistré. Réessaie.",
+      vidage: "La semaine n'a pas pu être vidée. Réessaie.",
       retrait: "Le retrait n'a pas pu être enregistré.",
       annulation: "L'annulation n'a pas pu être enregistrée.",
       ordre: "Le nouvel ordre n'a pas pu être enregistré.",

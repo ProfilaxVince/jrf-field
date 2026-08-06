@@ -42,6 +42,7 @@ export function usePlanningSemaine(dateReference: Date) {
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [dernierRemplissage, setDernierRemplissage] = useState<string[] | null>(null);
+  const [dernierVidage, setDernierVidage] = useState<VisitRow[] | null>(null);
 
   const jours = useMemo(() => joursOuvres(dateReference).map(jourISO), [dateReference]);
   const lundi = useMemo(() => jourISO(lundiDeLaSemaine(dateReference)), [dateReference]);
@@ -216,6 +217,51 @@ export function usePlanningSemaine(dateReference: Date) {
     [visitesParCellule, etat.priorites]
   );
 
+  /**
+   * Vide la semaine d'UNE personne. Ne touche QUE les visites encore prévues :
+   * une visite faite, reportée ou annulée est de l'historique, pas du planning —
+   * un bouton « vider » ne doit jamais pouvoir effacer du travail réalisé.
+   */
+  const viderSemaineDe = useCallback(
+    async (userId: string) => {
+      const jourSet = new Set(jours);
+      const aRetirer = etat.visits.filter(
+        (v) => v.user_id === userId && jourSet.has(v.scheduled_date) && v.status === "planifiee"
+      );
+      const conservees = etat.visits.filter(
+        (v) => v.user_id === userId && jourSet.has(v.scheduled_date) && v.status !== "planifiee"
+      ).length;
+      if (aRetirer.length === 0) return { retirees: 0, conservees };
+
+      const ids = new Set(aRetirer.map((v) => v.id));
+      setEtat((prev) => ({ ...prev, visits: prev.visits.filter((v) => !ids.has(v.id)) }));
+      setDernierVidage(aRetirer);
+      try {
+        await Promise.all(aRetirer.map((v) => retirerVisite(v.id, MOTIF_RETRAIT)));
+        setErreur(null);
+      } catch {
+        setEtat((prev) => ({ ...prev, visits: [...prev.visits, ...aRetirer] }));
+        setDernierVidage(null);
+        setErreur("vidage");
+        return { retirees: 0, conservees };
+      }
+      return { retirees: aRetirer.length, conservees };
+    },
+    [etat.visits, jours]
+  );
+
+  const annulerVidage = useCallback(async () => {
+    if (!dernierVidage) return;
+    const rendues = dernierVidage;
+    setDernierVidage(null);
+    try {
+      await restaurerVisites(rendues.map((v) => v.id));
+      setEtat((prev) => ({ ...prev, visits: [...prev.visits, ...rendues] }));
+    } catch {
+      setErreur("vidage");
+    }
+  }, [dernierVidage]);
+
   const annulerRemplissage = useCallback(async () => {
     if (!dernierRemplissage) return;
     const ids = new Set(dernierRemplissage);
@@ -290,6 +336,10 @@ export function usePlanningSemaine(dateReference: Date) {
     ajouterArret,
     appliquerTemplate,
     rangerJournee,
+    viderSemaineDe,
+    annulerVidage,
+    dernierVidage,
+    oublierVidage: () => setDernierVidage(null),
     annulerRemplissage,
     oublierRemplissage: () => setDernierRemplissage(null),
     retirer,

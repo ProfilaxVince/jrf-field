@@ -87,6 +87,18 @@ export default function PlanningPage() {
     if (ranges > 0) setMessage(t.planning.reordered);
   }
 
+  async function vider(userId: string) {
+    const surnom = planning.users.find((u) => u.id === userId)?.nickname ?? "";
+    const { retirees, conservees } = await planning.viderSemaineDe(userId);
+    if (retirees === 0) {
+      setMessage(t.planning.nothingToClear);
+      return;
+    }
+    setMessage(
+      `${t.planning.cleared(retirees, surnom)}${conservees > 0 ? ` ${t.planning.doneKept(conservees)}` : ""}`
+    );
+  }
+
   async function retirer(visit: VisitRow) {
     setRetiree(visit);
     await planning.retirer(visit);
@@ -139,6 +151,17 @@ export default function PlanningPage() {
 
         {message && <p className="text-base text-neutral-700">{message}</p>}
 
+        {planning.dernierVidage && planning.dernierVidage.length > 0 && (
+          <UndoBar
+            message={t.planning.clearedShort(planning.dernierVidage.length)}
+            onUndo={() => {
+              setMessage(null);
+              planning.annulerVidage();
+            }}
+            onExpire={planning.oublierVidage}
+          />
+        )}
+
         {retiree && (
           <UndoBar
             message={t.planning.removed}
@@ -184,6 +207,7 @@ export default function PlanningPage() {
               setCellule({ userId, date });
             }}
             onRanger={ranger}
+            onVider={vider}
           />
         )}
       </div>
