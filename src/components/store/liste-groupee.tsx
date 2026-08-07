@@ -91,7 +91,11 @@ export function ListeGroupee({
                         </p>
                       )}
                     </div>
-                    <div className="flex shrink-0 flex-wrap gap-2">
+                    {/* `shrink-0` gardait la largeur naturelle des boutons : à
+                        trois, ils dépassaient l'écran d'un téléphone sans jamais
+                        se replier. Pleine largeur sous `sm`, où ils ont leur
+                        propre ligne ; comportement d'origine au-dessus. */}
+                    <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:shrink-0">
                       {/* Le patron est devant l'adhérent : le rapport doit être
                           à un clic de la recherche, pas dans un sous-menu. */}
                       <Button variant="outline" asChild>
