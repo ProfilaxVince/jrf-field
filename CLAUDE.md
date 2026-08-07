@@ -47,6 +47,8 @@ src/app/(field)/     portail commercial       src/lib/domain/  calculs purs + ty
 src/components/ui/   shadcn                   src/lib/i18n/    fr-BE.ts
 src/components/brand/ identité JRF            src/styles/tokens.css  source unique
 supabase/migrations/ numérotées, figées       docs/DECISIONS.md      1 ligne/décision
+supabase/manual/     scripts à coller dans le SQL Editor (Vincent n'a pas de terminal)
+scripts/             production des données magasins — voir « chaîne de production »
 ```
 
 ## Workflow à chaque tâche
@@ -109,14 +111,16 @@ Direct, dense, sans flatterie. Signaler les mauvaises idées immédiatement avec
 l'alternative. Question plutôt qu'hypothèse quand l'enjeu est structurant.
 Ne jamais élargir le périmètre sans demander.
 
-## Session snapshot — reprise Claude Code (état au 2026-08-06)
+## Session snapshot — reprise Claude Code (état au 2026-08-07)
 
 ### Infrastructure
 
 - **Projet Supabase** : `jrf-field` (ref `qvjknxswntewkswspmgx`, org `zvlvfwkxwddlplmtwnjk`),
   région Frankfurt.
-- **Migrations** : toutes celles de [supabase/migrations](supabase/migrations/) sont
-  appliquées, jusqu'à `00014_terrain_autonome.sql`.
+- **Migrations** : le dépôt va jusqu'à `00017_depannage_week_end.sql`.
+  Appliquées en base : jusqu'à **`00015_fiche_commercial`** (confirmé par Vincent).
+  ⚠️ **`00016` (contacts magasin) et `00017` (dépannage week-end) restent à passer** —
+  sans elles, la fiche magasin et l'ajout d'un arrêt le samedi échouent à l'écriture.
 - **Types générés** : `src/lib/data/database.types.ts`.
 - **Déploiement** : Netlify, `jrfcom.netlify.app`, branche **`main`**.
   ⚠️ Netlify ne déploie que `main` : tout travail resté sur une branche de session
@@ -137,6 +141,28 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
 [supabase/manual/](supabase/manual/), chacun idempotent et s'inscrivant lui-même dans
 `supabase_migrations.schema_migrations` pour ne pas être rejoué par un futur `db push`.
 
+### Ce qui a été livré depuis (lots A → D)
+
+| Lot | Contenu | Migration |
+|---|---|---|
+| A | Fiche commercial : ajout / modification / retrait, prénom, nom, e-mail, téléphone | `00015` |
+| B | Deux contacts par magasin : adhérent et responsable F&L, lus par le terrain | `00016` |
+| C | Feuilles de semaine imprimables (PDF) et tableur, 1 ou 2 semaines, par commercial | — |
+| D | Dépannage samedi/dimanche, motif obligatoire, posé par Gérardo ou le commercial | `00017` |
+
+- **L'e-mail d'un commercial ne sert PAS à se connecter.** L'auth reste surnom + code
+  4 chiffres. Ne pas le confondre avec `internal_auth_email` (adresse synthétique
+  fabriquée pour Supabase Auth, unique, que personne ne lit).
+- **`full_name` est DÉRIVÉ** de prénom + nom par trigger, avec repli sur le surnom.
+  Ne plus le saisir nulle part.
+- **`contact_name` / `contact_phone` n'existent plus** : renommés `fl_manager_*`
+  (responsable fruits & légumes) en `00016`, et `adherent_*` les accompagne.
+- **Un arrêt posé samedi ou dimanche EST un dépannage** — c'est la seule raison de
+  travailler ce jour-là, le type se déduit du jour. Motif exigé par la base
+  (contrainte `visits_depannage_motif_requis`), pas seulement par l'écran.
+- **Un dépannage remet la dette à zéro**, comme l'urgence : `v_store_last_visit`
+  n'exclut que le montage. Question posée à Vincent, sans réponse à ce jour.
+
 ### Modèle métier — deux corrections déjà faites, à ne pas réintroduire
 
 1. **Aucun magasin n'appartient à un commercial.** Tous peuvent traverser tous les
@@ -148,7 +174,7 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
    par commercial. `repartirSemaine` a été supprimé de `lib/domain/planning.ts`,
    qui ne garde que `distanceKm()` et `ordonnerParProximite()`.
 
-### Import des magasins réels — état exact
+### Le parc réel — chaîne de production des données
 
 Le fichier source est l'Excel de Gérardo `Visites_Inter_Delhaize_31.xlsx`
 (**185 lignes**). Il ne contient **ni adresse ni GPS** — seulement un libellé par
@@ -248,7 +274,10 @@ L'adresse était sûre ; c'est l'étiquette qui clochait, et elle décide de `re
 ⚠️ Conséquence à annoncer : il ne reste **qu'un seul « Delhaize » intégré** dans le
 parc. Si Gérardo cherche ses six Delhaize à l'écran, il les trouvera en AD Delhaize.
 
-### Questions ouvertes pour Gérardo — à poser avant l'import définitif
+### Questions ouvertes pour Gérardo
+
+⏸️ **Mises de côté par Vincent le 07/08/2026.** Ne pas les relancer sans qu'il le
+demande ; les magasins concernés vivent très bien avec une case vide.
 
 **1. Quel magasin, quand la commune en compte plusieurs ?** (bloquant : case laissée vide)
 
@@ -291,19 +320,111 @@ parc. Si Gérardo cherche ses six Delhaize à l'écran, il les trouvera en AD De
 - `AD DELHAIZE AARTSELAAR` a **déménagé** de la Kapellestraat vers Baron van
   Ertbornstraat 30. Si Gérardo a l'ancienne adresse en tête, c'est normal.
 
-### Avant l'import
+### L'import est FAIT — ne plus jamais réimporter
 
-Exécuter [supabase/manual/remplacer-magasins-fictifs.sql](supabase/manual/remplacer-magasins-fictifs.sql)
-dans le SQL Editor : il désactive les 185 magasins fictifs du seed (`active = false`,
-aucune suppression physique) et les visites qui les référencent. Puis importer
-`magasins-reels.csv` via Magasins → Importer un CSV.
+Le fichier de 185 lignes a été importé le 06/08/2026, et les magasins fictifs du seed
+ont été désactivés ([remplacer-magasins-fictifs.sql](supabase/manual/remplacer-magasins-fictifs.sql)).
+
+**`stores.external_ref` est UNIQUE : réimporter est donc impossible**, et le forcer
+créerait 182 doublons. Le parc se met à jour par SQL, jamais par l'écran d'import :
+
+```bash
+node scripts/generer-maj-magasins.mjs   # → supabase/manual/mettre-a-jour-magasins.sql
+```
+
+Ce script ne produit que les lignes qui CHANGENT (il compare le CSV courant au CSV tel
+qu'importé, relu depuis git au commit `011b7e1`). Il joint sur la référence figée, il
+est transactionnel et idempotent.
+
+⚠️ **Piège à connaître** : désactiver un magasin (`active = false`) **ne libère pas sa
+référence**. L'écran paraît vide, l'index unique non — c'est ce qui a fait échouer un
+import avec un « Import impossible. » sans cause. Le diagnostic est dans
+[diagnostic-import.sql](supabase/manual/diagnostic-import.sql).
+
+**État en base au 07/08/2026** : 185 références, **183 magasins actifs**. Les 2 inactifs
+n'ont pas été identifiés — la seconde requête de `mettre-a-jour-magasins.sql` les nomme,
+Vincent n'a pas encore renvoyé le résultat.
+
+### Pièges déjà payés — ne pas les repayer
+
+- **Ne jamais remplacer une classe Tailwind par un style inline sans reprendre sa
+  définition exacte.** `grid-cols-5` vaut `repeat(5, minmax(0, 1fr))` ; écrire
+  `repeat(5, 1fr)` vaut `minmax(auto, 1fr)`, les colonnes ne rétrécissent plus et la
+  page part en défilement latéral sur téléphone.
+- **`@media print` : cibler la navigation par un attribut (`[data-chrome]`), jamais
+  par `header, nav`.** Le sélecteur d'élément emportait aussi le `<header>` interne de
+  la feuille de route — imprimée sans nom dessus, donc inutilisable.
+- **`capitalize` de Tailwind met une majuscule à CHAQUE mot** (« Absent Ou Jour
+  Férié »). Pour une seule initiale : `::first-letter`.
+- **Postgres interdit d'utiliser une valeur d'enum dans la transaction qui la crée.**
+  Comparer en `::text` (`visit_type::text = 'depannage'`), sinon le script collé d'un
+  bloc échoue — et c'est la seule façon dont Vincent exécute du SQL.
+- **Une erreur Supabase porte `code`, `details` et `hint`, pas seulement `message`** ;
+  c'est souvent `hint` qui contient la correction. `lib/data/erreurs.ts` les remet à
+  l'écran.
+- **Un défaut d'affichage se MESURE** : `document.documentElement.scrollWidth` contre
+  `clientWidth` à 360 / 390 / 412 px. Un build vert ne prouve rien sur une mise en page.
+
+### Comment vérifier une migration sans base de test
+
+Vincent n'a pas de terminal : une migration fausse se découvrirait dans le SQL Editor,
+en production. Les 17 migrations sont rejouables sur un Postgres nu — il suffit d'un
+préambule créant les rôles (`anon`, `authenticated`, `service_role`) et les schémas
+`auth`, `storage`, `supabase_migrations`, plus `auth.uid()`. C'est ce qui a permis
+d'attraper, avant livraison, un trigger qui laissait un `full_name` périmé et une
+reprise de données qui ressuscitait un prénom volontairement effacé.
+
+⚠️ `supabase gen types` **exige Docker**, absent de cet environnement, même avec
+`--db-url`. Les types de `00015`, `00016` et `00017` ont donc été écrits à la main,
+contre la règle du projet. À régénérer à la première occasion.
+
+### Pistes analysées, non engagées (07/08/2026)
+
+Analyse demandée par Vincent sur la collecte de chiffres. Constat : **aucun chiffre ne
+remonte du terrain** — le seul nombre du modèle est le CA annuel saisi par Vincent. Les
+~20 vues existantes mesurent l'activité des commerciaux, jamais l'état des linéaires.
+
+Par ordre de rapport valeur/effort :
+
+1. **Durée réelle des visites** — `checkin_at` et `checkout_at` sont déjà écrits mais
+   ne servent qu'à dater la dernière visite. La capacité repose sur un `duration_min`
+   figé à 45 min théoriques, jamais confronté au réel. Une vue suffit.
+2. **Historique du CA** — `jrf_revenue_eur` + `jrf_revenue_year` ne stockent QU'UN
+   exercice : saisir 2026 écrase 2025. Or le tier A/B/C en dérive. Une table
+   `store_revenues (magasin, année, montant)` corrige la faille.
+3. **Linéaire par visite** (facings ou mètres) — le chiffre du métier, absent.
+4. **Catalogue produits** — il n'existe AUCUNE table produit. C'est le verrou : les
+   ruptures sont en texte libre, donc incomptables.
+5. Fiabilité livraison (les incidents sont déjà typés et datés), relevé de prix,
+   objectifs par commercial.
+
+❌ **Écarté délibérément** : exploiter la géolocalisation du check-in pour vérifier
+qu'une visite a bien eu lieu sur place. Techniquement faisable, juridiquement une
+surveillance de travailleur (CCT n°81), et la géoloc a été annoncée comme ponctuelle et
+facultative. La détourner détruirait la confiance de l'équipe pour un gain nul.
 
 ### Vérifications avant de dire « c'est fait »
 
 ```bash
-npm run build && npm run lint
+npm run build && npm run lint     # nécessaire, jamais suffisant
 ```
 
-Et un test réel dans le navigateur. Un build qui passe ne prouve pas qu'une mise en
-page tient : la barre de navigation a été livrée cassée sur téléphone parce qu'un
-`flex` sans direction avait été relu trop vite.
+Un build qui passe ne prouve pas qu'une mise en page tient. La barre de navigation a
+été livrée cassée sur téléphone parce qu'un `flex` sans direction avait été relu trop
+vite ; le planning a été livré en débordement latéral parce qu'un `1fr` avait remplacé
+un `minmax(0,1fr)`. Les deux fois, le build était vert.
+
+Selon ce qui est touché :
+
+| Ce qui change | Ce qui le prouve |
+|---|---|
+| Une mise en page | Capture Playwright à 360 px + `scrollWidth` vs `clientWidth` |
+| Une impression | Capture en média `print`, et compter les pages du PDF |
+| Une migration | La rejouer sur un Postgres local, données en place, puis DEUX fois |
+| Une policy RLS | Se faire passer pour un non-admin et vérifier que l'écriture touche 0 ligne |
+| Un script SQL pour Vincent | Le rejouer **en une seule transaction** (le SQL Editor colle tout d'un bloc) |
+
+Chromium est préinstallé (`/opt/pw-browsers/chromium`). Le serveur de test doit être
+démarré et mesuré **dans le même appel** : un serveur lancé en tâche de fond ne survit
+pas à la fin de la commande, et un ancien serveur resté sur le port 3000 sert
+l'ancien build — ça a déjà invalidé une vérification.
