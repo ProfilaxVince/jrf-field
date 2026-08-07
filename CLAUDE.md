@@ -117,10 +117,8 @@ Ne jamais élargir le périmètre sans demander.
 
 - **Projet Supabase** : `jrf-field` (ref `qvjknxswntewkswspmgx`, org `zvlvfwkxwddlplmtwnjk`),
   région Frankfurt.
-- **Migrations** : le dépôt va jusqu'à `00017_depannage_week_end.sql`.
-  Appliquées en base : jusqu'à **`00015_fiche_commercial`** (confirmé par Vincent).
-  ⚠️ **`00016` (contacts magasin) et `00017` (dépannage week-end) restent à passer** —
-  sans elles, la fiche magasin et l'ajout d'un arrêt le samedi échouent à l'écriture.
+- **Migrations** : le dépôt et la base vont tous deux jusqu'à
+  **`00019_import_passages`** (confirmé par Vincent le 07/08/2026). Rien en attente.
 - **Types générés** : `src/lib/data/database.types.ts`.
 - **Déploiement** : Netlify, `jrfcom.netlify.app`, branche **`main`**.
   ⚠️ Netlify ne déploie que `main` : tout travail resté sur une branche de session
@@ -149,6 +147,22 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
 | B | Deux contacts par magasin : adhérent et responsable F&L, lus par le terrain | `00016` |
 | C | Feuilles de semaine imprimables (PDF) et tableur, 1 ou 2 semaines, par commercial | — |
 | D | Dépannage samedi/dimanche, motif obligatoire, posé par Gérardo ou le commercial | `00017` |
+| E | Historique du CA par exercice + bloc « qui progresse, qui décroche » | `00018` |
+| F | Rapport de visites par magasin, imprimable, version client / version interne | — |
+| G | Import des passages transmis par l'informatique (écran « Passages ») | `00019` |
+
+- **Le rapport magasin sépare les FAITS des APPRÉCIATIONS.** La case « inclure les
+  remarques internes » est DÉCOCHÉE par défaut : le mode prudent est celui qu'on obtient
+  sans rien faire, parce que ce document part chez l'adhérent.
+- **`store_revenues` est la source du CA**, `stores.jrf_revenue_eur` n'en est que le
+  reflet de l'exercice le plus récent, entretenu par trigger. Ne jamais écrire ces deux
+  colonnes en direct depuis l'application.
+- **L'import des passages n'écrit rien avant l'aperçu.** Quatre verdicts par ligne, et
+  les visites prévues absentes du fichier sont listées mais JAMAIS annulées d'office.
+- **Chantier en attente** : l'informatique de Jacques Remy doit répondre au questionnaire
+  ([docs/questions-it.pdf](docs/questions-it.pdf), source HTML à côté). Deux questions
+  restent aussi pour Vincent : leur Excel sort-il d'un export Odoo ou est-il tapé à la
+  main, et peut-on en obtenir un exemplaire pour caler les correspondances par défaut ?
 
 - **L'e-mail d'un commercial ne sert PAS à se connecter.** L'auth reste surnom + code
   4 chiffres. Ne pas le confondre avec `internal_auth_email` (adresse synthétique
