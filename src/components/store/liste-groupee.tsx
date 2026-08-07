@@ -1,5 +1,7 @@
 "use client";
 import { useMemo } from "react";
+import Link from "next/link";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ENSEIGNES, REGIONS, type StoreRow } from "@/lib/data/stores";
 import { t } from "@/lib/i18n/fr-BE";
@@ -89,7 +91,15 @@ export function ListeGroupee({
                         </p>
                       )}
                     </div>
-                    <div className="flex shrink-0 gap-2">
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      {/* Le patron est devant l'adhérent : le rapport doit être
+                          à un clic de la recherche, pas dans un sous-menu. */}
+                      <Button variant="outline" asChild>
+                        <Link href={`/stores/${magasin.id}/rapport`}>
+                          <FileText aria-hidden />
+                          {t.stores.reportOpen}
+                        </Link>
+                      </Button>
                       <Button variant="outline" onClick={() => onModifier(magasin)}>
                         {t.stores.edit}
                       </Button>

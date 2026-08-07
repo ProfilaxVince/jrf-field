@@ -8,12 +8,13 @@ import { listRelaisCentrale } from "./incidents";
 import { listVisitsPeriode } from "./planning";
 import { listStores } from "./stores";
 import { listAppUsers } from "./users";
-import { telechargerCsv, versCsv } from "../csv";
+import { telechargerCsv, versCsv, type Colonne } from "../csv";
 import { detteAffichable } from "../domain/dette";
 import { addDays, aujourdhuiISO, formatDate, jourISO } from "../dates";
 import { t } from "../i18n/fr-BE";
 import type { CompteRendu } from "../domain/compte-rendu";
 import type { ArretFeuille, FeuilleCommercial } from "../domain/feuille-semaine";
+import type { LigneVisite, RapportMagasin } from "../domain/rapport-magasin";
 
 export async function exporterMagasins(): Promise<void> {
   const items = await listStorePriorites();
@@ -144,4 +145,32 @@ export function exporterFeuillesTableur(feuilles: FeuilleCommercial[], suffixe: 
     { entete: "Telephone responsable F&L", valeur: (l) => l.arret?.responsableFlTel ?? "" },
   ]);
   telechargerCsv(`plannings-${suffixe}.csv`, contenu);
+}
+
+/**
+ * Le rapport d'un magasin en tableur. Mêmes règles que la page imprimable :
+ * `interne` commande les colonnes d'appréciation, et sans lui le fichier ne
+ * contient que des faits. Un export est encore plus facile à transférer qu'une
+ * feuille de papier — le garde-fou doit donc être le même des deux côtés.
+ */
+export function exporterRapportMagasin(rapport: RapportMagasin, interne: boolean): void {
+  const colonnes: Colonne<LigneVisite>[] = [
+    { entete: "Date", valeur: (v) => v.date },
+    { entete: "Commercial", valeur: (v) => v.commercial },
+    { entete: "Type", valeur: (v) => v.type },
+    { entete: "Raison du depannage", valeur: (v) => v.motif },
+  ];
+  if (interne) {
+    colonnes.push(
+      {
+        entete: "Etat du rayon",
+        valeur: (v) =>
+          v.rayonConforme === null ? "" : v.rayonConforme ? "en ordre" : "a revoir",
+      },
+      { entete: "Remarque interne", valeur: (v) => v.remarque }
+    );
+  }
+
+  const nom = rapport.magasin.nom.replace(/[^\p{L}\p{N}]+/gu, "-").toLowerCase();
+  telechargerCsv(`rapport-${nom}-${aujourdhuiISO()}.csv`, versCsv(rapport.visites, colonnes));
 }
