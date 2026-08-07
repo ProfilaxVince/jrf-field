@@ -117,8 +117,10 @@ Ne jamais élargir le périmètre sans demander.
 
 - **Projet Supabase** : `jrf-field` (ref `qvjknxswntewkswspmgx`, org `zvlvfwkxwddlplmtwnjk`),
   région Frankfurt.
-- **Migrations** : le dépôt et la base vont tous deux jusqu'à
-  **`00019_import_passages`** (confirmé par Vincent le 07/08/2026). Rien en attente.
+- **Migrations** : base à jour jusqu'à **`00019_import_passages`**.
+  ⚠️ **`00020_visite_importee_compte` reste à passer** — sans elle, un passage
+  importé ne remet PAS la dette à zéro et le magasin reste en tête des priorités
+  alors que le commercial y est passé.
 - **Types générés** : `src/lib/data/database.types.ts`.
 - **Déploiement** : Netlify, `jrfcom.netlify.app`, branche **`main`**.
   ⚠️ Netlify ne déploie que `main` : tout travail resté sur une branche de session
