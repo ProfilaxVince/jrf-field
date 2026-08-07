@@ -55,7 +55,7 @@ export function AdminNav() {
   return (
     <>
       {/* Barre supérieure — téléphone uniquement */}
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-card px-3 py-2 md:hidden">
+      <header data-chrome="nav" className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-card px-3 py-2 md:hidden">
         <Button
           variant="ghost"
           size="icon"
@@ -90,6 +90,7 @@ export function AdminNav() {
       )}
 
       <nav
+        data-chrome="nav"
         aria-label={t.nav.home}
         className={`fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 flex-col gap-1 border-r border-border bg-card px-3 py-3 transition-transform md:sticky md:top-0 md:h-dvh md:translate-x-0 ${
           ouvert ? "translate-x-0" : "-translate-x-full"

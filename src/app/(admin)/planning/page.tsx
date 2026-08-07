@@ -1,6 +1,7 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Printer, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UndoBar } from "@/components/ui/undo-bar";
 import { AjoutArret } from "@/components/planning/ajout-arret";
@@ -132,6 +133,12 @@ export default function PlanningPage() {
             </Button>
             <Button variant="outline" onClick={() => setReference(new Date())}>
               {t.planning.today}
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/planning/feuilles">
+                <Printer aria-hidden />
+                {t.planning.sheetOpen}
+              </Link>
             </Button>
             <Button
               variant="outline"

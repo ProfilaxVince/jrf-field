@@ -95,3 +95,47 @@ body {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
+
+/* ---------------------------------------------------------------------------
+   Impression — les feuilles de semaine (/planning/feuilles).
+   Le reste de l'application n'est pas conçu pour le papier : la navigation,
+   les boutons et les fonds colorés n'ont rien à y faire. Une imprimante de
+   bureau rend les aplats en gris sale et vide la cartouche pour rien.
+   --------------------------------------------------------------------------- */
+@media print {
+  /* Navigation du portail responsable : barre du haut et colonne de gauche.
+     Ciblée par un attribut explicite, JAMAIS par `header, nav` : la feuille
+     de semaine a son propre <header> avec le nom du commercial dessus, et un
+     sélecteur d'élément l'emportait avec — une feuille imprimée sans nom
+     dessus ne peut être remise à personne. */
+  [data-chrome] {
+    display: none !important;
+  }
+
+  /* Nom du jour : « lundi 4 août » prend une majuscule initiale, pas une par
+     mot. `capitalize` écrivait « Mercredi 6 Août — Absent Ou Jour Férié ». */
+  .jour::first-letter {
+    text-transform: uppercase;
+  }
+
+  html {
+    font-size: 11pt; /* le 18 px « extérieur » est illisiblement gros sur A4 */
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Une feuille = une page. La dernière ne force pas de page blanche. */
+  .feuille {
+    break-after: page;
+  }
+  .feuille:last-child {
+    break-after: auto;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
