@@ -131,7 +131,7 @@ export async function rafraichirCatalogue(): Promise<StoreRow[]> {
 
 export type Position = { lat: number; lng: number } | null;
 
-export type TypeArret = "conseil" | "urgence" | "montage_rayon";
+export type TypeArret = "conseil" | "urgence" | "montage_rayon" | "depannage";
 
 /**
  * Le commercial ajoute un arrêt à SA journée. L'identifiant est généré ici :
@@ -143,7 +143,9 @@ export async function ajouterArretTerrain(
   userId: string,
   date: string,
   store: StoreRow,
-  type: TypeArret
+  type: TypeArret,
+  /** Obligatoire pour un dépannage : la base le refuse sans (contrainte 00017). */
+  motifDepannage?: string
 ): Promise<TourneeCache | null> {
   const cache = await lireTourneeCache(userId, date);
   const existantes = cache?.visites ?? [];
@@ -160,6 +162,7 @@ export async function ajouterArretTerrain(
     visit_type: type,
     status: "planifiee" as const,
     position_in_day: position,
+    motif_depannage: type === "depannage" ? (motifDepannage?.trim() ?? null) : null,
   };
   await enfiler({ kind: "visit_create", payload });
 

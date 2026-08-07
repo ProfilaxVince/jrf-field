@@ -95,9 +95,9 @@ export function useTournee(date: string = aujourdhuiISO()) {
     depuisCache,
     enAttente,
     ajouterArret: useCallback(
-      async (store: StoreRow, type: TypeArret) => {
+      async (store: StoreRow, type: TypeArret, motifDepannage?: string) => {
         if (!userId) return;
-        appliquer(await ajouterArretTerrain(userId, date, store, type));
+        appliquer(await ajouterArretTerrain(userId, date, store, type, motifDepannage));
       },
       [date, userId, appliquer]
     ),

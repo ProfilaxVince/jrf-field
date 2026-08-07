@@ -134,6 +134,7 @@ export function exporterFeuillesTableur(feuilles: FeuilleCommercial[], suffixe: 
     { entete: "Ordre", valeur: (l) => l.arret?.ordre ?? "" },
     { entete: "Magasin", valeur: (l) => l.arret?.magasin ?? "" },
     { entete: "Type", valeur: (l) => l.arret?.type ?? "" },
+    { entete: "Raison du depannage", valeur: (l) => l.arret?.motif ?? "" },
     { entete: "Adresse", valeur: (l) => l.arret?.adresse ?? "" },
     { entete: "Code postal", valeur: (l) => l.arret?.codePostal ?? "" },
     { entete: "Ville", valeur: (l) => l.arret?.ville ?? "" },

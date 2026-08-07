@@ -70,6 +70,10 @@ export function FeuilleImprimable({ feuille }: { feuille: FeuilleCommercial }) {
                       <td className="py-1">
                         <div className="font-semibold">{a.magasin}</div>
                         <div>{a.type}</div>
+                        {/* La raison du dépannage : c'est ce qui justifie un
+                            déplacement un samedi. Elle doit être sur le papier
+                            que la personne emporte. */}
+                        {a.motif && <div className="italic">« {a.motif} »</div>}
                       </td>
                       <td className="py-1">
                         {a.adresse && <div>{a.adresse}</div>}

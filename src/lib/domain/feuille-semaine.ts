@@ -17,6 +17,7 @@ export type ArretFeuille = {
   codePostal: string;
   adresse: string;
   type: string;
+  motif: string;
   adherent: string;
   adherentTel: string;
   responsableFl: string;
@@ -46,11 +47,20 @@ export type FeuilleCommercial = {
   total: number;
 };
 
-/** Les 5 jours ouvrés de chaque semaine demandée, à partir d'un lundi. */
-export function semainesOuvrees(reference: Date, nombreDeSemaines: number): string[][] {
+/**
+ * Les jours de chaque semaine demandée, à partir d'un lundi.
+ * Sept jours quand `avecWeekEnd` : un dépannage prévu un dimanche doit figurer
+ * sur la feuille de route de la personne qui va le faire.
+ */
+export function semainesOuvrees(
+  reference: Date,
+  nombreDeSemaines: number,
+  avecWeekEnd = false
+): string[][] {
   const lundi = lundiDeLaSemaine(reference);
+  const n = avecWeekEnd ? 7 : 5;
   return Array.from({ length: nombreDeSemaines }, (_, s) =>
-    [0, 1, 2, 3, 4].map((j) => jourISO(addDays(lundi, s * 7 + j)))
+    Array.from({ length: n }, (_, j) => jourISO(addDays(lundi, s * 7 + j)))
   );
 }
 
@@ -59,6 +69,7 @@ type Entree = {
   date: string;
   position: number;
   type: string;
+  motif: string;
   magasin: {
     name: string;
     city: string;
@@ -87,7 +98,7 @@ export function construireFeuilles(
     const semaines = grilles.map((jours) => ({
       numero: numeroSemaineISO(new Date(jours[0])),
       du: formatDate(jours[0]),
-      au: formatDate(jours[4]),
+      au: formatDate(jours[jours.length - 1]),
       jours: jours.map((date) => ({
         date,
         libelle: formatJourLong(date),
@@ -102,6 +113,7 @@ export function construireFeuilles(
             codePostal: e.magasin?.postal_code ?? "",
             adresse: e.magasin?.address ?? "",
             type: e.type,
+            motif: e.motif,
             adherent: e.magasin?.adherent_name ?? "",
             adherentTel: e.magasin?.adherent_phone ?? "",
             responsableFl: e.magasin?.fl_manager_name ?? "",

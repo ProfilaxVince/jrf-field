@@ -800,6 +800,7 @@ export type Database = {
           created_at: string
           id: string
           motif_annulation: string | null
+          motif_depannage: string | null
           notes: string | null
           position_in_day: number | null
           rayon_conforme: boolean | null
@@ -824,6 +825,7 @@ export type Database = {
           created_at?: string
           id?: string
           motif_annulation?: string | null
+          motif_depannage?: string | null
           notes?: string | null
           position_in_day?: number | null
           rayon_conforme?: boolean | null
@@ -848,6 +850,7 @@ export type Database = {
           created_at?: string
           id?: string
           motif_annulation?: string | null
+          motif_depannage?: string | null
           notes?: string | null
           position_in_day?: number | null
           rayon_conforme?: boolean | null
@@ -1331,6 +1334,7 @@ export type Database = {
         | "montage_rayon"
         | "conseil"
         | "demo"
+        | "depannage"
         | "urgence"
         | "rattrapage"
     }
@@ -1475,7 +1479,7 @@ export const Constants = {
       region_type: ["wallonie", "bruxelles", "flandre"],
       tier_type: ["A", "B", "C"],
       visit_status: ["planifiee", "faite", "annulee", "reportee"],
-      visit_type: ["montage_rayon", "conseil", "demo", "urgence", "rattrapage"],
+      visit_type: ["montage_rayon", "conseil", "demo", "depannage", "urgence", "rattrapage"],
     },
   },
 } as const

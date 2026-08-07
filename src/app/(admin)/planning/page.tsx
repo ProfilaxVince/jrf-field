@@ -12,6 +12,7 @@ import { listTemplates, listTousLesStops, type TemplateRow } from "@/lib/data/te
 import {
   addDays,
   dimancheDeLaSemaine,
+  estWeekEnd,
   formatDate,
   formatJourLong,
   lundiDeLaSemaine,
@@ -29,7 +30,9 @@ export default function PlanningPage() {
   const [cellule, setCellule] = useState<Cellule | null>(null);
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [nbArrets, setNbArrets] = useState<Map<string, number>>(new Map());
-  const planning = usePlanningSemaine(reference);
+  const [weekEnd, setWeekEnd] = useState(false);
+  const [motif, setMotif] = useState("");
+  const planning = usePlanningSemaine(reference, weekEnd);
 
   useEffect(() => {
     let monte = true;
@@ -72,9 +75,25 @@ export default function PlanningPage() {
 
   async function ajouter(storeId: string, montage: boolean) {
     if (!cellule) return;
+    // Samedi ou dimanche : la raison du dépannage est exigée AVANT d'écrire.
+    // La base la refuserait de toute façon (contrainte 00017), mais un refus
+    // de contrainte n'explique rien à Gérardo.
+    if (estWeekEnd(cellule.date) && !motif.trim()) {
+      setMessage(t.planning.depannageReasonRequired);
+      return;
+    }
     const nom = prioritesParStore.get(storeId)?.store.name ?? "";
-    const ajoutes = await planning.ajouterArret(cellule.userId, cellule.date, storeId, montage);
-    if (ajoutes > 0) setMessage(t.planning.added(nom));
+    const ajoutes = await planning.ajouterArret(
+      cellule.userId,
+      cellule.date,
+      storeId,
+      montage,
+      motif
+    );
+    if (ajoutes > 0) {
+      setMessage(t.planning.added(nom));
+      setMotif("");
+    }
   }
 
   async function appliquer(templateId: string) {
@@ -133,6 +152,15 @@ export default function PlanningPage() {
             </Button>
             <Button variant="outline" onClick={() => setReference(new Date())}>
               {t.planning.today}
+            </Button>
+            <Button
+              variant={weekEnd || planning.weekEndOccupe ? "default" : "outline"}
+              aria-pressed={weekEnd || planning.weekEndOccupe}
+              disabled={planning.weekEndOccupe}
+              title={planning.weekEndOccupe ? t.planning.weekendForced : undefined}
+              onClick={() => setWeekEnd((v) => !v)}
+            >
+              {t.planning.weekend}
             </Button>
             <Button variant="outline" asChild>
               <Link href="/planning/feuilles">
@@ -199,7 +227,12 @@ export default function PlanningPage() {
             nbArretsParTemplate={nbArrets}
             onAjouter={ajouter}
             onAppliquerTemplate={appliquer}
-            onFermer={() => setCellule(null)}
+            motifDepannage={estWeekEnd(cellule.date) ? motif : null}
+            onMotifChange={setMotif}
+            onFermer={() => {
+              setCellule(null);
+              setMotif("");
+            }}
           />
         )}
 

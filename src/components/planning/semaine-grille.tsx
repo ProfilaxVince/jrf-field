@@ -42,7 +42,13 @@ export function SemaineGrille({
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[860px]">
-        <div className="grid grid-cols-[9rem_repeat(5,1fr)] gap-2">
+        {/* Le nombre de colonnes suit `jours` : 5 en semaine, 7 quand le
+            week-end est affiché. Un `repeat(5)` en dur écrasait le samedi et
+            le dimanche l'un sur l'autre. */}
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `9rem repeat(${jours.length}, 1fr)` }}
+        >
           <div />
           {jours.map((jour) => (
             <div key={jour} className="px-1 pb-1 text-base font-semibold capitalize text-neutral-700">

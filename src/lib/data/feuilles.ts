@@ -13,12 +13,14 @@ import { listAbsences, listHolidays, listVisitsPeriode } from "./planning";
 import { listStores } from "./stores";
 import { listAppUsers } from "./users";
 import { construireFeuilles, semainesOuvrees, type FeuilleCommercial } from "../domain/feuille-semaine";
+import { estWeekEnd } from "../dates";
 import { t } from "../i18n/fr-BE";
 
 const LIBELLE_TYPE: Record<string, string> = {
   conseil: t.planning.typeVisite,
   montage_rayon: t.planning.typeMontage,
   demo: t.planning.typeDemo,
+  depannage: t.planning.typeDepannage,
   urgence: t.planning.typeUrgence,
   rattrapage: t.planning.typeRattrapage,
 };
@@ -27,8 +29,12 @@ export async function chargerFeuilles(
   reference: Date,
   nombreDeSemaines: number
 ): Promise<FeuilleCommercial[]> {
-  const grilles = semainesOuvrees(reference, nombreDeSemaines);
-  const jours = grilles.flat();
+  // On lit TOUJOURS la semaine entière, puis on ne garde le samedi et le
+  // dimanche que s'ils portent quelque chose : une feuille où deux colonnes
+  // vides apparaissent chaque semaine se lit moins bien, mais un dépannage
+  // absent de la feuille de route est un déplacement que personne n'a noté.
+  const completes = semainesOuvrees(reference, nombreDeSemaines, true);
+  const jours = completes.flat();
   const debut = jours[0];
   const fin = jours[jours.length - 1];
 
@@ -48,8 +54,12 @@ export async function chargerFeuilles(
     date: v.scheduled_date,
     position: v.position_in_day ?? 0,
     type: LIBELLE_TYPE[v.visit_type] ?? v.visit_type,
+    motif: v.motif_depannage ?? "",
     magasin: parId.get(v.store_id) ?? null,
   }));
+
+  const weekEndOccupe = visites.some((v) => estWeekEnd(v.scheduled_date));
+  const grilles = weekEndOccupe ? completes : completes.map((s) => s.slice(0, 5));
 
   return construireFeuilles(
     users

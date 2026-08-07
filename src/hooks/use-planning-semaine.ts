@@ -15,7 +15,7 @@ import { listStorePriorites, type StorePriorite } from "@/lib/data/dette";
 import { listAppUsers, type AppUserRow } from "@/lib/data/users";
 import { listStops } from "@/lib/data/templates";
 import { ordonnerParProximite } from "@/lib/domain/planning";
-import { dimancheDeLaSemaine, joursOuvres, jourISO, lundiDeLaSemaine } from "@/lib/dates";
+import { dimancheDeLaSemaine, estWeekEnd, joursSemaine, jourISO, lundiDeLaSemaine } from "@/lib/dates";
 
 export const MOTIF_RETRAIT = "retiré du planning par le responsable";
 
@@ -36,7 +36,7 @@ const ETAT_VIDE: Etat = {
   indisponibilites: new Set(),
 };
 
-export function usePlanningSemaine(dateReference: Date) {
+export function usePlanningSemaine(dateReference: Date, afficherWeekEnd = false) {
   const [etat, setEtat] = useState<Etat>(ETAT_VIDE);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -44,7 +44,23 @@ export function usePlanningSemaine(dateReference: Date) {
   const [dernierRemplissage, setDernierRemplissage] = useState<string[] | null>(null);
   const [dernierVidage, setDernierVidage] = useState<VisitRow[] | null>(null);
 
-  const jours = useMemo(() => joursOuvres(dateReference).map(jourISO), [dateReference]);
+  const semaineEntiere = useMemo(
+    () => joursSemaine(dateReference).map(jourISO),
+    [dateReference]
+  );
+  /**
+   * Le week-end s'affiche sur demande, MAIS aussi de lui-même dès qu'il porte
+   * quelque chose : un dépannage planifié un dimanche ne doit jamais pouvoir
+   * se cacher derrière un bouton qu'on a oublié d'activer.
+   */
+  const weekEndOccupe = useMemo(
+    () => etat.visits.some((v) => estWeekEnd(v.scheduled_date)),
+    [etat.visits]
+  );
+  const jours = useMemo(
+    () => (afficherWeekEnd || weekEndOccupe ? semaineEntiere : semaineEntiere.slice(0, 5)),
+    [afficherWeekEnd, weekEndOccupe, semaineEntiere]
+  );
   const lundi = useMemo(() => jourISO(lundiDeLaSemaine(dateReference)), [dateReference]);
   const dimanche = useMemo(() => jourISO(dimancheDeLaSemaine(dateReference)), [dateReference]);
 
@@ -63,7 +79,7 @@ export function usePlanningSemaine(dateReference: Date) {
       const joursFeries = new Set(feries.map((f) => f.jour));
       const indisponibilites = new Set<CellKey>();
       for (const user of porteurs) {
-        for (const jour of jours) {
+        for (const jour of semaineEntiere) {
           const absent = absences.some(
             (a) => a.user_id === user.id && a.date_debut <= jour && a.date_fin >= jour
           );
@@ -83,7 +99,7 @@ export function usePlanningSemaine(dateReference: Date) {
     } finally {
       setLoading(false);
     }
-  }, [lundi, dimanche, jours]);
+  }, [lundi, dimanche, semaineEntiere]);
 
   useEffect(() => {
     charger();
@@ -126,7 +142,13 @@ export function usePlanningSemaine(dateReference: Date) {
 
   /** Ajoute UN magasin en fin de journée. Aucun automatisme : c'est un choix. */
   const ajouterArret = useCallback(
-    async (userId: string, date: string, storeId: string, montage: boolean) => {
+    async (
+      userId: string,
+      date: string,
+      storeId: string,
+      montage: boolean,
+      motifDepannage?: string
+    ) => {
       setEnCours(true);
       try {
         const routingId = await assurerRouting(userId, date);
@@ -138,7 +160,16 @@ export function usePlanningSemaine(dateReference: Date) {
             user_id: userId,
             routing_id: routingId,
             scheduled_date: date,
-            visit_type: montage ? "montage_rayon" : "conseil",
+            // Un arrêt posé samedi ou dimanche EST un dépannage : c'est la
+            // seule raison de travailler ce jour-là. Le motif est exigé par la
+            // contrainte `visits_depannage_motif_requis` (00017), donc la base
+            // refuserait de toute façon une ligne sans raison écrite.
+            visit_type: montage
+              ? "montage_rayon"
+              : estWeekEnd(date)
+                ? "depannage"
+                : "conseil",
+            motif_depannage: estWeekEnd(date) ? (motifDepannage?.trim() ?? null) : null,
             // Le montage ouvre la journée (6 h) : il passe devant, toujours.
             position_in_day: montage ? 0 : position,
           },
@@ -346,6 +377,7 @@ export function usePlanningSemaine(dateReference: Date) {
 
   return {
     jours,
+    weekEndOccupe,
     users: etat.users,
     priorites: etat.priorites,
     visitesParCellule,

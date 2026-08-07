@@ -27,6 +27,8 @@ export function AjoutArret({
   nbArretsParTemplate,
   onAjouter,
   onAppliquerTemplate,
+  motifDepannage,
+  onMotifChange,
   onFermer,
 }: {
   titre: string;
@@ -36,6 +38,9 @@ export function AjoutArret({
   nbArretsParTemplate: Map<string, number>;
   onAjouter: (storeId: string, montage: boolean) => void;
   onAppliquerTemplate: (templateId: string) => void;
+  /** Non nul UNIQUEMENT si la cellule est un samedi ou un dimanche. */
+  motifDepannage: string | null;
+  onMotifChange: (motif: string) => void;
   onFermer: () => void;
 }) {
   const [recherche, setRecherche] = useState("");
@@ -66,6 +71,24 @@ export function AjoutArret({
           <X aria-hidden />
         </Button>
       </div>
+
+      {/* Samedi ou dimanche : on ne travaille pas ce jour-là sans raison. Le
+          champ est en TÊTE du panneau, avant le choix du magasin — le demander
+          après aurait laissé croire que l'ajout était fait. */}
+      {motifDepannage !== null && (
+        <div className="space-y-1">
+          <label className="block text-base font-medium" htmlFor="motif-depannage">
+            {t.planning.depannageReason}
+          </label>
+          <input
+            id="motif-depannage"
+            className="min-h-[44px] w-full rounded border border-border px-3 text-base"
+            value={motifDepannage}
+            onChange={(e) => onMotifChange(e.target.value)}
+          />
+          <p className="text-sm text-neutral-600">{t.planning.depannageReasonHint}</p>
+        </div>
+      )}
 
       {templates.length > 0 && (
         <div className="space-y-2">

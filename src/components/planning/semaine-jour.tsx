@@ -51,7 +51,8 @@ export function SemaineJour({
 
   return (
     <div className="space-y-4">
-      <div role="group" aria-label={t.planning.dayPicker} className="grid grid-cols-5 gap-1">
+      <div role="group" aria-label={t.planning.dayPicker} style={{ gridTemplateColumns: `repeat(${jours.length}, 1fr)` }}
+        className="grid gap-1">
         {jours.map((j) => {
           const arrets = users.reduce(
             (n, u) => n + (visitesParCellule.get(cellKey(u.id, j))?.length ?? 0),

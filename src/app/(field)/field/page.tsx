@@ -134,6 +134,9 @@ export default function TourneeDuJourPage() {
                 dejaPrevus={dejaPrevus}
                 onAjouter={(magasin) => tournee.ajouterArret(magasin, "conseil")}
                 onUrgence={(magasin, description) => tournee.declarerUrgence(magasin, description)}
+                onDepannage={(magasin, motif) =>
+                  tournee.ajouterArret(magasin, "depannage", motif)
+                }
                 onFermer={() => setAjout(false)}
               />
             )}

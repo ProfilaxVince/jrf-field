@@ -65,8 +65,23 @@ export function dimancheDeLaSemaine(date: Date = new Date()): Date {
 
 /** Les 5 jours ouvrés (lundi → vendredi) de la semaine d'une date. */
 export function joursOuvres(date: Date = new Date()): Date[] {
+  return joursSemaine(date, false);
+}
+
+/**
+ * Les jours de la semaine d'une date. Avec `avecWeekEnd`, samedi et dimanche
+ * suivent — le dépannage du week-end est rare, mais il existe (06/08/2026).
+ */
+export function joursSemaine(date: Date = new Date(), avecWeekEnd = true): Date[] {
   const lundi = lundiDeLaSemaine(date);
-  return [0, 1, 2, 3, 4].map((i) => addDays(lundi, i));
+  const n = avecWeekEnd ? 7 : 5;
+  return Array.from({ length: n }, (_, i) => addDays(lundi, i));
+}
+
+/** Samedi ou dimanche. */
+export function estWeekEnd(jourISOStr: string): boolean {
+  const j = new Date(`${jourISOStr}T12:00:00`).getDay();
+  return j === 0 || j === 6;
 }
 
 export function numeroSemaineISO(date: Date = new Date()): number {

@@ -142,6 +142,13 @@ export default function VisitePage() {
           )}
         </div>
 
+        {visite.motif_depannage && (
+          <section className="rounded-lg border border-border bg-card px-4 py-3">
+            <div className="text-sm text-neutral-600">{t.planning.depannageReason}</div>
+            <p className="text-base">{visite.motif_depannage}</p>
+          </section>
+        )}
+
         <ContactsMagasin magasin={magasin} />
 
         {statut === "a_faire" ? (
