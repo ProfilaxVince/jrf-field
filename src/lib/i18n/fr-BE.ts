@@ -188,6 +188,9 @@ export const t = {
     sheetOneWeek: "Cette semaine",
     sheetTwoWeeks: "Deux semaines",
     sheetAll: "Toute l'équipe",
+    sheetWhoLabel: "Pour qui ?",
+    sheetPrintHintOne:
+      "Une seule feuille sortira. Dans la fenêtre d'impression, choisis « Enregistrer au format PDF » pour obtenir son fichier à lui envoyer.",
     sheetPrint: "Imprimer / PDF",
     sheetExcel: "Ouvrir dans Excel",
     sheetPrintHint:

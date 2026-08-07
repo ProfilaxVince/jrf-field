@@ -21,6 +21,8 @@ import type { FeuilleCommercial } from "@/lib/domain/feuille-semaine";
  */
 export default function FeuillesSemainePage() {
   const [semaines, setSemaines] = useState(1);
+  /** `null` = toute l'équipe. Sinon, la feuille de route d'une seule personne. */
+  const [seul, setSeul] = useState<string | null>(null);
   const [feuilles, setFeuilles] = useState<FeuilleCommercial[]>([]);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState(false);
@@ -42,6 +44,12 @@ export default function FeuillesSemainePage() {
   }, [charger]);
 
   const avecArrets = feuilles.filter((f) => f.total > 0);
+  // Ce qui est à l'écran EST ce qui sortira : imprimer une seule feuille, c'est
+  // n'en afficher qu'une. Pas de mode d'impression parallèle à maintenir.
+  const aSortir = seul ? avecArrets.filter((f) => f.userId === seul) : avecArrets;
+  const nomFichier = seul
+    ? `${avecArrets.find((f) => f.userId === seul)?.surnom ?? ""}-${aujourdhuiISO()}`
+    : aujourdhuiISO();
 
   return (
     <main className="px-4 py-6">
@@ -75,6 +83,36 @@ export default function FeuillesSemainePage() {
           </Button>
         </div>
 
+        {avecArrets.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-base text-neutral-700">{t.planning.sheetWhoLabel}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={seul === null ? "default" : "outline"}
+                aria-pressed={seul === null}
+                onClick={() => setSeul(null)}
+              >
+                {t.planning.sheetAll}
+              </Button>
+              {avecArrets.map((f) => (
+                <Button
+                  key={f.userId}
+                  variant={seul === f.userId ? "default" : "outline"}
+                  aria-pressed={seul === f.userId}
+                  onClick={() => setSeul(f.userId)}
+                >
+                  <span
+                    aria-hidden
+                    className="size-3 shrink-0 rounded-full"
+                    style={{ backgroundColor: f.couleur }}
+                  />
+                  {f.surnom}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {erreur && <p className="text-base text-state-critical">{t.planning.sheetLoadError}</p>}
         {loading && <p className="text-base text-neutral-600">{t.common.loading}</p>}
 
@@ -82,7 +120,7 @@ export default function FeuillesSemainePage() {
           <p className="text-base text-neutral-700">{t.planning.sheetEmpty}</p>
         )}
 
-        {!loading && avecArrets.length > 0 && (
+        {!loading && aSortir.length > 0 && (
           <>
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => window.print()}>
@@ -91,13 +129,15 @@ export default function FeuillesSemainePage() {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => exporterFeuillesTableur(avecArrets, aujourdhuiISO())}
+                onClick={() => exporterFeuillesTableur(aSortir, nomFichier)}
               >
                 <Table aria-hidden />
                 {t.planning.sheetExcel}
               </Button>
             </div>
-            <p className="text-base text-neutral-700">{t.planning.sheetPrintHint}</p>
+            <p className="text-base text-neutral-700">
+              {seul ? t.planning.sheetPrintHintOne : t.planning.sheetPrintHint}
+            </p>
           </>
         )}
       </div>
@@ -105,7 +145,7 @@ export default function FeuillesSemainePage() {
       {/* L'aperçu à l'écran EST ce qui sortira sur papier : pas de surprise
           au moment d'imprimer, Gérardo voit avant de lancer. */}
       <div className="mx-auto mt-6 w-full max-w-4xl space-y-10 print:mt-0 print:max-w-none print:space-y-0">
-        {avecArrets.map((feuille) => (
+        {aSortir.map((feuille) => (
           <FeuilleImprimable key={feuille.userId} feuille={feuille} />
         ))}
       </div>
