@@ -16,9 +16,36 @@ import {
   type StatsParc,
   type SuiviMontage,
 } from "@/lib/data/stats";
+import { listEvolutions, type EvolutionRow } from "@/lib/data/revenus";
 import { formatDecimal, formatNombre, formatPourcent } from "@/lib/format";
 import { formatDate } from "@/lib/dates";
 import { t } from "@/lib/i18n/fr-BE";
+
+const EUR = new Intl.NumberFormat("fr-BE", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+  signDisplay: "exceptZero",
+});
+
+function LigneEvolution({ l }: { l: EvolutionRow }) {
+  const hausse = (l.ecart_pct ?? 0) > 0;
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 py-1">
+      <span className="text-base">{l.magasin}</span>
+      <span
+        className="text-base font-semibold"
+        style={{ color: hausse ? "var(--state-ok)" : "var(--state-critical)" }}
+      >
+        {hausse ? "+" : ""}
+        {formatPourcent(l.ecart_pct)}{" "}
+        <span className="font-normal text-neutral-700">
+          ({EUR.format(Number(l.ecart_eur ?? 0))} · {l.exercice_precedent} → {l.exercice})
+        </span>
+      </span>
+    </div>
+  );
+}
 
 export default function StatsPage() {
   const [parc, setParc] = useState<StatsParc[]>([]);
@@ -27,6 +54,7 @@ export default function StatsPage() {
   const [frequences, setFrequences] = useState<FrequenceReelle[]>([]);
   const [montages, setMontages] = useState<SuiviMontage[]>([]);
   const [rotation, setRotation] = useState<RotationMontage | null>(null);
+  const [evolutions, setEvolutions] = useState<EvolutionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
 
@@ -34,13 +62,14 @@ export default function StatsPage() {
     let monte = true;
     (async () => {
       try {
-        const [p, c, e, f, m, r] = await Promise.all([
+        const [p, c, e, f, m, r, ev] = await Promise.all([
           statsParc(),
           couvertureMensuelle(),
           effortParTier(),
           pireEcartFrequence(),
           suiviMontage(),
           rotationMontage(),
+          listEvolutions(),
         ]);
         if (!monte) return;
         setParc(p);
@@ -49,6 +78,7 @@ export default function StatsPage() {
         setFrequences(f);
         setMontages(m);
         setRotation(r);
+        setEvolutions(ev);
       } catch {
         if (monte) setErreur(t.stats.loadError);
       } finally {
@@ -89,6 +119,20 @@ export default function StatsPage() {
   if (loading) {
     return <p className="p-6 text-base text-neutral-500">{t.common.loading}</p>;
   }
+
+  // On ne garde que le DERNIER écart connu de chaque magasin : un magasin qui a
+  // trois exercices d'historique ne doit pas occuper trois lignes du classement.
+  const dernierEcart = [...evolutions]
+    .sort((a, b) => (b.exercice ?? 0) - (a.exercice ?? 0))
+    .filter((l, i, tous) => tous.findIndex((x) => x.store_id === l.store_id) === i);
+  const hausses = dernierEcart
+    .filter((l) => (l.ecart_pct ?? 0) > 0)
+    .sort((a, b) => (b.ecart_pct ?? 0) - (a.ecart_pct ?? 0))
+    .slice(0, 5);
+  const baisses = dernierEcart
+    .filter((l) => (l.ecart_pct ?? 0) < 0)
+    .sort((a, b) => (a.ecart_pct ?? 0) - (b.ecart_pct ?? 0))
+    .slice(0, 5);
 
   return (
     <main className="px-4 py-6">
@@ -144,6 +188,40 @@ export default function StatsPage() {
                   chiffre={formatPourcent(mois.couverture_pct)}
                 />
               ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Ce que l'historique du CA (00018) rend enfin possible : distinguer un
+            magasin qui progresse d'un magasin qui décroche. Avant, saisir un
+            exercice écrasait le précédent et l'écart était introuvable. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.stats.revenueTrendTitle}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-base leading-7 text-neutral-700">{t.stats.revenueTrendHelp}</p>
+            {evolutions.length === 0 ? (
+              <p className="text-base text-neutral-500">{t.stats.revenueTrendEmpty}</p>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  <h3 className="text-base font-semibold">{t.stats.revenueUp}</h3>
+                  {hausses.length === 0 ? (
+                    <p className="text-base text-neutral-500">{t.stats.empty}</p>
+                  ) : (
+                    hausses.map((l) => <LigneEvolution key={`${l.store_id}-${l.exercice}`} l={l} />)
+                  )}
+                </div>
+                <div className="space-y-1 border-t border-border pt-3">
+                  <h3 className="text-base font-semibold">{t.stats.revenueDown}</h3>
+                  {baisses.length === 0 ? (
+                    <p className="text-base text-neutral-500">{t.stats.empty}</p>
+                  ) : (
+                    baisses.map((l) => <LigneEvolution key={`${l.store_id}-${l.exercice}`} l={l} />)
+                  )}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

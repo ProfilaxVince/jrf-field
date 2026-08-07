@@ -637,6 +637,41 @@ export type Database = {
           },
         ]
       }
+      store_revenues: {
+        Row: {
+          amount_eur: number
+          created_at: string
+          id: string
+          store_id: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          amount_eur: number
+          created_at?: string
+          id?: string
+          store_id: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          amount_eur?: number
+          created_at?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_revenues_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           active: boolean
@@ -1164,6 +1199,21 @@ export type Database = {
           last_montage_at: string | null
           last_visit_at: string | null
           store_id: string | null
+        }
+        Relationships: []
+      }
+      v_store_revenue_evolution: {
+        Row: {
+          ecart_eur: number | null
+          ecart_pct: number | null
+          enseigne: Database["public"]["Enums"]["enseigne"] | null
+          exercice: number | null
+          exercice_precedent: number | null
+          magasin: string | null
+          montant: number | null
+          montant_precedent: number | null
+          store_id: string | null
+          ville: string | null
         }
         Relationships: []
       }

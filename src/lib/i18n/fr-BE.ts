@@ -60,6 +60,12 @@ export const t = {
     address: "Adresse",
     enseigne: "Enseigne",
     revenue: "CA JRF (€)",
+    revenueYear: "Exercice",
+    revenueYearHint: "L'année à laquelle ce chiffre d'affaires correspond.",
+    revenueHistory: "CA par exercice",
+    revenueNone: "Aucun exercice enregistré pour ce magasin.",
+    revenueLoadError: "Impossible de charger l'historique du CA.",
+    revenueRemoveError: "L'exercice n'a pas pu être retiré. Réessaie.",
     adherent: "Adhérent",
     flManager: "Responsable fruits & légumes",
     contactName: "Nom",
@@ -434,6 +440,13 @@ export const t = {
     byEnseigne: "Par enseigne",
     coverageTitle: "Part du parc vue chaque mois",
     coverageRow: (mois: string, vus: number, parc: number) => `${mois} : ${vus} magasins sur ${parc}`,
+    revenueTrendTitle: "CA : qui progresse, qui décroche",
+    revenueTrendHelp:
+      "Comparaison du dernier exercice enregistré au précédent, magasin par magasin. Les cinq plus fortes variations dans chaque sens.",
+    revenueTrendEmpty:
+      "Il faut au moins deux exercices enregistrés pour un même magasin. Saisis le CA d'une autre année dans la fiche du magasin.",
+    revenueUp: "En progression",
+    revenueDown: "En recul",
     effortTitle: "L'effort va-t-il au bon endroit ?",
     effortHelp:
       "On compare la part des visites reçues à la part du chiffre d'affaires. 1,0 = le temps passé suit le poids des magasins. En dessous, on visite trop peu là où ça compte.",

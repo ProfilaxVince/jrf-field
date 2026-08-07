@@ -6,6 +6,8 @@ import { t } from "@/lib/i18n/fr-BE";
 import { ListeGroupee } from "@/components/store/liste-groupee";
 import { parseDelimited } from "@/lib/csv";
 import { detailErreur, estConflitDeCle } from "@/lib/data/erreurs";
+import { enregistrerRevenu } from "@/lib/data/revenus";
+import { ExercicesCa } from "@/components/store/exercices-ca";
 import {
   ENSEIGNES,
   REGIONS,
@@ -168,10 +170,10 @@ function draftToInsert(d: Draft): StoreInsert {
     adherent_phone: d.adherent_phone.trim() || null,
     fl_manager_name: d.fl_manager_name.trim() || null,
     fl_manager_phone: d.fl_manager_phone.trim() || null,
-    jrf_revenue_eur: nombreOuNull(d.jrf_revenue_eur),
-    jrf_revenue_year:
-      nombreOuNull(d.jrf_revenue_year) ??
-      (d.jrf_revenue_eur.trim() ? new Date().getFullYear() : null),
+    // `jrf_revenue_eur` et `jrf_revenue_year` ne sont PAS écrits ici : depuis
+    // la migration 00018 ils sont dérivés de `store_revenues` par trigger.
+    // Les poser en direct ferait diverger le magasin de son propre historique
+    // jusqu'à la prochaine saisie de CA.
   };
 }
 
@@ -337,17 +339,33 @@ export default function AdminStoresPage() {
     if (!draft.name.trim() || !draft.city.trim()) return;
     setSaving(true);
     try {
-      if (editingId) {
-        const updated = await updateStore(editingId, draftToInsert(draft));
-        setStores((prev) => prev.map((s) => (s.id === editingId ? updated : s)));
-      } else {
-        const created = await createStore(draftToInsert(draft));
-        setStores((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      const ligne = editingId
+        ? await updateStore(editingId, draftToInsert(draft))
+        : await createStore(draftToInsert(draft));
+
+      const montant = nombreOuNull(draft.jrf_revenue_eur);
+      const exercice = nombreOuNull(draft.jrf_revenue_year) ?? new Date().getFullYear();
+      let apres = ligne;
+      if (montant !== null) {
+        await enregistrerRevenu(ligne.id, exercice, montant);
+        // On applique localement la même règle que le trigger — l'exercice le
+        // plus récent gagne — plutôt que de relire tout le parc pour deux
+        // champs.
+        if (ligne.jrf_revenue_year === null || exercice >= ligne.jrf_revenue_year) {
+          apres = { ...ligne, jrf_revenue_eur: montant, jrf_revenue_year: exercice };
+        }
       }
+
+      setStores((prev) =>
+        editingId
+          ? prev.map((s) => (s.id === editingId ? apres : s))
+          : [...prev, apres].sort((a, b) => a.name.localeCompare(b.name))
+      );
       setPanel(null);
       setEditingId(null);
-    } catch {
-      setError("Enregistrement impossible. Vérifie les champs et réessaie.");
+    } catch (e) {
+      const detail = detailErreur(e);
+      setError(`Enregistrement impossible.${detail ? ` (${detail})` : ""}`);
     } finally {
       setSaving(false);
     }
@@ -408,6 +426,17 @@ export default function AdminStoresPage() {
     setSaving(true);
     try {
       const inserted = await importStores(csvRows.map((r) => draftToInsert(r.data)));
+      // Le CA du fichier va dans l'historique, pas dans `stores` : même règle
+      // que la saisie à l'écran.
+      await Promise.all(
+        inserted.map((ligne, i) => {
+          const brut = csvRows[i]?.data;
+          const montant = brut ? nombreOuNull(brut.jrf_revenue_eur) : null;
+          if (montant === null) return null;
+          const exercice = nombreOuNull(brut!.jrf_revenue_year) ?? new Date().getFullYear();
+          return enregistrerRevenu(ligne.id, exercice, montant);
+        })
+      );
       setStores((prev) => [...prev, ...inserted].sort((a, b) => a.name.localeCompare(b.name)));
       setCsvRows(null);
       setPanel(null);
@@ -525,13 +554,36 @@ export default function AdminStoresPage() {
                     ))}
                   </select>
                 </div>
-                <input
-                  className="w-full rounded border border-border px-3 py-2 text-base"
-                  placeholder={t.stores.revenue}
-                  inputMode="numeric"
-                  value={draft.jrf_revenue_eur}
-                  onChange={(e) => setDraft({ ...draft, jrf_revenue_eur: e.target.value.replace(/\D/g, "") })}
-                />
+                {/* Le CA est saisi POUR UN EXERCICE. Depuis 00018 il ne remplace
+                    plus le précédent : il s'ajoute à l'historique du magasin. */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={t.stores.revenue}
+                    inputMode="numeric"
+                    value={draft.jrf_revenue_eur}
+                    onChange={(e) =>
+                      setDraft({ ...draft, jrf_revenue_eur: e.target.value.replace(/\D/g, "") })
+                    }
+                  />
+                  <input
+                    className="w-full rounded border border-border px-3 py-2 text-base"
+                    placeholder={`${t.stores.revenueYear} (${new Date().getFullYear()})`}
+                    inputMode="numeric"
+                    value={draft.jrf_revenue_year}
+                    onChange={(e) =>
+                      setDraft({ ...draft, jrf_revenue_year: e.target.value.replace(/\D/g, "").slice(0, 4) })
+                    }
+                  />
+                </div>
+                <p className="text-sm text-neutral-600">{t.stores.revenueYearHint}</p>
+
+                {editingId && (
+                  <div className="space-y-1">
+                    <h3 className="text-base font-semibold">{t.stores.revenueHistory}</h3>
+                    <ExercicesCa storeId={editingId} />
+                  </div>
+                )}
 
                 {/* Les deux contacts du magasin. Saisis ici par le responsable,
                     lus par les commerciaux sur le terrain — jamais modifiés
