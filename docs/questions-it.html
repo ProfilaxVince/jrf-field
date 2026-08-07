@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Reprise des passages commerciaux — questions à l'informatique</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.5; color: #000; margin: 0;
+  }
+  h1 { font-size: 17pt; margin: 0 0 2mm; letter-spacing: .04em; text-transform: uppercase; }
+  h2 {
+    font-size: 12pt; margin: 9mm 0 3mm; padding-bottom: 1.5mm;
+    border-bottom: 1.5pt solid #1b5e3f; color: #1b5e3f; break-after: avoid;
+  }
+  h2:first-of-type { margin-top: 7mm; }
+  .chapeau { font-size: 10pt; color: #333; margin: 0 0 5mm; }
+  .encadre {
+    border-left: 3pt solid #1b5e3f; background: #f4f7f5;
+    padding: 3mm 4mm; margin: 0 0 6mm;
+  }
+  .encadre p { margin: 0 0 1.5mm; }
+  .encadre p:last-child { margin-bottom: 0; }
+
+  .q { margin: 0 0 5mm; break-inside: avoid; }
+  .q .num {
+    display: inline-block; min-width: 9mm; font-weight: 700; color: #1b5e3f;
+  }
+  .q .titre { font-weight: 700; }
+  .q .pourquoi { margin: 1mm 0 0 9mm; color: #444; font-size: 9.5pt; }
+  .q .exemple { margin: 1mm 0 0 9mm; font-size: 9.5pt; }
+  .q .exemple b { font-weight: 600; }
+  .q .reponse {
+    margin: 2mm 0 0 9mm; border-bottom: .6pt dotted #666; height: 6mm;
+  }
+  .q .reponse span { font-size: 8.5pt; color: #777; }
+
+  .facultatif {
+    display: inline-block; margin-left: 2mm; padding: 0 1.5mm;
+    border: .6pt solid #8a9a92; border-radius: 2pt;
+    font-size: 8pt; color: #55655d; text-transform: uppercase; letter-spacing: .05em;
+    vertical-align: 2pt;
+  }
+  ul { margin: 1mm 0 0 9mm; padding-left: 4mm; font-size: 9.5pt; }
+  li { margin-bottom: .8mm; }
+  footer { margin-top: 8mm; font-size: 9pt; color: #555; border-top: .6pt solid #ccc; padding-top: 2mm; }
+</style>
+</head>
+<body>
+
+<h1>Reprise des passages commerciaux</h1>
+<p class="chapeau">
+  Questions à l'équipe informatique de Jacques Remy &amp; Fils —
+  document préparé pour Gérardo, responsable commercial.
+</p>
+
+<div class="encadre">
+  <p><b>De quoi s'agit-il ?</b> Les cinq commerciaux pointent aujourd'hui leurs passages
+  dans Odoo. Vous transmettez chaque jeudi un fichier des passages effectués.</p>
+  <p>Nous souhaitons <b>injecter ce même fichier</b> dans l'application de suivi des visites,
+  pour qu'elle reflète la réalité du terrain sans rien changer aux habitudes de l'équipe.</p>
+  <p><b>Ce que ça change pour vous : rien, ou presque.</b> Même fichier, même jour, même
+  cadence. Nous vous fournissons simplement un classeur modèle avec les colonnes attendues.
+  Les questions ci-dessous servent à le remplir correctement du premier coup.</p>
+</div>
+
+<h2>A. Le fichier hebdomadaire</h2>
+
+<div class="q">
+  <p><span class="num">A1</span><span class="titre">Comment votre système désigne-t-il un magasin&nbsp;?</span></p>
+  <p class="pourquoi">C'est le point le plus important. Nous devons rattacher chaque ligne au bon
+  magasin parmi 182. Un rapprochement fait sur le nom finit toujours par se tromper en silence.</p>
+  <p class="exemple">Exemples de réponse : <b>un code interne</b> («&nbsp;4821&nbsp;», «&nbsp;MAG-0142&nbsp;»),
+  <b>un identifiant Odoo</b> (res.partner id), <b>un numéro de client</b>, ou <b>rien d'autre que le nom</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A2</span><span class="titre">Comment désigne-t-il un commercial&nbsp;?</span></p>
+  <p class="pourquoi">Même problème, en plus simple : ils sont cinq. Nous avons besoin d'une valeur
+  stable, identique d'une semaine à l'autre.</p>
+  <p class="exemple">Exemples de réponse : <b>le prénom</b> («&nbsp;Gerardo&nbsp;»), <b>l'adresse e-mail
+  professionnelle</b>, <b>un matricule</b>, <b>un identifiant Odoo</b> (hr.employee id).</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A3</span><span class="titre">Chaque pointage a-t-il un identifiant unique
+  que vous pouvez nous transmettre&nbsp;?</span></p>
+  <p class="pourquoi">Si oui, renvoyer deux fois le même fichier — ou un fichier qui recouvre la semaine
+  précédente — ne créera jamais de doublon chez nous. Si non, nous nous débrouillons, mais deux
+  passages le même jour dans le même magasin deviennent indistinguables.</p>
+  <p class="exemple">Exemple de réponse : <b>oui, l'id de la ligne Odoo</b> — ou <b>non</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A4</span><span class="titre">Le pointage enregistre-t-il une heure d'arrivée
+  et une heure de départ&nbsp;?</span><span class="facultatif">bonus</span></p>
+  <p class="pourquoi">Ce n'est pas indispensable, mais si vous les avez, nous pouvons mesurer la
+  durée réelle des visites — une information que personne n'a aujourd'hui, et qui sert à calibrer
+  les tournées.</p>
+  <p class="exemple">Exemple de réponse : <b>oui, les deux</b> / <b>seulement l'arrivée</b> / <b>non, la date seule</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A5</span><span class="titre">Distinguez-vous plusieurs types de passage&nbsp;?</span><span class="facultatif">bonus</span></p>
+  <p class="pourquoi">De notre côté nous séparons la visite ordinaire, le montage de rayon, le dépannage
+  et l'urgence livraison. Si votre système fait une distinction, nous la reprenons ; sinon tout sera
+  enregistré comme une visite ordinaire.</p>
+  <p class="exemple">Exemple de réponse : <b>oui : visite / intervention / livraison</b> — ou <b>non, un seul type</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A6</span><span class="titre">Quelle période le fichier du jeudi couvre-t-il&nbsp;?</span></p>
+  <p class="pourquoi">Pour savoir si les mêmes lignes reviennent d'une semaine à l'autre, et si des
+  corrections de semaines passées peuvent apparaître.</p>
+  <p class="exemple">Exemples de réponse : <b>la semaine écoulée uniquement</b> /
+  <b>les 15 derniers jours</b> / <b>tout le mois en cours, corrections comprises</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A7</span><span class="titre">Le fichier contient-il uniquement les passages
+  RÉELLEMENT effectués&nbsp;?</span></p>
+  <p class="pourquoi">Si des visites simplement prévues s'y trouvent aussi, nous devons pouvoir les
+  distinguer — sinon l'application affichera comme faites des visites qui n'ont pas eu lieu.</p>
+  <p class="exemple">Exemples de réponse : <b>uniquement les passages effectués</b> /
+  <b>les deux, avec une colonne de statut</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">A8</span><span class="titre">Sous quel format pouvez-vous nous transmettre
+  le fichier&nbsp;?</span></p>
+  <p class="pourquoi">Nous acceptons le classeur Excel tel quel. Le CSV nous va aussi — c'est
+  «&nbsp;Enregistrer sous → CSV&nbsp;» dans Excel.</p>
+  <p class="exemple">Exemples de réponse : <b>.xlsx</b> / <b>.csv</b> / <b>les deux, au choix</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<h2>B. Un accès direct à Odoo — si c'est envisageable</h2>
+
+<div class="encadre">
+  <p>Cette section est <b>facultative</b>. Le fichier hebdomadaire suffit pour démarrer.</p>
+  <p>Mais si un accès en lecture était possible, l'application se mettrait à jour toute seule,
+  chaque nuit, et plus personne n'aurait à préparer ni envoyer de fichier.</p>
+</div>
+
+<div class="q">
+  <p><span class="num">B1</span><span class="titre">Quelle version d'Odoo, et hébergée où&nbsp;?</span></p>
+  <p class="exemple">Exemples de réponse : <b>Odoo 17, Odoo Online (SaaS)</b> / <b>Odoo 16 sur odoo.sh</b> /
+  <b>Odoo 15 sur un serveur interne</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">B2</span><span class="titre">Quel objet Odoo enregistre le pointage&nbsp;?</span></p>
+  <p class="pourquoi">C'est la question à laquelle nous ne pouvons pas répondre à votre place. Le plus
+  simple : ouvrir un pointage, activer le mode développeur, et nous donner le <b>nom technique du
+  modèle</b> ainsi que celui des champs qui portent le magasin, le commercial et la date.</p>
+  <p class="exemple">Exemples de réponse : <b>project.task</b> (Field Service) / <b>calendar.event</b> /
+  <b>hr.attendance</b> / <b>un modèle développé sur mesure</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">B3</span><span class="titre">L'instance est-elle joignable depuis l'extérieur&nbsp;?</span></p>
+  <p class="pourquoi">Si elle est derrière le pare-feu de l'entreprise, il faudrait une ouverture — et
+  cela devient une décision d'infrastructure, pas seulement technique.</p>
+  <p class="exemple">Exemples de réponse : <b>oui, adresse publique</b> / <b>non, réseau interne uniquement</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<div class="q">
+  <p><span class="num">B4</span><span class="titre">Pouvez-vous créer un utilisateur d'accès
+  en LECTURE SEULE, limité à cet objet&nbsp;?</span></p>
+  <p class="pourquoi">Nous ne demandons ni compte administrateur, ni accès en écriture. Uniquement la
+  lecture des pointages, révocable par vous à tout moment.</p>
+  <p class="exemple">Exemples de réponse : <b>oui, avec une clé d'API</b> / <b>oui mais soumis à validation</b> /
+  <b>non</b>.</p>
+  <p class="reponse"><span>Réponse :</span></p>
+</div>
+
+<h2>C. Ce dont nous n'avons pas besoin</h2>
+
+<div class="encadre">
+  <p>Pour lever d'emblée les inquiétudes légitimes :</p>
+</div>
+<ul>
+  <li><b>Aucun accès administrateur</b>, et aucun accès en écriture à Odoo.</li>
+  <li><b>Aucune donnée financière</b> : ni prix, ni commandes, ni factures, ni marges.</li>
+  <li><b>Aucune donnée personnelle</b> au-delà du nom du commercial concerné par le passage —
+    pas de salaire, pas d'horaire de travail, pas de géolocalisation.</li>
+  <li><b>Aucune modification de vos processus</b> : les commerciaux continuent de pointer dans Odoo
+    exactement comme aujourd'hui.</li>
+</ul>
+
+<footer>
+  Le classeur modèle <b>modele-passages.xlsx</b> accompagne ce document. Sa feuille
+  «&nbsp;Mode d'emploi&nbsp;» détaille chaque colonne, et sa feuille «&nbsp;Magasins&nbsp;» contient
+  les 182 références des points de vente, prêtes pour un RECHERCHEV depuis votre propre référentiel.
+</footer>
+
+</body>
+</html>
