@@ -4,7 +4,7 @@
  */
 import { format, addDays, startOfWeek, endOfWeek, parseISO, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export const TZ = "Europe/Brussels";
 
@@ -94,3 +94,15 @@ export function estAujourdhui(value: string | Date): boolean {
 }
 
 export { addDays };
+
+/**
+ * Un jour et une heure LOCALE belge deviennent un instant UTC.
+ *
+ * Passer par `fromZonedTime` et non par un décalage écrit en dur : la Belgique
+ * est à UTC+2 l'été et UTC+1 l'hiver. Un « +02:00 » codé en dur décale de
+ * soixante minutes la moitié de l'année — une erreur invisible qui fausserait
+ * les durées de visite reconstituées depuis le fichier de l'informatique.
+ */
+export function instantLocal(jour: string, heure: string): string {
+  return fromZonedTime(`${jour}T${heure}:00`, TZ).toISOString();
+}

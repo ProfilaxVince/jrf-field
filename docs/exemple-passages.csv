@@ -1,0 +1,8 @@
+﻿reference_jrf;code_magasin;nom_magasin;commercial;date_visite;heure_arrivee;heure_depart;id_ligne
+ITM-001;ODOO-4821;Intermarché Anderlecht;Gerardo;03/08/2026;09:15;10:05;1001
+ITM-002;;Intermarché Ans;Michou;03/08/2026;11:00;11:45;1002
+ITM-003;;Intermarché Braine-Le-Comte;Gerardo;04/08/2026;;;1003
+ITM-999;;Magasin qui n'existe pas;Gerardo;04/08/2026;;;1004
+ITM-004;;Nom totalement different;Michou;05/08/2026;;;1005
+ITM-001;;Intermarché Anderlecht;Personne Inconnue;05/08/2026;;;1006
+ITM-002;;Intermarché Ans;Gerardo;31/02/2026;;;1007

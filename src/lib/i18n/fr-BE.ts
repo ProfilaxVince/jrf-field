@@ -170,6 +170,7 @@ export const t = {
     settings: "Réglages",
     incidents: "Signalements",
     reports: "Comptes rendus",
+    passages: "Passages",
     home: "Accueil",
     openMenu: "Ouvrir le menu",
     closeMenu: "Fermer le menu",
@@ -530,6 +531,48 @@ export const t = {
     relaisFrom: (magasin: string, date: string) => `${magasin} — ${date}`,
     loadError: "Impossible de charger les signalements. Vérifie ta connexion.",
     saveError: "Le changement n'a pas pu être enregistré. Réessaie.",
+  },
+  passages: {
+    title: "Passages du terrain",
+    subtitle:
+      "Le fichier transmis chaque jeudi par l'informatique. Rien n'est enregistré avant que tu aies vu l'aperçu.",
+    pick: "Choisir le fichier",
+    pickHelp:
+      "Un fichier CSV, tel qu'Excel l'enregistre avec « Enregistrer sous → CSV ». Les colonnes attendues sont décrites dans le classeur modèle remis à l'informatique.",
+    previewTitle: (n: number) => `Aperçu — ${n} ligne${n > 1 ? "s" : ""} lue${n > 1 ? "s" : ""}`,
+    countCreation: (n: number) => `${n} passage${n > 1 ? "s" : ""} à ajouter (aucune visite n'était prévue ce jour-là)`,
+    countConfirmation: (n: number) => `${n} visite${n > 1 ? "s" : ""} prévue${n > 1 ? "s" : ""} à marquer comme faite${n > 1 ? "s" : ""}`,
+    countAlready: (n: number) => `${n} ligne${n > 1 ? "s" : ""} déjà importée${n > 1 ? "s" : ""} — rien à refaire`,
+    countRefus: (n: number) =>
+      n === 0 ? "Aucune ligne refusée" : `${n} ligne${n > 1 ? "s" : ""} refusée${n > 1 ? "s" : ""}`,
+    refusTitle: "Lignes refusées",
+    refusHelp:
+      "Elles ne seront pas enregistrées. Corrige le fichier et recommence : les lignes déjà passées ne seront pas dupliquées.",
+    missingTitle: (n: number) => `${n} visite${n > 1 ? "s" : ""} prévue${n > 1 ? "s" : ""} sans passage dans le fichier`,
+    missingHelp:
+      "Elles n'ont visiblement pas eu lieu. Elles restent au planning : c'est à toi de décider de les retirer ou de les reporter.",
+    line: (n: number) => `Ligne ${n} —`,
+    apply: (n: number) => `Enregistrer ${n} passage${n > 1 ? "s" : ""}`,
+    done: "Import terminé.",
+    doneCreated: (n: number) => `${n} passage${n > 1 ? "s" : ""} ajouté${n > 1 ? "s" : ""}`,
+    doneConfirmed: (n: number) => `${n} visite${n > 1 ? "s" : ""} marquée${n > 1 ? "s" : ""} comme faite${n > 1 ? "s" : ""}`,
+    doneIgnored: (n: number) => `${n} ligne${n > 1 ? "s" : ""} déjà connue${n > 1 ? "s" : ""}, ignorée${n > 1 ? "s" : ""}`,
+    analyseError: "Le fichier n'a pas pu être lu. Vérifie qu'il s'agit bien d'un CSV.",
+    applyError: "L'enregistrement a échoué. Rien n'a été perdu : recommence.",
+    verdicts: {
+      creation: "À ajouter",
+      confirmation: "À confirmer",
+      deja_importee: "Déjà là",
+      refus: "Refusée",
+    } as Record<string, string>,
+    motifs: {
+      magasinAbsent: "aucune référence de magasin sur la ligne",
+      magasinInconnu: "cette référence de magasin n'existe pas chez nous",
+      nomDiscordant: "le nom du magasin ne correspond pas à la référence",
+      commercialAbsent: "aucun commercial indiqué",
+      commercialInconnu: "ce commercial n'existe pas dans l'équipe",
+      dateIllisible: "date illisible ou impossible",
+    } as Record<string, string>,
   },
   capacite: {
     title: "Ce que l'équipe peut absorber",

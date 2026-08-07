@@ -2,19 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  CalendarDays,
-  LogOut,
-  Menu,
-  Route,
-  Settings,
-  Siren,
-  Store,
-  Camera,
-  Target,
-  X,
-} from "lucide-react";
+import { BarChart3, CalendarDays, Camera, FileUp, LogOut, Menu, Route, Settings, Siren, Store, Target, X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/session";
@@ -27,6 +15,7 @@ const LIENS = [
   { href: "/stores", label: t.nav.stores, icone: Store },
   { href: "/incidents", label: t.nav.incidents, icone: Siren },
   { href: "/comptes-rendus", label: t.nav.reports, icone: Camera },
+  { href: "/passages", label: t.nav.passages, icone: FileUp },
   { href: "/stats", label: t.nav.stats, icone: BarChart3 },
   { href: "/settings", label: t.nav.settings, icone: Settings },
 ];

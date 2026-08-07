@@ -233,6 +233,33 @@ export type Database = {
           },
         ]
       }
+      external_refs: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["external_kind"]
+          source: string
+          target_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["external_kind"]
+          source: string
+          target_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["external_kind"]
+          source?: string
+          target_id?: string
+        }
+        Relationships: []
+      }
       incidents: {
         Row: {
           active: boolean
@@ -768,6 +795,38 @@ export type Database = {
         }
         Relationships: []
       }
+      visit_imports: {
+        Row: {
+          cle: string
+          id: string
+          importe_le: string
+          source: string
+          visit_id: string
+        }
+        Insert: {
+          cle: string
+          id?: string
+          importe_le?: string
+          source: string
+          visit_id: string
+        }
+        Update: {
+          cle?: string
+          id?: string
+          importe_le?: string
+          source?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_imports_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visit_photos: {
         Row: {
           active: boolean
@@ -845,6 +904,7 @@ export type Database = {
           report_submitted_at: string | null
           routing_id: string | null
           scheduled_date: string
+          source: string | null
           status: Database["public"]["Enums"]["visit_status"]
           store_id: string
           updated_at: string
@@ -870,6 +930,7 @@ export type Database = {
           report_submitted_at?: string | null
           routing_id?: string | null
           scheduled_date: string
+          source?: string | null
           status?: Database["public"]["Enums"]["visit_status"]
           store_id: string
           updated_at?: string
@@ -895,6 +956,7 @@ export type Database = {
           report_submitted_at?: string | null
           routing_id?: string | null
           scheduled_date?: string
+          source?: string | null
           status?: Database["public"]["Enums"]["visit_status"]
           store_id?: string
           updated_at?: string
@@ -1368,6 +1430,7 @@ export type Database = {
     Enums: {
       absence_type: "conges" | "maladie" | "formation" | "autre"
       contact_lang: "fr" | "nl"
+      external_kind: "store" | "user"
       enseigne:
         | "intermarche"
         | "ad_delhaize"
