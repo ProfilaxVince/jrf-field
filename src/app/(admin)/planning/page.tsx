@@ -141,50 +141,63 @@ export default function PlanningPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label={t.planning.previousWeek}
-              onClick={() => setReference((d) => addDays(d, -7))}
-            >
-              <ChevronLeft aria-hidden />
-            </Button>
-            <Button variant="outline" onClick={() => setReference(new Date())}>
-              {t.planning.today}
-            </Button>
-            <Button
-              variant={weekEnd || planning.weekEndOccupe ? "default" : "outline"}
-              aria-pressed={weekEnd || planning.weekEndOccupe}
-              disabled={planning.weekEndOccupe}
-              title={planning.weekEndOccupe ? t.planning.weekendForced : undefined}
-              onClick={() => setWeekEnd((v) => !v)}
-            >
-              {t.planning.weekend}
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/planning/feuilles">
-                <Printer aria-hidden />
-                {t.planning.sheetOpen}
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label={t.planning.refresh}
-              title={t.planning.refresh}
-              onClick={() => planning.recharger()}
-            >
-              <RefreshCw aria-hidden />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label={t.planning.nextWeek}
-              onClick={() => setReference((d) => addDays(d, 7))}
-            >
-              <ChevronRight aria-hidden />
-            </Button>
+          {/* Deux groupes, pas six boutons en vrac. Sur téléphone ils font
+              deux rangées ; les flèches de semaine restent COLLÉES à « Cette
+              semaine », sinon le repli les séparait de ce qu'elles pilotent.
+              Sur grand écran, tout revient sur une seule ligne. */}
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t.planning.previousWeek}
+                onClick={() => setReference((d) => addDays(d, -7))}
+              >
+                <ChevronLeft aria-hidden />
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 sm:flex-none"
+                onClick={() => setReference(new Date())}
+              >
+                {t.planning.today}
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t.planning.nextWeek}
+                onClick={() => setReference((d) => addDays(d, 7))}
+              >
+                <ChevronRight aria-hidden />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t.planning.refresh}
+                title={t.planning.refresh}
+                onClick={() => planning.recharger()}
+              >
+                <RefreshCw aria-hidden />
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant={weekEnd || planning.weekEndOccupe ? "default" : "outline"}
+                aria-pressed={weekEnd || planning.weekEndOccupe}
+                disabled={planning.weekEndOccupe}
+                title={planning.weekEndOccupe ? t.planning.weekendForced : undefined}
+                onClick={() => setWeekEnd((v) => !v)}
+              >
+                {t.planning.weekend}
+              </Button>
+              <Button variant="outline" className="flex-1 sm:flex-none" asChild>
+                <Link href="/planning/feuilles">
+                  <Printer aria-hidden />
+                  {t.planning.sheetOpen}
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 

@@ -47,7 +47,7 @@ export function SemaineGrille({
             le dimanche l'un sur l'autre. */}
         <div
           className="grid gap-2"
-          style={{ gridTemplateColumns: `9rem repeat(${jours.length}, 1fr)` }}
+          style={{ gridTemplateColumns: `9rem repeat(${jours.length}, minmax(0, 1fr))` }}
         >
           <div />
           {jours.map((jour) => (

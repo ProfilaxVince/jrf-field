@@ -51,8 +51,15 @@ export function SemaineJour({
 
   return (
     <div className="space-y-4">
-      <div role="group" aria-label={t.planning.dayPicker} style={{ gridTemplateColumns: `repeat(${jours.length}, 1fr)` }}
-        className="grid gap-1">
+      {/* `auto-fit` + `minmax` : les onglets se replient sur deux lignes quand
+          sept ne tiennent pas dans la largeur. Un `repeat(7, 1fr)` poussait la
+          page en défilement latéral — le geste le moins fiable au pouce, et
+          celui qui fait perdre la colonne qu'on regardait. */}
+      <div
+        role="group"
+        aria-label={t.planning.dayPicker}
+        className="grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(3.25rem,1fr))]"
+      >
         {jours.map((j) => {
           const arrets = users.reduce(
             (n, u) => n + (visitesParCellule.get(cellKey(u.id, j))?.length ?? 0),
