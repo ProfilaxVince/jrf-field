@@ -160,6 +160,12 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
 - **`store_revenues` est la source du CA**, `stores.jrf_revenue_eur` n'en est que le
   reflet de l'exercice le plus récent, entretenu par trigger. Ne jamais écrire ces deux
   colonnes en direct depuis l'application.
+  ⚠️ `00018` n'était en réalité passée qu'à moitié : `store_revenues` n'existait pas,
+  découvert le 08/08/2026 par l'écran Chiffres (`PGRST205`). Rejouée en entier, elle a
+  repris **185 exercices sur 185 magasins**. Le bloc « qui progresse, qui décroche »
+  reste vide tant qu'un magasin n'a qu'UN exercice — l'écran filtre `ecart_pct not null`.
+  Leçon : un script long doit se vérifier lui-même à la fin, le SQL Editor n'exécutant
+  que le texte SÉLECTIONNÉ.
 - **L'import des passages n'écrit rien avant l'aperçu.** Quatre verdicts par ligne, et
   les visites prévues absentes du fichier sont listées mais JAMAIS annulées d'office.
 - **L'écran Passages lit le `.xlsx` tel quel** (`src/lib/xlsx.ts`, sans dépendance), et
