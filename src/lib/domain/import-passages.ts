@@ -74,7 +74,10 @@ export function separerLibelleMagasin(valeur: string): { reference: string; nom:
  * daté au mauvais jour est pire qu'un passage refusé.
  */
 export function lireDate(valeur: string): string | null {
-  const v = valeur.trim();
+  // Un préfixe de jour de semaine est toléré : selon le format de la cellule,
+  // Excel peut écrire « jeudi 06/08/2026 » dans un CSV. On ne fait pas
+  // dépendre l'import d'un réglage d'affichage.
+  const v = valeur.trim().replace(/^[^\d]+/, "").trim();
   if (!v) return null;
 
   const iso = v.match(/^(\d{4})-(\d{2})-(\d{2})/);

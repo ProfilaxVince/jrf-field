@@ -92,23 +92,34 @@ for r, nom in enumerate(d["commerciaux"], start=2):
 eq.column_dimensions["A"].width = 24
 dernier_commercial = len(d["commerciaux"]) + 1
 
-# ---- Feuille « Semaine » : les 7 dates, calculées depuis UNE cellule -------
-sm = wb.create_sheet("Semaine")
-sm["A1"] = "Lundi de la semaine concernée :"
+# ---- Feuille « Période » : les dates offertes à la saisie ------------------
+# Ancrée sur la DATE D'ENVOI, pas sur un lundi. Le cycle réel est jeudi →
+# jeudi : il chevauche deux semaines civiles, et une liste lundi→dimanche
+# laisserait la moitié des jours hors du choix. On remonte donc 21 jours en
+# arrière depuis l'envoi — les 8 du cycle, plus la marge qu'il faut pour
+# corriger une semaine passée.
+JOURS_OFFERTS = 21
+sm = wb.create_sheet("Periode")
+sm["A1"] = "Date d'envoi (le jeudi) :"
 sm["A1"].font = Font(bold=True)
 sm["B1"] = None
 sm["B1"].fill = CLAIR
 sm["B1"].number_format = "DD/MM/YYYY"
-sm["A3"] = "Les 7 jours se calculent tout seuls. Ils alimentent la liste des dates."
-c = sm.cell(row=5, column=1, value="jour"); c.fill = VERT; c.font = BLANC
-c = sm.cell(row=5, column=2, value="date"); c.fill = VERT; c.font = BLANC
-JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
-for i, jour in enumerate(JOURS):
-    sm.cell(row=6 + i, column=1, value=jour)
-    cel = sm.cell(row=6 + i, column=2, value=("=$B$1" if i == 0 else f"=$B$1+{i}"))
-    cel.number_format = "DD/MM/YYYY"
+sm["A3"] = "Les dates ci-dessous se calculent toutes seules et alimentent la liste."
+sm["A4"] = "La plus récente en premier : les jours de la semaine écoulée sont en haut."
+c = sm.cell(row=6, column=1, value="jour"); c.fill = VERT; c.font = BLANC
+c = sm.cell(row=6, column=2, value="date"); c.fill = VERT; c.font = BLANC
+for i in range(JOURS_OFFERTS):
+    formule = "=$B$1" if i == 0 else f"=$B$1-{i}"
+    # Même valeur, deux formats : le nom du jour pour l'humain, la date pour la
+    # liste. Un format, pas une formule : TEXT() change de langue avec Excel.
+    jour = sm.cell(row=7 + i, column=1, value=formule)
+    jour.number_format = "dddd"
+    date = sm.cell(row=7 + i, column=2, value=formule)
+    date.number_format = "DD/MM/YYYY"
 sm.column_dimensions["A"].width = 16
 sm.column_dimensions["B"].width = 16
+derniere_date = 6 + JOURS_OFFERTS
 
 # ---- Feuille « Passages » : celle qu'on remplit ----------------------------
 ws = wb["Sheet"]
@@ -117,7 +128,7 @@ wb.move_sheet("Passages", offset=-3)
 
 ws["A1"] = "Une ligne par passage. Choisis dans les listes — rien à taper."
 ws["A1"].font = Font(bold=True, size=12)
-ws["A2"] = "Commence par indiquer le lundi de la semaine dans la feuille « Semaine »."
+ws["A2"] = "Commence par indiquer la date d'envoi dans la feuille « Periode »."
 
 COLONNES = [
     ("date_visite",   True,  22),
@@ -135,9 +146,11 @@ ws.freeze_panes = "A5"
 debut, fin = 5, 4 + LIGNES_A_REMPLIR
 
 # Les trois listes déroulantes.
-v_date = DataValidation(type="list", formula1="=Semaine!$B$6:$B$12", allow_blank=True)
-v_date.error = "Choisis une date dans la liste. Renseigne d'abord le lundi dans la feuille Semaine."
-v_date.errorTitle = "Date hors semaine"
+v_date = DataValidation(
+    type="list", formula1=f"=Periode!$B$7:$B\${derniere_date}", allow_blank=True
+)
+v_date.error = "Choisis une date dans la liste. Renseigne d'abord la date d'envoi dans la feuille Periode."
+v_date.errorTitle = "Date hors periode"
 ws.add_data_validation(v_date)
 v_date.add(f"A{debut}:A{fin}")
 
@@ -168,11 +181,13 @@ md = wb.create_sheet("Mode d'emploi")
 md["A1"] = "Comment remplir ce classeur"
 md["A1"].font = Font(bold=True, size=14)
 etapes = [
-    "1. Feuille « Semaine » : inscris le LUNDI de la semaine concernée dans la case bleutée.",
-    "   Les sept dates se calculent toutes seules et alimentent la liste déroulante des dates.",
+    "1. Feuille « Periode » : inscris la DATE D'ENVOI (le jeudi) dans la case bleutée.",
+    "   Les 21 jours qui la précèdent se calculent tout seuls et alimentent la liste des dates.",
+    "   Trois semaines de recul : le cycle jeudi → jeudi est couvert, et il reste de la marge",
+    "   pour corriger un passage d'une semaine déjà transmise.",
     "",
     "2. Feuille « Passages » : une ligne par passage effectué.",
-    "   · date_visite  → choisis dans la liste (les 7 jours de la semaine)",
+    "   · date_visite  → choisis dans la liste (les 21 derniers jours)",
     "   · magasin      → choisis dans la liste (les 182 points de vente)",
     "   · commercial   → choisis dans la liste",
     "   · heures       → facultatives. Si tu les as, elles nous donnent la durée réelle des visites.",
@@ -183,7 +198,7 @@ etapes = [
     "4. Enregistre en CSV avant de nous l'envoyer :",
     "   Fichier → Enregistrer sous → type « CSV (séparateur point-virgule) ».",
     "",
-    "Le classeur peut être réutilisé chaque semaine : il suffit de changer le lundi",
+    "Le classeur se réutilise chaque semaine : il suffit de changer la date d'envoi",
     "et d'effacer les lignes précédentes.",
 ]
 for i, ligne in enumerate(etapes, start=3):
@@ -203,7 +218,7 @@ const n = execFileSync(
 
 console.log(`\n${SORTIE} écrit`);
 console.log(`  « Passages »    : 3 listes déroulantes, 120 lignes prêtes`);
-console.log(`  « Semaine »     : les 7 dates calculées depuis le lundi`);
+console.log(`  « Periode »     : 21 dates calculées depuis la date d'envoi`);
 console.log(`  « Magasins »    : ${n} références`);
 console.log(`  « Equipe »      : ${COMMERCIAUX.length} commerciaux`);
 console.log(`  « Mode d'emploi »\n`);
