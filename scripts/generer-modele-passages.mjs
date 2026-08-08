@@ -98,13 +98,32 @@ dernier_commercial = len(d["commerciaux"]) + 1
 # laisserait la moitié des jours hors du choix. On remonte donc 21 jours en
 # arrière depuis l'envoi — les 8 du cycle, plus la marge qu'il faut pour
 # corriger une semaine passée.
+#
+# ⚠️ La date d'ancrage ne se TAPE PLUS : elle vaut =AUJOURDHUI().
+# Vincent, 08/08/2026 : il avait saisi le jeudi et la feuille affichait lundi.
+# Ce n'était pas un défaut d'affichage — la cellule contenait réellement un
+# lundi. Saisir une date à la main sur un téléphone dépend de la langue du
+# système, de l'ordre jour/mois et du clavier : ça se trompe, et RIEN ne le
+# disait. Une date calculée ne se trompe pas, et l'IT remplit le jour où elle
+# envoie. La cellule reste modifiable pour le cas où elle remplit en retard,
+# mais elle est alors contrôlée juste à côté.
 JOURS_OFFERTS = 21
 sm = wb.create_sheet("Periode")
-sm["A1"] = "Date d'envoi (le jeudi) :"
+sm["A1"] = "Date de référence :"
 sm["A1"].font = Font(bold=True)
-sm["B1"] = None
+sm["B1"] = "=TODAY()"
 sm["B1"].fill = CLAIR
 sm["B1"].number_format = "DD/MM/YYYY"
+# Le jour en toutes lettres, par FORMAT et non par TEXT() : la langue des
+# formules Excel change avec la version installée, un format ne change pas.
+sm["C1"] = "=\$B\$1"
+sm["C1"].number_format = "dddd"
+sm["C1"].font = Font(bold=True)
+# Le garde-fou. Formulé sans apostrophe : la chaîne traverse un littéral
+# JavaScript puis une source Python avant d'arriver dans Excel.
+sm["D1"] = '=IF(WEEKDAY(\$B\$1,2)=4,"OK — bien un jeudi","⚠ PAS un jeudi — normal si tu remplis un autre jour")'
+sm["D1"].font = Font(bold=True)
+sm["A2"] = "Elle se met à jour toute seule. Ne la modifie que si tu remplis en retard."
 sm["A3"] = "Les dates ci-dessous se calculent toutes seules et alimentent la liste."
 sm["A4"] = "La plus récente en premier : les jours de la semaine écoulée sont en haut."
 c = sm.cell(row=6, column=1, value="jour"); c.fill = VERT; c.font = BLANC
@@ -128,7 +147,15 @@ wb.move_sheet("Passages", offset=-3)
 
 ws["A1"] = "Une ligne par passage. Choisis dans les listes — rien à taper."
 ws["A1"].font = Font(bold=True, size=12)
-ws["A2"] = "Commence par indiquer la date d'envoi dans la feuille « Periode »."
+# La période couverte, rappelée ICI : personne n'ira la vérifier sur une autre
+# feuille. Les bornes sont calculées, donc elles ne peuvent pas mentir.
+# ⚠️ Le dollar est échappé : ce script Python vit dans un gabarit JavaScript.
+ws["A2"] = "Dates proposées, de :"
+ws["B2"] = f"=MIN(Periode!\$B\$7:\$B\${derniere_date})"
+ws["B2"].number_format = "DD/MM/YYYY"
+ws["C2"] = f"=MAX(Periode!\$B\$7:\$B\${derniere_date})"
+ws["C2"].number_format = "DD/MM/YYYY"
+ws["D2"] = "=Periode!\$D\$1"
 
 COLONNES = [
     ("date_visite",   True,  22),
@@ -149,7 +176,7 @@ debut, fin = 5, 4 + LIGNES_A_REMPLIR
 v_date = DataValidation(
     type="list", formula1=f"=Periode!$B$7:$B\${derniere_date}", allow_blank=True
 )
-v_date.error = "Choisis une date dans la liste. Renseigne d'abord la date d'envoi dans la feuille Periode."
+v_date.error = "Choisis une date dans la liste deroulante. Les dates proposees sont rappelees en haut de cette feuille."
 v_date.errorTitle = "Date hors periode"
 ws.add_data_validation(v_date)
 v_date.add(f"A{debut}:A{fin}")
@@ -181,10 +208,13 @@ md = wb.create_sheet("Mode d'emploi")
 md["A1"] = "Comment remplir ce classeur"
 md["A1"].font = Font(bold=True, size=14)
 etapes = [
-    "1. Feuille « Periode » : inscris la DATE D'ENVOI (le jeudi) dans la case bleutée.",
-    "   Les 21 jours qui la précèdent se calculent tout seuls et alimentent la liste des dates.",
+    "1. Il n'y a AUCUNE date à taper. La feuille « Periode » se cale toute seule sur le jour",
+    "   où tu ouvres le classeur, et propose les 21 jours qui précèdent.",
     "   Trois semaines de recul : le cycle jeudi → jeudi est couvert, et il reste de la marge",
     "   pour corriger un passage d'une semaine déjà transmise.",
+    "   La période proposée est rappelée en haut de la feuille « Passages ».",
+    "   (Si tu remplis longtemps après coup, tu peux forcer la date de référence en B1",
+    "   de la feuille « Periode » — le jour de la semaine s'affiche à côté pour te contrôler.)",
     "",
     "2. Feuille « Passages » : une ligne par passage effectué.",
     "   · date_visite  → choisis dans la liste (les 21 derniers jours)",
@@ -219,7 +249,7 @@ const n = execFileSync(
 
 console.log(`\n${SORTIE} écrit`);
 console.log(`  « Passages »    : 3 listes déroulantes, 120 lignes prêtes`);
-console.log(`  « Periode »     : 21 dates calculées depuis la date d'envoi`);
+console.log(`  « Periode »     : 21 dates calculées depuis =AUJOURDHUI(), rien à taper`);
 console.log(`  « Magasins »    : ${n} références`);
 console.log(`  « Equipe »      : ${COMMERCIAUX.length} commerciaux`);
 console.log(`  « Mode d'emploi »\n`);
