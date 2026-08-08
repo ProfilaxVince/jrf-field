@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { t } from "@/lib/i18n/fr-BE";
 import { detailErreur } from "@/lib/data/erreurs";
+import { natureDuFichier } from "@/lib/xlsx";
+import { texteDe } from "@/lib/csv";
 import {
   analyserClasseur,
   analyserFichier,
@@ -39,6 +41,11 @@ export default function ImportPassagesPage() {
    * Le classeur est lu tel quel, sans conversion préalable : l'informatique
    * enregistre normalement et envoie. Le CSV reste accepté — c'est le format
    * qu'elle utilise aujourd'hui, et rien n'oblige à le lui retirer d'un coup.
+   *
+   * Le format est reconnu au CONTENU, jamais à l'extension. Un fichier arrive
+   * renommé, sans extension, ou avec la mauvaise ; et sur téléphone, ce que
+   * rend le sélecteur de fichiers n'est pas toujours ce qu'on croit avoir
+   * choisi. Le nom du fichier est rappelé dans l'erreur pour lever ce doute.
    */
   async function lireFichier(e: React.ChangeEvent<HTMLInputElement>) {
     const fichier = e.target.files?.[0];
@@ -48,14 +55,15 @@ export default function ImportPassagesPage() {
     setErreur(null);
     setEnCours(true);
     try {
-      const classeur = /\.xlsx?$/i.test(fichier.name);
+      const buffer = await fichier.arrayBuffer();
       setAnalyse(
-        classeur
-          ? await analyserClasseur(await fichier.arrayBuffer())
-          : await analyserFichier(await fichier.text())
+        natureDuFichier(buffer) === "classeur"
+          ? await analyserClasseur(buffer)
+          : await analyserFichier(texteDe(buffer))
       );
     } catch (err) {
-      setErreur(detailErreur(err) || t.passages.analyseError);
+      const detail = detailErreur(err) || t.passages.analyseError;
+      setErreur(t.passages.erreurFichier(fichier.name, detail));
     } finally {
       setEnCours(false);
     }

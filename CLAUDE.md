@@ -117,10 +117,11 @@ Ne jamais élargir le périmètre sans demander.
 
 - **Projet Supabase** : `jrf-field` (ref `qvjknxswntewkswspmgx`, org `zvlvfwkxwddlplmtwnjk`),
   région Frankfurt.
-- **Migrations** : base à jour jusqu'à **`00019_import_passages`**.
-  ⚠️ **`00020_visite_importee_compte` reste à passer** — sans elle, un passage
-  importé ne remet PAS la dette à zéro et le magasin reste en tête des priorités
-  alors que le commercial y est passé.
+- **Migrations** : base à jour jusqu'à **`00020_visite_importee_compte`**
+  (passée par Vincent le 08/08/2026). Un passage importé remet donc la dette à
+  zéro : `visite_aboutie()` accepte « faite + provenance externe » à défaut de
+  compte rendu, et `visite_instant()` retombe sur le jour de la visite à midi
+  quand `checkout_at` est vide.
 - **Types générés** : `src/lib/data/database.types.ts`.
 - **Déploiement** : Netlify, `jrfcom.netlify.app`, branche **`main`**.
   ⚠️ Netlify ne déploie que `main` : tout travail resté sur une branche de session

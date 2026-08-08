@@ -13,6 +13,7 @@
  * pas. L'aperçu est la seule chose qui rend l'opération réversible avant coup.
  */
 import { supabase } from "./supabase";
+import { detailErreur } from "./erreurs";
 import { t } from "../i18n/fr-BE";
 import { parseDelimited } from "../csv";
 import { lireXlsx } from "../xlsx";
@@ -222,7 +223,14 @@ export async function analyserLignes(brutes: string[][]): Promise<Analyse> {
 
 /** Entrée CSV — le format plat que l'informatique utilise aujourd'hui. */
 export async function analyserFichier(texte: string): Promise<Analyse> {
-  return analyserLignes(parseDelimited(texte));
+  try {
+    return await analyserLignes(parseDelimited(texte));
+  } catch (err) {
+    // Rien de reconnu : montrer le DÉBUT du fichier. C'est ce qui distingue en
+    // un coup d'œil un vrai CSV d'une page web enregistrée sous un nom de
+    // classeur — cas courant d'un téléchargement qui a mal tourné.
+    throw new Error(`${detailErreur(err)} ${t.passages.debutFichier(texte.slice(0, 120))}`);
+  }
 }
 
 /**
@@ -235,7 +243,20 @@ export async function analyserFichier(texte: string): Promise<Analyse> {
  * fabriqué autrement reste lisible plutôt que rejeté.
  */
 export async function analyserClasseur(buffer: ArrayBuffer): Promise<Analyse> {
-  return analyserLignes(await lireXlsx(buffer, FEUILLE));
+  let info: { feuilles: string[]; retenue: string } | null = null;
+  const lignes = await lireXlsx(buffer, FEUILLE, (i) => (info = i));
+  try {
+    return await analyserLignes(lignes);
+  } catch (err) {
+    // Le classeur s'est ouvert mais on n'y a rien reconnu : dire QUELLE feuille
+    // a été lue et lesquelles existaient. Sans ça, l'utilisateur ne peut pas
+    // savoir s'il a pris le mauvais fichier ou si la feuille a été renommée.
+    const i = info as { feuilles: string[]; retenue: string } | null;
+    if (!i) throw err;
+    throw new Error(
+      `${detailErreur(err)} ${t.passages.feuilleLue(i.retenue, i.feuilles.join(", "))}`
+    );
+  }
 }
 
 export type Bilan = { creees: number; confirmees: number; ignorees: number };

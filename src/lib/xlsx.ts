@@ -28,6 +28,41 @@
 /** Fin du répertoire central : la signature à chercher en remontant. */
 const EOCD = 0x06054b50;
 
+const hexa = (octets: Uint8Array, n: number) =>
+  [...octets.subarray(0, n)].map((o) => o.toString(16).padStart(2, "0")).join(" ");
+
+const debute = (o: Uint8Array, ...signature: number[]) =>
+  signature.every((s, i) => o[i] === s);
+
+/**
+ * Ce qu'on a reçu, décidé sur le CONTENU et jamais sur l'extension.
+ *
+ * Un fichier arrive renommé, sans extension, ou avec la mauvaise plus souvent
+ * qu'on ne le croit — et sur téléphone, ce que rend le sélecteur de fichiers
+ * n'a pas toujours grand-chose à voir avec ce que l'utilisateur croit avoir
+ * choisi. Les formats qu'on sait nommer sont refusés en le disant : un message
+ * « fichier invalide » ne laisse qu'une chose à faire, réessayer à l'identique.
+ */
+export function natureDuFichier(buffer: ArrayBuffer): "classeur" | "texte" {
+  const o = new Uint8Array(buffer);
+  if (o.length === 0)
+    throw new Error(
+      "Le fichier est vide (0 octet). S'il vient d'un cloud (OneDrive, Drive, iCloud), " +
+        "ouvre-le une fois pour le télécharger sur l'appareil, puis réessaie."
+    );
+  if (debute(o, 0x50, 0x4b)) return "classeur";
+  if (debute(o, 0xd0, 0xcf, 0x11, 0xe0))
+    throw new Error(
+      "C'est un ancien format Excel (.xls). Ouvre-le dans Excel et enregistre-le en .xlsx " +
+        "(Fichier → Enregistrer sous → « Classeur Excel »)."
+    );
+  if (debute(o, 0x25, 0x50, 0x44, 0x46))
+    throw new Error("C'est un PDF, pas un classeur Excel ni un CSV.");
+  if (debute(o, 0x89, 0x50, 0x4e, 0x47) || debute(o, 0xff, 0xd8, 0xff))
+    throw new Error("C'est une image, pas un classeur Excel ni un CSV.");
+  return "texte";
+}
+
 async function inflate(donnees: Uint8Array, methode: number): Promise<Uint8Array> {
   if (methode === 0) return donnees; // stocké tel quel
   if (methode !== 8) throw new Error(`Compression ZIP non gérée : ${methode}`);
@@ -51,7 +86,14 @@ export async function ouvrirZip(buffer: ArrayBuffer): Promise<Map<string, Uint8A
       break;
     }
   }
-  if (eocd < 0) throw new Error("Ce fichier n'est pas un classeur Excel valide.");
+  // On sait déjà que le fichier commence par « PK » : s'il n'a pas de fin de
+  // répertoire central, c'est une archive tronquée — typiquement un transfert
+  // interrompu ou un fichier encore en cours de synchronisation.
+  if (eocd < 0)
+    throw new Error(
+      `Le classeur est incomplet ou abîmé (${octets.length} octets, ` +
+        `commençant par ${hexa(octets, 4)}). Retélécharge-le et réessaie.`
+    );
 
   const nombre = vue.getUint16(eocd + 10, true);
   let position = vue.getUint32(eocd + 16, true);
@@ -170,7 +212,12 @@ function indiceColonne(reference: string): number {
  * correspondance, on prend la première feuille — un fichier venu d'ailleurs
  * reste lisible.
  */
-export async function lireXlsx(buffer: ArrayBuffer, nomFeuille?: string): Promise<string[][]> {
+export async function lireXlsx(
+  buffer: ArrayBuffer,
+  nomFeuille?: string,
+  /** Reçoit les noms de feuilles et celle retenue — de quoi expliquer un échec. */
+  rapport?: (info: { feuilles: string[]; retenue: string }) => void
+): Promise<string[][]> {
   const fichiers = await ouvrirZip(buffer);
   const decodeur = new TextDecoder();
   const lire = (nom: string) => {
@@ -194,6 +241,7 @@ export async function lireXlsx(buffer: ArrayBuffer, nomFeuille?: string): Promis
   const voulue = nomFeuille
     ? (feuilles.find((f) => simplifier(f.nom) === simplifier(nomFeuille)) ?? feuilles[0])
     : feuilles[0];
+  rapport?.({ feuilles: feuilles.map((f) => f.nom), retenue: voulue.nom });
   const chemin = voulue.cible.replace(/^\/?(xl\/)?/, "xl/");
 
   const chaines = [...lire("xl/sharedStrings.xml").matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) =>

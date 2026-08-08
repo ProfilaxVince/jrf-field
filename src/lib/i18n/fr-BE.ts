@@ -559,6 +559,10 @@ export const t = {
     doneIgnored: (n: number) => `${n} ligne${n > 1 ? "s" : ""} déjà connue${n > 1 ? "s" : ""}, ignorée${n > 1 ? "s" : ""}`,
     analyseError:
       "Le fichier n'a pas pu être lu. Vérifie qu'il s'agit bien du classeur Excel (.xlsx) ou d'un CSV.",
+    erreurFichier: (nom: string, detail: string) => `« ${nom} » — ${detail}`,
+    debutFichier: (debut: string) => `Début du fichier reçu : « ${debut.trim()} »`,
+    feuilleLue: (retenue: string, toutes: string) =>
+      `Feuille lue : « ${retenue} ». Feuilles du classeur : ${toutes}.`,
     enteteIntrouvable:
       "Aucune colonne reconnue dans ce fichier. Attendu : une ligne d'en-têtes avec au moins « magasin » et « date ». C'est peut-être le mauvais fichier, ou l'informatique a renommé les colonnes.",
     applyError: "L'enregistrement a échoué. Rien n'a été perdu : recommence.",

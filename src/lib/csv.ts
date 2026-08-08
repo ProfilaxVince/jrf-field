@@ -31,6 +31,22 @@ export function telechargerCsv(nomFichier: string, contenu: string): void {
 }
 
 /**
+ * Le texte d'un fichier déposé, quel que soit son encodage.
+ *
+ * `File.text()` décode toujours en UTF-8. Or l'Excel d'un poste belge
+ * enregistre ses CSV en Windows-1252 : les accents arrivent alors en `�`, et
+ * un magasin sur deux cesse de concorder avec son nom en base. On décode donc
+ * strictement en UTF-8 d'abord, et on retombe sur Windows-1252 si ça échoue.
+ */
+export function texteDe(buffer: ArrayBuffer): string {
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+  } catch {
+    return new TextDecoder("windows-1252").decode(buffer);
+  }
+}
+
+/**
  * Lecture d'un CSV réel : séparateur détecté (`;` d'un export Excel belge ou
  * `,`), guillemets gérés, BOM retiré. Un fichier de magasins contient des
  * adresses avec des virgules — un `split(",")` naïf décale toutes les colonnes
