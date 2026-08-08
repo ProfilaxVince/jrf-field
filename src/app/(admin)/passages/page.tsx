@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { t } from "@/lib/i18n/fr-BE";
 import { detailErreur } from "@/lib/data/erreurs";
 import {
+  analyserClasseur,
   analyserFichier,
   appliquerImport,
   type Analyse,
@@ -34,24 +35,30 @@ export default function ImportPassagesPage() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
 
-  function lireFichier(e: React.ChangeEvent<HTMLInputElement>) {
+  /**
+   * Le classeur est lu tel quel, sans conversion préalable : l'informatique
+   * enregistre normalement et envoie. Le CSV reste accepté — c'est le format
+   * qu'elle utilise aujourd'hui, et rien n'oblige à le lui retirer d'un coup.
+   */
+  async function lireFichier(e: React.ChangeEvent<HTMLInputElement>) {
     const fichier = e.target.files?.[0];
     e.target.value = "";
     if (!fichier) return;
     setBilan(null);
     setErreur(null);
-    const lecteur = new FileReader();
-    lecteur.onload = async () => {
-      setEnCours(true);
-      try {
-        setAnalyse(await analyserFichier(String(lecteur.result ?? "")));
-      } catch (err) {
-        setErreur(detailErreur(err) || t.passages.analyseError);
-      } finally {
-        setEnCours(false);
-      }
-    };
-    lecteur.readAsText(fichier);
+    setEnCours(true);
+    try {
+      const classeur = /\.xlsx?$/i.test(fichier.name);
+      setAnalyse(
+        classeur
+          ? await analyserClasseur(await fichier.arrayBuffer())
+          : await analyserFichier(await fichier.text())
+      );
+    } catch (err) {
+      setErreur(detailErreur(err) || t.passages.analyseError);
+    } finally {
+      setEnCours(false);
+    }
   }
 
   async function valider() {
@@ -103,7 +110,7 @@ export default function ImportPassagesPage() {
             <p className="text-base leading-7 text-neutral-700">{t.passages.pickHelp}</p>
             <input
               type="file"
-              accept=".csv,text/csv"
+              accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
               onChange={lireFichier}
               className="min-h-[44px] w-full text-base"
             />

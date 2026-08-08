@@ -118,6 +118,69 @@ export type LigneBrute = {
   id_ligne: string;
 };
 
+/**
+ * Les noms de colonne acceptés. L'informatique n'écrira pas forcément les
+ * nôtres — le classeur modèle le fait, un export Odoo non — et refuser un
+ * fichier pour un intitulé est une dispute qu'on ne veut pas avoir chaque
+ * jeudi. Le premier alias trouvé gagne.
+ */
+export const ALIAS: Record<keyof LigneBrute, string[]> = {
+  reference_jrf: ["reference_jrf", "reference", "ref_jrf", "ref", "code_jrf"],
+  code_magasin: ["code_magasin", "code_odoo", "magasin_code", "store_code"],
+  nom_magasin: ["nom_magasin", "magasin", "nom", "store"],
+  commercial: ["commercial", "vendeur", "utilisateur", "user", "employe", "employee"],
+  date_visite: ["date_visite", "date", "jour", "date_passage"],
+  heure_arrivee: ["heure_arrivee", "arrivee", "debut", "heure_debut", "check_in"],
+  heure_depart: ["heure_depart", "depart", "fin", "heure_fin", "check_out"],
+  id_ligne: ["id_ligne", "id", "identifiant", "line_id", "odoo_id"],
+};
+
+export type Positions = Record<keyof LigneBrute, number>;
+
+const cleEntete = (e: string) =>
+  e.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+
+/** Les colonnes reconnues sur une ligne, si on la lisait comme un en-tête. */
+function positionsDe(cellules: string[]): Positions {
+  const entetes = cellules.map(cleEntete);
+  return Object.fromEntries(
+    (Object.keys(ALIAS) as (keyof LigneBrute)[]).map((champ) => [
+      champ,
+      ALIAS[champ].map((a) => entetes.indexOf(cleEntete(a))).find((i) => i >= 0) ?? -1,
+    ])
+  ) as Positions;
+}
+
+/**
+ * Où commence le tableau ?
+ *
+ * Le classeur modèle porte deux lignes de consigne, puis une ligne vide, et
+ * ses en-têtes seulement en ligne 4. Prendre la première ligne pour un en-tête
+ * — ce que faisait la version précédente — n'y reconnaissait AUCUNE colonne et
+ * refusait le fichier entier sans dire pourquoi. Le défaut valait aussi pour le
+ * CSV exporté depuis ce classeur : il n'a jamais pu fonctionner.
+ *
+ * On cherche donc l'en-tête au lieu de le supposer : parmi les quinze
+ * premières lignes, celle qui reconnaît le plus de colonnes, et au moins deux
+ * pour ne pas confondre avec une ligne de données. Un fichier plat, en-têtes en
+ * première ligne, tombe sur l'indice 0 — le format utilisé aujourd'hui par
+ * l'informatique continue de passer.
+ */
+export function trouverEntete(
+  lignes: string[][]
+): { indice: number; position: Positions } | null {
+  let meilleur: { indice: number; position: Positions; score: number } | null = null;
+  for (let i = 0; i < Math.min(lignes.length, 15); i++) {
+    const position = positionsDe(lignes[i]);
+    const score = Object.values(position).filter((p) => p >= 0).length;
+    if (score >= 2 && (!meilleur || score > meilleur.score)) {
+      meilleur = { indice: i, position, score };
+    }
+  }
+  return meilleur;
+}
+
 export type LigneNormalisee = {
   ligne: number;
   brut: LigneBrute;

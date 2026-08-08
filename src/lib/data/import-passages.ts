@@ -13,10 +13,13 @@
  * pas. L'aperçu est la seule chose qui rend l'opération réversible avant coup.
  */
 import { supabase } from "./supabase";
+import { t } from "../i18n/fr-BE";
 import { parseDelimited } from "../csv";
+import { lireXlsx } from "../xlsx";
 import { listStores, type StoreRow } from "./stores";
 import { listAppUsers, type AppUserRow } from "./users";
 import {
+  ALIAS,
   cleDeReprise,
   instant,
   lireDate,
@@ -24,11 +27,15 @@ import {
   nomConcorde,
   normaliser,
   separerLibelleMagasin,
+  trouverEntete,
   type LigneBrute,
   type LigneNormalisee,
 } from "../domain/import-passages";
 
 export const SOURCE = "excel-it";
+
+/** Le nom de la feuille du classeur modèle. */
+export const FEUILLE = "Passages";
 
 export type Verdict =
   | "creation"        // aucune visite prévue ce jour-là : on en crée une, déjà faite
@@ -59,21 +66,6 @@ export type Analyse = {
   prevuesNonVues: { id: string; date: string; magasin: string; commercial: string }[];
 };
 
-const ALIAS: Record<keyof LigneBrute, string[]> = {
-  reference_jrf: ["reference_jrf", "reference", "ref_jrf", "ref", "code_jrf"],
-  code_magasin: ["code_magasin", "code_odoo", "magasin_code", "store_code"],
-  nom_magasin: ["nom_magasin", "magasin", "nom", "store"],
-  commercial: ["commercial", "vendeur", "utilisateur", "user", "employe", "employee"],
-  date_visite: ["date_visite", "date", "jour", "date_passage"],
-  heure_arrivee: ["heure_arrivee", "arrivee", "debut", "heure_debut", "check_in"],
-  heure_depart: ["heure_depart", "depart", "fin", "heure_fin", "check_out"],
-  id_ligne: ["id_ligne", "id", "identifiant", "line_id", "odoo_id"],
-};
-
-const cleEntete = (e: string) =>
-  e.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-
 /** Le fichier peut nommer un commercial par son surnom OU son adresse e-mail. */
 function trouverCommercial(valeur: string, users: AppUserRow[]): AppUserRow | null {
   const v = normaliser(valeur);
@@ -85,17 +77,26 @@ function trouverCommercial(valeur: string, users: AppUserRow[]): AppUserRow | nu
   );
 }
 
-export async function analyserFichier(texte: string): Promise<Analyse> {
-  const brutes = parseDelimited(texte);
-  if (brutes.length < 2) return { lignes: [], prevuesNonVues: [] };
-
-  const entetes = (brutes.shift() as string[]).map(cleEntete);
-  const position = Object.fromEntries(
-    (Object.keys(ALIAS) as (keyof LigneBrute)[]).map((champ) => [
-      champ,
-      ALIAS[champ].map((a) => entetes.indexOf(cleEntete(a))).find((i) => i >= 0) ?? -1,
-    ])
-  ) as Record<keyof LigneBrute, number>;
+/**
+ * Analyse un tableau déjà découpé — feuille `.xlsx` ou CSV, la suite ne sait
+ * pas d'où il vient. C'est ce qui permettra de brancher un jour un connecteur
+ * Odoo sans toucher à une seule ligne de ce qui suit.
+ */
+export async function analyserLignes(brutes: string[][]): Promise<Analyse> {
+  const entete = trouverEntete(brutes);
+  // Un aperçu vide ne dit rien : l'utilisateur ne saurait pas s'il a pris le
+  // mauvais fichier ou si l'informatique a renommé une colonne. On le dit.
+  if (!entete) throw new Error(t.passages.enteteIntrouvable);
+  const { position } = entete;
+  // Le classeur modèle offre 120 lignes prêtes à remplir, toutes préformatées :
+  // elles existent dans le fichier même vides. Sans ce filtre, l'aperçu affiche
+  // cent refus « magasin absent » et le vrai contenu devient introuvable.
+  // Le numéro conservé est celui de la ligne DANS LE FICHIER — c'est celui que
+  // Gérardo doit retrouver à l'écran pour corriger.
+  const corps = brutes
+    .slice(entete.indice + 1)
+    .map((cols, i) => ({ cols, ligne: entete.indice + 2 + i }))
+    .filter(({ cols }) => cols.some((v) => v.trim().length > 0));
 
   const [magasins, users, correspondances] = await Promise.all([
     listStores(),
@@ -110,7 +111,7 @@ export async function analyserFichier(texte: string): Promise<Analyse> {
   );
 
   // Les lignes normalisées d'abord : il faut les clés pour interroger la base.
-  const normalisees: LigneNormalisee[] = brutes.map((cols, i) => {
+  const normalisees: LigneNormalisee[] = corps.map(({ cols, ligne }) => {
     const lire = (c: keyof LigneBrute) =>
       position[c] >= 0 ? (cols[position[c]] ?? "").trim() : "";
     const brut = Object.fromEntries(
@@ -126,7 +127,7 @@ export async function analyserFichier(texte: string): Promise<Analyse> {
       brut.nom_magasin = combine.nom;
     }
     return {
-      ligne: i + 2,
+      ligne,
       brut,
       date: lireDate(brut.date_visite),
       arrivee: lireHeure(brut.heure_arrivee),
@@ -217,6 +218,24 @@ export async function analyserFichier(texte: string): Promise<Analyse> {
         commercial: users.find((u) => u.id === v.user_id)?.nickname ?? "",
       })),
   };
+}
+
+/** Entrée CSV — le format plat que l'informatique utilise aujourd'hui. */
+export async function analyserFichier(texte: string): Promise<Analyse> {
+  return analyserLignes(parseDelimited(texte));
+}
+
+/**
+ * Entrée classeur. La feuille est prise PAR SON NOM, et c'est tout l'intérêt :
+ * « Enregistrer sous → CSV » n'exporte que la feuille active, si bien qu'un
+ * classeur à cinq feuilles finit tôt ou tard par nous arriver sous la forme de
+ * la liste des 182 magasins. Ici la question ne se pose pas.
+ *
+ * Repli sur la première feuille si « Passages » n'existe pas : un classeur
+ * fabriqué autrement reste lisible plutôt que rejeté.
+ */
+export async function analyserClasseur(buffer: ArrayBuffer): Promise<Analyse> {
+  return analyserLignes(await lireXlsx(buffer, FEUILLE));
 }
 
 export type Bilan = { creees: number; confirmees: number; ignorees: number };

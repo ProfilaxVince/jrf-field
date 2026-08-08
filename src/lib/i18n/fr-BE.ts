@@ -538,7 +538,7 @@ export const t = {
       "Le fichier transmis chaque jeudi par l'informatique. Rien n'est enregistré avant que tu aies vu l'aperçu.",
     pick: "Choisir le fichier",
     pickHelp:
-      "Un fichier CSV, tel qu'Excel l'enregistre avec « Enregistrer sous → CSV ». Les colonnes attendues sont décrites dans le classeur modèle remis à l'informatique.",
+      "Le classeur Excel (.xlsx) transmis par l'informatique, tel quel : rien à convertir. La feuille « Passages » est lue automatiquement. Un fichier CSV reste accepté.",
     previewTitle: (n: number) => `Aperçu — ${n} ligne${n > 1 ? "s" : ""} lue${n > 1 ? "s" : ""}`,
     countCreation: (n: number) => `${n} passage${n > 1 ? "s" : ""} à ajouter (aucune visite n'était prévue ce jour-là)`,
     countConfirmation: (n: number) => `${n} visite${n > 1 ? "s" : ""} prévue${n > 1 ? "s" : ""} à marquer comme faite${n > 1 ? "s" : ""}`,
@@ -557,7 +557,10 @@ export const t = {
     doneCreated: (n: number) => `${n} passage${n > 1 ? "s" : ""} ajouté${n > 1 ? "s" : ""}`,
     doneConfirmed: (n: number) => `${n} visite${n > 1 ? "s" : ""} marquée${n > 1 ? "s" : ""} comme faite${n > 1 ? "s" : ""}`,
     doneIgnored: (n: number) => `${n} ligne${n > 1 ? "s" : ""} déjà connue${n > 1 ? "s" : ""}, ignorée${n > 1 ? "s" : ""}`,
-    analyseError: "Le fichier n'a pas pu être lu. Vérifie qu'il s'agit bien d'un CSV.",
+    analyseError:
+      "Le fichier n'a pas pu être lu. Vérifie qu'il s'agit bien du classeur Excel (.xlsx) ou d'un CSV.",
+    enteteIntrouvable:
+      "Aucune colonne reconnue dans ce fichier. Attendu : une ligne d'en-têtes avec au moins « magasin » et « date ». C'est peut-être le mauvais fichier, ou l'informatique a renommé les colonnes.",
     applyError: "L'enregistrement a échoué. Rien n'a été perdu : recommence.",
     verdicts: {
       creation: "À ajouter",
