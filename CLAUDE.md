@@ -161,6 +161,11 @@ Il travaille depuis le PC de son employeur, sans ligne de commande. **Tout ce qu
   colonnes en direct depuis l'application.
 - **L'import des passages n'écrit rien avant l'aperçu.** Quatre verdicts par ligne, et
   les visites prévues absentes du fichier sont listées mais JAMAIS annulées d'office.
+- **L'écran Passages lit le `.xlsx` tel quel** (`src/lib/xlsx.ts`, sans dépendance), et
+  prend la feuille « Passages » PAR SON NOM : « Enregistrer sous → CSV » n'exporte que
+  la feuille active, donc l'IT nous aurait envoyé un jour la liste des 182 magasins.
+  Le CSV reste accepté. **L'en-tête est cherché, jamais supposé en ligne 1** — le
+  classeur modèle le place en ligne 4.
 - **Chantier en attente** : l'informatique de Jacques Remy doit répondre au questionnaire
   ([docs/questions-it.pdf](docs/questions-it.pdf), source HTML à côté). Deux questions
   restent aussi pour Vincent : leur Excel sort-il d'un export Odoo ou est-il tapé à la
