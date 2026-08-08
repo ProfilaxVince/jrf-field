@@ -180,6 +180,10 @@ begin
 end;
 $$;
 
+-- Rejouable : sans ce `drop`, un second passage échouait sur « trigger
+-- "audit_store_revenues" already exists » et faisait tout retomber, puisque
+-- le SQL Editor exécute le script en UNE transaction.
+drop trigger if exists audit_store_revenues on store_revenues;
 create trigger audit_store_revenues after insert or update or delete on store_revenues
   for each row execute function log_audit();
 
