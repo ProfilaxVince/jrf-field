@@ -23,6 +23,7 @@ import {
   lireHeure,
   nomConcorde,
   normaliser,
+  separerLibelleMagasin,
   type LigneBrute,
   type LigneNormalisee,
 } from "../domain/import-passages";
@@ -115,6 +116,15 @@ export async function analyserFichier(texte: string): Promise<Analyse> {
     const brut = Object.fromEntries(
       (Object.keys(ALIAS) as (keyof LigneBrute)[]).map((c) => [c, lire(c)])
     ) as LigneBrute;
+
+    // Classeur modèle : le magasin arrive en une seule colonne,
+    // « ITM-001 — Intermarché Anderlecht ». On la redécoupe, sans écraser une
+    // référence déjà fournie par un fichier au format plat.
+    const combine = separerLibelleMagasin(brut.nom_magasin);
+    if (combine.reference && !brut.reference_jrf) {
+      brut.reference_jrf = combine.reference;
+      brut.nom_magasin = combine.nom;
+    }
     return {
       ligne: i + 2,
       brut,

@@ -53,6 +53,22 @@ export function nomConcorde(nomFichier: string, nomMagasin: string): boolean {
 }
 
 /**
+ * Le classeur modèle propose le magasin en UNE colonne, « ITM-001 — Intermarché
+ * Anderlecht », parce qu'une liste déroulante ne peut porter qu'une valeur et
+ * qu'il faut à la fois la référence (pour la machine) et le nom (pour l'humain
+ * qui choisit).
+ *
+ * On sépare ici. Le tiret cadratin est celui que le générateur écrit ; on
+ * accepte aussi le tiret simple, parce qu'Excel et les copier-coller le
+ * remplacent parfois. Ce qui ne ressemble pas à une référence est rendu tel
+ * quel comme nom : un fichier au format plat continue de fonctionner.
+ */
+export function separerLibelleMagasin(valeur: string): { reference: string; nom: string } {
+  const m = valeur.trim().match(/^([A-Z]{3}-\d{3})\s*[—–-]\s*(.+)$/);
+  return m ? { reference: m[1], nom: m[2].trim() } : { reference: "", nom: valeur.trim() };
+}
+
+/**
  * Date écrite comme un humain la tape : JJ/MM/AAAA, JJ-MM-AAAA, ou l'ISO que
  * produit un export. Renvoie `null` plutôt qu'une date fausse — un passage
  * daté au mauvais jour est pire qu'un passage refusé.
