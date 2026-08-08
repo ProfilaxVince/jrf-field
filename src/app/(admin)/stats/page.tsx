@@ -17,9 +17,21 @@ import {
   type SuiviMontage,
 } from "@/lib/data/stats";
 import { listEvolutions, type EvolutionRow } from "@/lib/data/revenus";
+import { detailErreur } from "@/lib/data/erreurs";
 import { formatDecimal, formatNombre, formatPourcent } from "@/lib/format";
 import { formatDate } from "@/lib/dates";
 import { t } from "@/lib/i18n/fr-BE";
+
+/** Dans l'ordre des lectures : ce qui a échoué doit être NOMMÉ à l'écran. */
+const SOURCES = [
+  "Où en est le parc",
+  "Part du parc vue chaque mois",
+  "Effort par importance",
+  "Écarts de fréquence",
+  "Suivi des montages",
+  "Rotation des montages",
+  "Évolution du CA",
+];
 
 const EUR = new Intl.NumberFormat("fr-BE", {
   style: "currency",
@@ -58,32 +70,48 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
 
+  /**
+   * Sept lectures indépendantes, résolues INDÉPENDAMMENT.
+   *
+   * `Promise.all` rejetait au premier échec : une seule vue en défaut vidait
+   * les sept blocs, et l'écran affichait « 0 magasin suivi » — un chiffre faux,
+   * pas un chiffre manquant. Six blocs sur sept restent affichables ; les
+   * masquer tous parce que le septième a échoué, c'est fabriquer l'écran vide
+   * que le produit s'interdit.
+   *
+   * Et l'erreur est rapportée TELLE QUELLE. « Vérifie ta connexion » était une
+   * hypothèse déguisée en diagnostic : une vue absente, une policy manquante ou
+   * une requête trop lente donnent le même écran, et le `hint` de Postgres —
+   * celui qui contient la correction — était jeté.
+   */
   useEffect(() => {
     let monte = true;
     (async () => {
-      try {
-        const [p, c, e, f, m, r, ev] = await Promise.all([
-          statsParc(),
-          couvertureMensuelle(),
-          effortParTier(),
-          pireEcartFrequence(),
-          suiviMontage(),
-          rotationMontage(),
-          listEvolutions(),
-        ]);
-        if (!monte) return;
-        setParc(p);
-        setCouverture(c);
-        setEffort(e);
-        setFrequences(f);
-        setMontages(m);
-        setRotation(r);
-        setEvolutions(ev);
-      } catch {
-        if (monte) setErreur(t.stats.loadError);
-      } finally {
-        if (monte) setLoading(false);
-      }
+      const resultats = await Promise.allSettled([
+        statsParc(),
+        couvertureMensuelle(),
+        effortParTier(),
+        pireEcartFrequence(),
+        suiviMontage(),
+        rotationMontage(),
+        listEvolutions(),
+      ]);
+      if (!monte) return;
+
+      const [p, c, e, f, m, r, ev] = resultats;
+      if (p.status === "fulfilled") setParc(p.value);
+      if (c.status === "fulfilled") setCouverture(c.value);
+      if (e.status === "fulfilled") setEffort(e.value);
+      if (f.status === "fulfilled") setFrequences(f.value);
+      if (m.status === "fulfilled") setMontages(m.value);
+      if (r.status === "fulfilled") setRotation(r.value);
+      if (ev.status === "fulfilled") setEvolutions(ev.value);
+
+      const echecs = resultats
+        .map((res, i) => (res.status === "rejected" ? `${SOURCES[i]} : ${detailErreur(res.reason)}` : ""))
+        .filter(Boolean);
+      setErreur(echecs.length ? `${t.stats.loadError} ${echecs.join(" · ")}` : null);
+      setLoading(false);
     })();
     return () => {
       monte = false;
@@ -144,7 +172,10 @@ export default function StatsPage() {
           <p className="mt-1 text-base text-neutral-700">{t.stats.subtitle}</p>
         </div>
 
-        {erreur && <p className="text-base text-state-critical">{erreur}</p>}
+        {/* `break-words` : le message porte maintenant le texte brut de
+            Postgres, qui contient des identifiants d'un seul tenant plus longs
+            qu'un écran de téléphone. */}
+        {erreur && <p className="text-base break-words text-state-critical">{erreur}</p>}
 
         <Card>
           <CardHeader>

@@ -489,7 +489,7 @@ export const t = {
       `${mois} : ${faits} faits sur ${prevus} prévus`,
     montageCeded: (n: number) => `${n} cédés à une urgence`,
     empty: "Pas encore assez de visites pour afficher des chiffres.",
-    loadError: "Impossible de charger les chiffres. Vérifie ta connexion.",
+    loadError: "Une partie des chiffres n'a pas pu être chargée.",
     export: "Télécharger en CSV",
   },
   incidents: {
